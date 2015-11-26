@@ -19,7 +19,7 @@ Parsing the N5 poset relation and printing its covers: passed.
 Finished in 5.73 seconds.
 ```
 
-I have also included small programs used for my research, you can
+I have also included a few small programs used for my research, you can
 disregard those.
 
 ## Internal structure
@@ -28,9 +28,9 @@ Every mathematical object is represented internally by a boolean tensor
 (multidimensional matrix). The entries in these tensors are either 
 concrete boolean values or boolean terms. You can use tensor operations
 (reshaping, contractions, folds, maps, etc.) to create more complicated
-tensors and boolean values from boolean variables. A problem is expressed
-as a function that takes some boolean tensors as input and calculates 
-a boolean value as output, in an essence it is just a huge boolean formula. 
+tensors and boolean values. A problem is expressed as a function that 
+takes some boolean tensors as input and calculates a boolean value as 
+output, in essence it is just a huge boolean formula. 
 You can use problem instances to check whether a concrete boolean
 tensor has the given property, or use SAT solvers to find one or all satisfying
 boolean assignments. The `core` and `solvers` packages contain the
@@ -42,12 +42,16 @@ boolean matrix R. This relation is transitive if and only if R·R→R, where
 the matrix multiplication is evaluated using disjunction and conjunction 
 (instead of boolean addition and product) and the arrow is the logical 
 element-wise implication. Operations, equations and other mathematical
-objects and properties can be also expressed using tensors and tensor
+objects and properties can also be expressed using tensors and tensor
 operations, and these are captured in this package. You should use these
-and resort to raw tensor manipulation when you cannot express your problem
-otherwise.
+classes in your program and resort to raw tensor manipulation only when you 
+cannot express your problem otherwise.
 
 ## License
 
 The code is licensed under the GNU [GPL](LICENSE) version 2 or later. 
+Internally, the code uses the SAT4J jar package for sat solving (licensed 
+under the LGPL) or produces a DIMACS file which can be parsed and solved 
+by external SAT solvers, such as MiniSat.
+
 If you use this code for anything serious in your research, please let me know.
