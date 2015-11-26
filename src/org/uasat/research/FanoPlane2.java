@@ -46,22 +46,22 @@ public class FanoPlane2 {
 
 			List<Tensor<ELEM>> xs = Tensor.unstack(t);
 
-			b = alg.and(b, alg.lexless(xs.get(0), xs.get(1)));
-			b = alg.and(b, alg.lexless(xs.get(0), xs.get(2)));
-			b = alg.and(b, alg.lexless(xs.get(0), xs.get(3)));
-			b = alg.and(b, alg.lexless(xs.get(0), xs.get(4)));
-			b = alg.and(b, alg.lexless(xs.get(0), xs.get(5)));
-			b = alg.and(b, alg.lexless(xs.get(0), xs.get(6)));
+			b = alg.and(b, alg.lexLess(xs.get(0), xs.get(1)));
+			b = alg.and(b, alg.lexLess(xs.get(0), xs.get(2)));
+			b = alg.and(b, alg.lexLess(xs.get(0), xs.get(3)));
+			b = alg.and(b, alg.lexLess(xs.get(0), xs.get(4)));
+			b = alg.and(b, alg.lexLess(xs.get(0), xs.get(5)));
+			b = alg.and(b, alg.lexLess(xs.get(0), xs.get(6)));
 
-			b = alg.and(b, alg.lexless(xs.get(1), xs.get(2)));
-			b = alg.and(b, alg.lexless(xs.get(1), xs.get(3)));
-			b = alg.and(b, alg.lexless(xs.get(1), xs.get(4)));
-			b = alg.and(b, alg.lexless(xs.get(1), xs.get(5)));
-			b = alg.and(b, alg.lexless(xs.get(1), xs.get(6)));
+			b = alg.and(b, alg.lexLess(xs.get(1), xs.get(2)));
+			b = alg.and(b, alg.lexLess(xs.get(1), xs.get(3)));
+			b = alg.and(b, alg.lexLess(xs.get(1), xs.get(4)));
+			b = alg.and(b, alg.lexLess(xs.get(1), xs.get(5)));
+			b = alg.and(b, alg.lexLess(xs.get(1), xs.get(6)));
 
-			b = alg.and(b, alg.lexless(xs.get(2), xs.get(4)));
-			b = alg.and(b, alg.lexless(xs.get(2), xs.get(5)));
-			b = alg.and(b, alg.lexless(xs.get(2), xs.get(6)));
+			b = alg.and(b, alg.lexLess(xs.get(2), xs.get(4)));
+			b = alg.and(b, alg.lexLess(xs.get(2), xs.get(5)));
+			b = alg.and(b, alg.lexLess(xs.get(2), xs.get(6)));
 
 			return b;
 		}

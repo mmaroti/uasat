@@ -20,6 +20,7 @@ package org.uasat.math;
 
 import java.text.*;
 import java.util.*;
+
 import org.uasat.core.*;
 import org.uasat.solvers.*;
 
@@ -149,6 +150,54 @@ public class Validation {
 		verify("The number of essential binary relations on 3", count, 462);
 	}
 
+	void checkNonIsomorphicDigraphs() {
+		final List<Permutation<Boolean>> perms = new ArrayList<Permutation<Boolean>>();
+		perms.addAll(Permutation.transpositions(3));
+		perms.addAll(Permutation.threeCycles(3));
+
+		BoolProblem problem = new BoolProblem(new int[] { 3, 3 }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
+				BOOL b = alg.TRUE;
+				for (Permutation<Boolean> p : perms) {
+					Permutation<BOOL> perm = Permutation.lift(alg, p);
+					b = alg.and(b, rel.isLexLeq(rel.conjugate(perm)));
+				}
+				return b;
+			}
+		};
+
+		int count = problem.solveAll(solver).get(0).getLastDim();
+		verify("A000595 the number of non-isomorphic 3-element digraphs",
+				count, 104);
+	}
+
+	void checkNonIsomorphicGroupoids() {
+		final List<Permutation<Boolean>> perms = new ArrayList<Permutation<Boolean>>();
+		perms.addAll(Permutation.transpositions(3));
+		perms.addAll(Permutation.threeCycles(3));
+
+		BoolProblem problem = new BoolProblem(new int[] { 3, 3, 3 }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
+				BOOL b = op.isOperation();
+				for (Permutation<Boolean> p : perms) {
+					Permutation<BOOL> perm = Permutation.lift(alg, p);
+					b = alg.and(b, op.isLexLeq(op.conjugate(perm)));
+				}
+				return b;
+			}
+		};
+
+		int count = problem.solveAll(solver).get(0).getLastDim();
+		verify("A001329 the number of non-isomorphic 3-element groupoids",
+				count, 3330);
+	}
+
 	void verify(String msg, String printout, String expected) {
 		String passed;
 		if (printout.equals(expected))
@@ -182,7 +231,9 @@ public class Validation {
 		checkEquivalences();
 		checkPermutations();
 		checkAntiChains();
+		checkNonIsomorphicDigraphs();
 		checkPartialOrders();
+		checkNonIsomorphicGroupoids();
 		checkAlternations();
 		checkLinearExtensions();
 		checkEssentialRelations();

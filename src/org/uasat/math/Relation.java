@@ -55,8 +55,9 @@ public final class Relation<BOOL> {
 		return new Relation<Boolean>(BoolAlgebra.INSTANCE, tensor);
 	}
 
-	public static <BOOL> Relation<BOOL> wrap(BoolAlgebra<BOOL> alg,
-			Tensor<BOOL> tensor) {
+	public static <BOOL> Relation<BOOL> lift(BoolAlgebra<BOOL> alg,
+			Relation<Boolean> rel) {
+		Tensor<BOOL> tensor = Tensor.map(alg.LIFT, rel.tensor);
 		return new Relation<BOOL>(alg, tensor);
 	}
 
@@ -327,6 +328,33 @@ public final class Relation<BOOL> {
 		}
 	}
 
+	public Relation<BOOL> conjugate(Permutation<BOOL> perm) {
+		assert perm.getAlg() == getAlg() && perm.getSize() == getSize();
+		Contract<BOOL> c = Contract.logical(alg);
+
+		int a = getArity();
+		c.add(tensor, Contract.range(0, a));
+		for (int i = 0; i < a; i++)
+			c.add(perm.getTensor(), i, i + a);
+		Tensor<BOOL> t = c.get(Contract.range(a, 2 * a));
+
+		return new Relation<BOOL>(alg, t);
+	}
+
+	public BOOL isLexLess(Relation<BOOL> rel) {
+		assert getAlg() == rel.getAlg() && getSize() == rel.getSize()
+				&& getArity() == rel.getArity();
+
+		return alg.lexLess(getTensor(), rel.getTensor());
+	}
+
+	public BOOL isLexLeq(Relation<BOOL> rel) {
+		assert getAlg() == rel.getAlg() && getSize() == rel.getSize()
+				&& getArity() == rel.getArity();
+
+		return alg.lexLeq(getTensor(), rel.getTensor());
+	}
+
 	public BOOL isFull() {
 		return Tensor.fold(alg.ALL, getArity(), tensor).get();
 	}
@@ -441,12 +469,6 @@ public final class Relation<BOOL> {
 		}
 		c.add(Tensor.map(alg.NOT, tensor), v);
 		return c.get(new int[0]).get();
-	}
-
-	public static <BOOL> Relation<BOOL> lift(BoolAlgebra<BOOL> alg,
-			Relation<Boolean> rel) {
-		Tensor<BOOL> tensor = Tensor.map(alg.LIFT, rel.tensor);
-		return new Relation<BOOL>(alg, tensor);
 	}
 
 	private static char formatIndex(int elem) {

@@ -48,7 +48,7 @@ public class GraphPoly {
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
 
-				Operation<BOOL> op = Operation.wrap(alg, tensors.get(0));
+				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
 				Relation<BOOL> rel = Relation.lift(alg, relation);
 
 				BOOL res = op.isOperation();

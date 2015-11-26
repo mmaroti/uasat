@@ -58,11 +58,6 @@ public final class Operation<BOOL> {
 		return new Operation<Boolean>(BoolAlgebra.INSTANCE, tensor);
 	}
 
-	public static <BOOL> Operation<BOOL> wrap(BoolAlgebra<BOOL> alg,
-			Tensor<BOOL> tensor) {
-		return new Operation<BOOL>(alg, tensor);
-	}
-
 	public BOOL isOperation() {
 		return asRelation().isFunction();
 	}
@@ -354,5 +349,27 @@ public final class Operation<BOOL> {
 
 	public Operation<BOOL> product(Operation<BOOL> op) {
 		return asRelation().product(op.asRelation()).asOperation();
+	}
+
+	public Operation<BOOL> power(int exp) {
+		return asRelation().power(exp).asOperation();
+	}
+
+	public Operation<BOOL> conjugate(Permutation<BOOL> perm) {
+		return asRelation().conjugate(perm).asOperation();
+	}
+
+	public BOOL isLexLeq(Operation<BOOL> op) {
+		assert getAlg() == op.getAlg() && getSize() == op.getSize()
+				&& getArity() == op.getArity();
+
+		return alg.lexLeq(getTensor(), op.getTensor());
+	}
+
+	public BOOL isLexLess(Operation<BOOL> op) {
+		assert getAlg() == op.getAlg() && getSize() == op.getSize()
+				&& getArity() == op.getArity();
+
+		return alg.lexLess(getTensor(), op.getTensor());
 	}
 }

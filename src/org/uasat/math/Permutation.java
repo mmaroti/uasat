@@ -19,6 +19,7 @@
 package org.uasat.math;
 
 import org.uasat.core.*;
+import java.util.*;
 
 public final class Permutation<BOOL> {
 	private final BoolAlgebra<BOOL> alg;
@@ -45,6 +46,85 @@ public final class Permutation<BOOL> {
 
 		if (alg == BoolAlgebra.INSTANCE)
 			assert (Boolean) isPermutation();
+	}
+
+	public static Permutation<Boolean> wrap(Tensor<Boolean> tensor) {
+		return new Permutation<Boolean>(BoolAlgebra.INSTANCE, tensor);
+	}
+
+	public static <BOOL> Permutation<BOOL> lift(BoolAlgebra<BOOL> alg,
+			Permutation<Boolean> perm) {
+		Tensor<BOOL> tensor = Tensor.map(alg.LIFT, perm.tensor);
+		return new Permutation<BOOL>(alg, tensor);
+	}
+
+	public static Permutation<Boolean> create(final int[] perm) {
+		Permutation<Boolean> p = wrap(Tensor.generate(perm.length, perm.length,
+				new Func2<Boolean, Integer, Integer>() {
+					@Override
+					public Boolean call(Integer elem1, Integer elem2) {
+						return perm[elem2] == elem1;
+					}
+				}));
+
+		assert p.isPermutation();
+		return p;
+	}
+
+	public static List<Permutation<Boolean>> transpositions(int size) {
+		assert size >= 1;
+		List<Permutation<Boolean>> list = new ArrayList<Permutation<Boolean>>();
+
+		int[] perm = new int[size];
+		for (int i = 0; i < size; i++)
+			perm[i] = i;
+
+		for (int i = 0; i < size - 1; i++) {
+			for (int j = i + 1; j < size; j++) {
+				perm[i] = j;
+				perm[j] = i;
+				list.add(create(perm));
+				perm[j] = j;
+			}
+			perm[i] = i;
+		}
+
+		for (int i = 0; i < size; i++)
+			assert perm[i] == i;
+
+		return list;
+	}
+
+	public static List<Permutation<Boolean>> threeCycles(int size) {
+		assert size >= 1;
+		List<Permutation<Boolean>> list = new ArrayList<Permutation<Boolean>>();
+
+		int[] perm = new int[size];
+		for (int i = 0; i < size; i++)
+			perm[i] = i;
+
+		for (int i = 0; i < size - 2; i++) {
+			for (int j = i + 1; j < size - 1; j++) {
+				for (int k = j + 1; k < size; k++) {
+					perm[i] = j;
+					perm[j] = k;
+					perm[k] = i;
+					list.add(create(perm));
+					perm[i] = k;
+					perm[j] = i;
+					perm[k] = j;
+					list.add(create(perm));
+					perm[k] = k;
+				}
+				perm[j] = j;
+			}
+			perm[i] = i;
+		}
+
+		for (int i = 0; i < size; i++)
+			assert perm[i] == i;
+
+		return list;
 	}
 
 	public BOOL isPermutation() {

@@ -89,7 +89,7 @@ public abstract class BoolAlgebra<BOOL> {
 		return and(any, not(err));
 	}
 
-	public BOOL lexless(Iterable<BOOL> elem1, Iterable<BOOL> elem2) {
+	public BOOL lexLess(Iterable<BOOL> elem1, Iterable<BOOL> elem2) {
 		BOOL less = FALSE;
 		BOOL equal = TRUE;
 
@@ -107,6 +107,10 @@ public abstract class BoolAlgebra<BOOL> {
 		assert !iter2.hasNext();
 
 		return less;
+	}
+
+	public BOOL lexLeq(Iterable<BOOL> elem1, Iterable<BOOL> elem2) {
+		return not(lexLess(elem2, elem1));
 	}
 
 	public final Func1<BOOL, BOOL> ID;
