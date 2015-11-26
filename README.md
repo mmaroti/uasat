@@ -3,8 +3,8 @@ uasat
 
 This is a SAT based universal algebra calculator framework. Currently it
  does not have any graphical user interface, you need to know java to be
-  able to use it. As an example, it has a built in validation 
-[program](src/org/uasat/math/Validation.java), 
+  able to use it. As an example, it has a built in  
+[validation](src/org/uasat/math/Validation.java) program, 
 which calculates the number of certain structures:
 
 ```
@@ -28,12 +28,12 @@ Every mathematical object is represented internally by a boolean tensor
 (multidimensional matrix). The entries in these tensors are either 
 concrete boolean values or boolean terms. You can use tensor operations
 (reshaping, contractions, folds, maps, etc.) to create more complicated
-tensors and boolean values from boolean variables. Problems are expressed
-as a function that takes some boolean tensors and calculates a boolean
-value, in an essence they are just huge boolean formulae. 
+tensors and boolean values from boolean variables. A problem is expressed
+as a function that takes some boolean tensors as input and calculates 
+a boolean value as output, in an essence it is just a huge boolean formula. 
 You can use problem instances to check whether a concrete boolean
-tensor has the given property, or use SAT solvers to find one or all boolean
-satisfying assignments. The `core` and `solvers` packages contain the
+tensor has the given property, or use SAT solvers to find one or all satisfying
+boolean assignments. The `core` and `solvers` packages contain the
 classes needed to work with tensors and solvers.
 
 The `math` package contains classes that are easier to use than raw tensors.
@@ -43,9 +43,11 @@ the matrix multiplication is evaluated using disjunction and conjunction
 (instead of boolean addition and product) and the arrow is the logical 
 element-wise implication. Operations, equations and other mathematical
 objects and properties can be also expressed using tensors and tensor
-operations. 
+operations, and these are captured in this package. You should use these
+and resort to raw tensor manipulation when you cannot express your problem
+otherwise.
 
 ## License
 
-The code is licensed under the [GPL](LICENSE). 
+The code is licensed under the GNU [GPL](LICENSE) version 2 or later. 
 If you use this code for anything serious in your research, please let me know.
