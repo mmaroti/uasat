@@ -16,13 +16,13 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package org.uasat.math;
+package org.uasat.research;
 
 import java.text.*;
 import java.util.*;
 import org.uasat.core.*;
+import org.uasat.math.*;
 import org.uasat.solvers.*;
-import org.uasat.univalg.*;
 
 public class MonoidalInt {
 	public static Tensor<Boolean> decodeMonoid(final int size, String monoid) {

@@ -19,7 +19,6 @@
 package org.uasat.core;
 
 import java.util.*;
-
 import org.uasat.solvers.*;
 
 public abstract class BoolProblem {
