@@ -194,6 +194,49 @@ public class Validation {
 				count, 3330);
 	}
 
+	void checkThreeColorableGraphs() {
+		final Relation<Boolean> cycle = Relation.parseMembers(3, 2, "01 12 20")
+				.symmetricClosure();
+
+		BoolProblem problem = new BoolProblem(Tensor.constant(
+				new int[] { 5, 5 }, Boolean.TRUE), Tensor.constant(new int[] {
+				3, 5 }, Boolean.FALSE)) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> cyc = Relation.lift(alg, cycle);
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
+				Function<BOOL> fun = new Function<BOOL>(alg, tensors.get(1));
+
+				BOOL b = rel.isAntiReflexive();
+				b = alg.and(b, rel.isSymmetric());
+				b = alg.and(b, fun.isFunction());
+				b = alg.and(b, fun.preserves(rel, cyc));
+
+				return b;
+			}
+		};
+
+		int count = problem.solveAll(solver).get(0).getLastDim();
+		verify("A084279 the number of 3-colorable 5-element simple graphs",
+				count, 958);
+	}
+
+	void checkPartialInjections() {
+		BoolProblem problem = new BoolProblem(new int[] { 5, 5 }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Function<BOOL> fun = new Function<BOOL>(alg, tensors.get(0));
+				return alg.and(fun.isPartialFunction(), fun.isInjective());
+			}
+		};
+
+		int count = problem.solveAll(solver).get(0).getLastDim();
+		verify("A002720 the number of injective partial transformations on 5",
+				count, 1546);
+	}
+
 	void verify(String msg, String printout, String expected) {
 		String passed;
 		if (printout.equals(expected))
@@ -231,6 +274,8 @@ public class Validation {
 		checkPartialOrders();
 		checkNonIsomorphicGroupoids();
 		checkAlternations();
+		checkPartialInjections();
+		checkThreeColorableGraphs();
 		checkLinearExtensions();
 		checkEssentialRelations();
 		parseRelations();

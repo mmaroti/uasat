@@ -89,6 +89,18 @@ public abstract class BoolAlgebra<BOOL> {
 		return and(any, not(err));
 	}
 
+	public BOOL many(Iterable<BOOL> elems) {
+		BOOL any = FALSE;
+		BOOL err = FALSE;
+
+		for (BOOL elem : elems) {
+			err = or(err, and(any, elem));
+			any = or(any, elem);
+		}
+
+		return err;
+	}
+
 	public BOOL lexLess(Iterable<BOOL> elem1, Iterable<BOOL> elem2) {
 		BOOL less = FALSE;
 		BOOL equal = TRUE;
@@ -126,6 +138,7 @@ public abstract class BoolAlgebra<BOOL> {
 	public final Func1<BOOL, Iterable<BOOL>> ANY;
 	public final Func1<BOOL, Iterable<BOOL>> SUM;
 	public final Func1<BOOL, Iterable<BOOL>> ONE;
+	public final Func1<BOOL, Iterable<BOOL>> MANY;
 	public final Func1<BOOL, Iterable<BOOL>> EQS;
 
 	public BoolAlgebra(final BOOL FALSE, final BOOL TRUE) {
@@ -221,6 +234,13 @@ public abstract class BoolAlgebra<BOOL> {
 			@Override
 			public BOOL call(Iterable<BOOL> elems) {
 				return one(elems);
+			}
+		};
+
+		MANY = new Func1<BOOL, Iterable<BOOL>>() {
+			@Override
+			public BOOL call(Iterable<BOOL> elems) {
+				return many(elems);
 			}
 		};
 

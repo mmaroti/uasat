@@ -374,8 +374,7 @@ public final class Relation<BOOL> {
 	public BOOL isEqualTo(Relation<BOOL> rel) {
 		checkArity(rel);
 		Tensor<BOOL> tmp = Tensor.map2(alg.EQU, tensor, rel.tensor);
-		tmp = Tensor.fold(alg.ALL, getArity(), tmp);
-		return tmp.get();
+		return Tensor.fold(alg.ALL, getArity(), tmp).get();
 	}
 
 	public BOOL isSubsetOf(Relation<BOOL> rel) {
@@ -386,7 +385,7 @@ public final class Relation<BOOL> {
 		return tmp.get();
 	}
 
-	public BOOL isFunction() {
+	public BOOL isOperation() {
 		Tensor<BOOL> rel = Tensor.fold(alg.ONE, 1, tensor);
 		return Tensor.fold(alg.ALL, rel.getOrder(), rel).get();
 	}

@@ -19,7 +19,6 @@
 package org.uasat.math;
 
 import java.util.*;
-
 import org.uasat.core.*;
 
 public final class SubPower<BOOL> {

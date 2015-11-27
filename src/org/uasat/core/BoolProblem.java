@@ -38,8 +38,7 @@ public abstract class BoolProblem {
 		masks.add(Tensor.constant(shape, Boolean.TRUE));
 	}
 
-	public BoolProblem(String name1, Tensor<Boolean> mask1, String name2,
-			Tensor<Boolean> mask2) {
+	public BoolProblem(Tensor<Boolean> mask1, Tensor<Boolean> mask2) {
 		masks = new ArrayList<Tensor<Boolean>>();
 		masks.add(mask1);
 		masks.add(mask2);

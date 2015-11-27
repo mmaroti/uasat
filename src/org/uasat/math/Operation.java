@@ -59,7 +59,7 @@ public final class Operation<BOOL> {
 	}
 
 	public BOOL isOperation() {
-		return asRelation().isFunction();
+		return asRelation().isOperation();
 	}
 
 	public Relation<BOOL> asRelation() {
@@ -210,6 +210,8 @@ public final class Operation<BOOL> {
 	}
 
 	public Relation<BOOL> evaluate(Relation<BOOL> rel) {
+		assert alg == rel.getAlg();
+
 		if (getArity() == 0)
 			return evaluate_op0(rel.getArity());
 		else if (rel.getArity() == 1)
