@@ -151,16 +151,14 @@ public class Validation {
 	}
 
 	void checkNonIsomorphicDigraphs() {
-		final List<Permutation<Boolean>> perms = new ArrayList<Permutation<Boolean>>();
-		perms.addAll(Permutation.transpositions(3));
-		perms.addAll(Permutation.threeCycles(3));
+		final List<Permutation<Boolean>> perms = Permutation.symmetricGroup(4);
 
-		BoolProblem problem = new BoolProblem(new int[] { 3, 3 }) {
+		BoolProblem problem = new BoolProblem(new int[] { 4, 4 }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
 				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
-				BOOL b = alg.TRUE;
+				BOOL b = rel.isAntiReflexive();
 				for (Permutation<Boolean> p : perms) {
 					Permutation<BOOL> perm = Permutation.lift(alg, p);
 					b = alg.and(b, rel.isLexLeq(rel.conjugate(perm)));
@@ -170,14 +168,12 @@ public class Validation {
 		};
 
 		int count = problem.solveAll(solver).get(0).getLastDim();
-		verify("A000595 the number of non-isomorphic 3-element digraphs",
-				count, 104);
+		verify("A000273 the number of non-isomorphic 4-element digraphs",
+				count, 218);
 	}
 
 	void checkNonIsomorphicGroupoids() {
-		final List<Permutation<Boolean>> perms = new ArrayList<Permutation<Boolean>>();
-		perms.addAll(Permutation.transpositions(3));
-		perms.addAll(Permutation.threeCycles(3));
+		final List<Permutation<Boolean>> perms = Permutation.symmetricGroup(3);
 
 		BoolProblem problem = new BoolProblem(new int[] { 3, 3, 3 }) {
 			@Override
@@ -230,8 +226,8 @@ public class Validation {
 		long time = System.currentTimeMillis();
 		checkEquivalences();
 		checkPermutations();
-		checkAntiChains();
 		checkNonIsomorphicDigraphs();
+		checkAntiChains();
 		checkPartialOrders();
 		checkNonIsomorphicGroupoids();
 		checkAlternations();

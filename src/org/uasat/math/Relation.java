@@ -395,6 +395,10 @@ public final class Relation<BOOL> {
 		return diagonal().isFull();
 	}
 
+	public BOOL isAntiReflexive() {
+		return diagonal().isEmpty();
+	}
+	
 	public BOOL isSymmetric() {
 		return isSubsetOf(rotate());
 	}

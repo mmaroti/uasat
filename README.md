@@ -10,16 +10,16 @@ which calculates the number of certain structures:
 ```
 A000110 the number of equivalences on a 7 element set is 877.
 A000142 the number of permutations on a 7 element set is 5040.
+A000273 the number of non-isomorphic 4-element digraphs is 218.
 A000372 the number of antichains of 2^4 is 168.
-A000595 the number of non-isomorphic 3-element digraphs is 104.
 A001035 the number of partial orders on a 5 element set is 4231.
 A001329 the number of non-isomorphic 3-element groupoids is 3330.
 A001710 the number of even permutations on a 7 element set is 2520.
 A114714 the number of linear extensions of 2x2x4 is 2452.
 The number of essential binary relations on 3 is 462.
 Parsing the N5 poset relation and printing its covers: passed.
-Finished in 7.04 seconds.
-```
+Finished in 5.77 seconds.
+``
 
 I have also included a few small programs used for my research, you can
 disregard those.
