@@ -237,28 +237,21 @@ public class Validation {
 				count, 1546);
 	}
 
-	void verify(String msg, String printout, String expected) {
-		String passed;
-		if (printout.equals(expected))
-			passed = "passed";
-		else {
-			passed = "FAILED with " + printout;
-			failed = true;
-		}
+	void checkCommutativeSemigroups() {
+		BoolProblem problem = new BoolProblem(new int[] { 4, 4, 4 }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
+				BOOL b = op.isOperation();
+				b = alg.and(b, op.isAssociative());
+				b = alg.and(b, op.isCommutative());
+				return b;
+			}
+		};
 
-		System.out.println(msg + ": " + passed + ".");
-	}
-
-	void parseRelations() {
-		String a = "00 01 02 03 04 11 12 13 22 23 33 44 43";
-		Relation<Boolean> rel = Relation.parseMembers(5, 2, a);
-		String b = Relation.formatMembers(rel.asPartialOrder().covers());
-		verify("Parsing the N5 poset relation and printing its covers", b,
-				"01 04 12 23 43");
-	}
-
-	void parse() {
-		parseRelations();
+		int count = problem.solveAll(solver).get(0).getLastDim();
+		verify("A023815 the number of commutative semigroups on 4", count, 1140);
 	}
 
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
@@ -275,10 +268,10 @@ public class Validation {
 		checkNonIsomorphicGroupoids();
 		checkAlternations();
 		checkPartialInjections();
+		checkCommutativeSemigroups();
 		checkThreeColorableGraphs();
 		checkLinearExtensions();
 		checkEssentialRelations();
-		parseRelations();
 		time = System.currentTimeMillis() - time;
 
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

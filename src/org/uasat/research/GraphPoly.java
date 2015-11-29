@@ -26,19 +26,11 @@ import org.uasat.solvers.*;
 public class GraphPoly {
 	private SatSolver<?> solver;
 	private Relation<Boolean> relation;
+	private int MAX_SOLUTIONS = 10;
 
 	public GraphPoly(SatSolver<?> solver, Relation<Boolean> relation) {
 		this.solver = solver;
 		this.relation = relation;
-	}
-
-	private static List<Operation<Boolean>> wrapOperations(
-			Tensor<Boolean> tensor) {
-		List<Operation<Boolean>> result = new ArrayList<Operation<Boolean>>();
-		for (Tensor<Boolean> t : Tensor.unstack(tensor))
-			result.add(Operation.wrap(t));
-
-		return result;
 	}
 
 	public void printMembers() {
@@ -65,7 +57,19 @@ public class GraphPoly {
 		}
 	}
 
-	public void printBinaryOps() {
+	private void printCount(String options, String what, int count) {
+		String s = options.trim();
+		if (!s.isEmpty())
+			s += ' ';
+		s += what;
+		s += ": ";
+		if (count >= MAX_SOLUTIONS)
+			s += ">= ";
+		s += count;
+		System.out.println(s);
+	}
+
+	public boolean printBinaryOps(final String options) {
 		int size = relation.getSize();
 		BoolProblem prob = new BoolProblem(new int[] { size, size, size }) {
 			@Override
@@ -78,18 +82,44 @@ public class GraphPoly {
 				BOOL res = op.isOperation();
 				res = alg.and(res, op.preserves(rel));
 
+				String[] tokens = options.split(" ");
+				for (String token : tokens) {
+					if (token.equals("idempotent"))
+						res = alg.and(res, op.isIdempotent());
+					else if (token.equals("commutative"))
+						res = alg.and(res, op.isCommutative());
+					else if (token.equals("associative"))
+						res = alg.and(res, op.isAssociative());
+					else if (token.equals("essential"))
+						res = alg.and(res, op.isEssential());
+					else if (token.equals("semilattice"))
+						res = alg.and(res, op.isSemilattice());
+					else if (token.equals("two-semilat"))
+						res = alg.and(res, op.isTwoSemilattice());
+					else
+						throw new IllegalArgumentException("invalid option");
+				}
+
 				return res;
 			}
 		};
 
-		List<Operation<Boolean>> ops = wrapOperations(prob.solveAll(solver)
-				.get(0));
-		System.out.println("binary ops: " + ops.size());
+		prob.verbose = false;
+		Tensor<Boolean> tensor = prob.solveAll(solver, MAX_SOLUTIONS).get(0);
+
+		printCount(options, "binary ops", tensor.getLastDim());
+
+		if (1 <= tensor.getLastDim()) {
+			Tensor<Boolean> first = Tensor.unstack(tensor).get(0);
+			System.out.println("  " + Operation.format(Operation.wrap(first)));
+		}
+
+		return 1 <= tensor.getLastDim();
 	}
 
-	public void printBinaryIdempotentOps() {
+	public boolean printTernaryOps(final String options) {
 		int size = relation.getSize();
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size }) {
+		BoolProblem prob = new BoolProblem(new int[] { size, size, size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -98,26 +128,60 @@ public class GraphPoly {
 				Relation<BOOL> rel = Relation.lift(alg, relation);
 
 				BOOL res = op.isOperation();
-				// res = alg.and(res, op.isEssential());
-				res = alg.and(res, op.isIdempotent());
 				res = alg.and(res, op.preserves(rel));
+
+				String[] tokens = options.split(" ");
+				for (String token : tokens) {
+					if (token.equals("idempotent"))
+						res = alg.and(res, op.isIdempotent());
+					else if (token.equals("essential"))
+						res = alg.and(res, op.isEssential());
+					else if (token.equals("majority"))
+						res = alg.and(res, op.isMajority());
+					else if (token.equals("minority"))
+						res = alg.and(res, op.isMinority());
+					else if (token.equals("maltsev"))
+						res = alg.and(res, op.isMaltsev());
+					else if (token.equals("weak-nu"))
+						res = alg.and(res, op.isWeakNearUnanimity());
+					else
+						throw new IllegalArgumentException("invalid option");
+				}
 
 				return res;
 			}
 		};
 
-		List<Operation<Boolean>> ops = wrapOperations(prob.solveAll(solver)
-				.get(0));
-		System.out.println("binary idempotent ops: " + ops.size());
+		prob.verbose = false;
+		Tensor<Boolean> tensor = prob.solveAll(solver, MAX_SOLUTIONS).get(0);
+
+		printCount(options, "ternary ops", tensor.getLastDim());
+
+		if (1 <= tensor.getLastDim()) {
+			Tensor<Boolean> first = Tensor.unstack(tensor).get(0);
+			System.out.println("  " + Operation.format(Operation.wrap(first)));
+		}
+
+		return 1 <= tensor.getLastDim();
 	}
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
-		Relation<Boolean> rel = Relation.parseMembers(5, 2, "02 03 12 13 24 34");
-		rel = Relation.transitiveClosure(rel.reflexiveClosure());
-		assert rel.isPartialOrder();
+		PartialOrder<Boolean> p1 = PartialOrder.antiChain(1);
+		PartialOrder<Boolean> p2 = PartialOrder.antiChain(2);
+		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
+		PartialOrder<Boolean> c6 = PartialOrder.crown(6);
+
+		Relation<Boolean> rel = p2.plus(c6.plus(p1)).asRelation();
 
 		GraphPoly poly = new GraphPoly(new Sat4J(), rel);
 		poly.printMembers();
-		poly.printBinaryIdempotentOps();
+		poly.printBinaryOps("idempotent essential");
+		poly.printBinaryOps("idempotent commutative");
+		poly.printBinaryOps("semilattice");
+		poly.printBinaryOps("two-semilat");
+		poly.printTernaryOps("idempotent essential");
+		poly.printTernaryOps("majority");
+		poly.printTernaryOps("weak-nu");
 	}
 }

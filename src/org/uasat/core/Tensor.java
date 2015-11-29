@@ -273,6 +273,8 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		int[] stepb = new int[shape.length];
 
 		for (int s = 1, i = 0; i < map.length; i++) {
+			assert shape[map[i]] == arg.shape[i];
+
 			stepa[map[i]] += s;
 			s *= arg.shape[i];
 		}

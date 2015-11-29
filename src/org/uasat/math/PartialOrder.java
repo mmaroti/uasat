@@ -55,6 +55,39 @@ public final class PartialOrder<BOOL> {
 		return Relation.makeEqual(size).asPartialOrder();
 	}
 
+	public static PartialOrder<Boolean> crown(int size) {
+		assert size % 2 == 0;
+
+		final int c = size / 2;
+		Tensor<Boolean> tensor = Tensor.generate(size, size,
+				new Func2<Boolean, Integer, Integer>() {
+					@Override
+					public Boolean call(Integer elem1, Integer elem2) {
+						int a = elem1, b = elem2;
+
+						if (a == b)
+							return true;
+
+						if (a + c == b)
+							return true;
+
+						if (a + c + 1 == b)
+							return true;
+
+						if (a == c - 1 && b == c)
+							return true;
+
+						return false;
+					}
+				});
+
+		return wrap(tensor);
+	}
+
+	public static PartialOrder<Boolean> wrap(Tensor<Boolean> tensor) {
+		return new PartialOrder<Boolean>(BoolAlgebra.INSTANCE, tensor);
+	}
+
 	public static PartialOrder<Boolean> powerset(int base) {
 		assert 0 <= base && base <= 30;
 
@@ -68,7 +101,7 @@ public final class PartialOrder<BOOL> {
 					}
 				});
 
-		return new PartialOrder<Boolean>(BoolAlgebra.INSTANCE, tmp);
+		return wrap(tmp);
 	}
 
 	public Relation<BOOL> asRelation() {
@@ -96,6 +129,48 @@ public final class PartialOrder<BOOL> {
 
 	public PartialOrder<BOOL> product(PartialOrder<BOOL> ord) {
 		return asRelation().product(ord.asRelation()).asPartialOrder();
+	}
+
+	public PartialOrder<BOOL> plus(final PartialOrder<BOOL> ord) {
+		assert alg == ord.alg;
+
+		final int s = getSize();
+		Tensor<BOOL> t = Tensor.generate(s + ord.getSize(), s + ord.getSize(),
+				new Func2<BOOL, Integer, Integer>() {
+					@Override
+					public BOOL call(Integer elem1, Integer elem2) {
+						if (elem1 < s && elem2 < s)
+							return tensor.getElem(elem1, elem2);
+						else if (elem1 >= s && elem2 >= s)
+							return ord.tensor.getElem(elem1 - s, elem2 - s);
+						else if (elem1 < s && elem2 >= s)
+							return alg.TRUE;
+						else
+							return alg.FALSE;
+					}
+				});
+
+		return new PartialOrder<BOOL>(alg, t);
+	}
+
+	public PartialOrder<BOOL> join(final PartialOrder<BOOL> ord) {
+		assert alg == ord.alg;
+
+		final int s = getSize();
+		Tensor<BOOL> t = Tensor.generate(s + ord.getSize(), s + ord.getSize(),
+				new Func2<BOOL, Integer, Integer>() {
+					@Override
+					public BOOL call(Integer elem1, Integer elem2) {
+						if (elem1 < s && elem2 < s)
+							return tensor.getElem(elem1, elem2);
+						else if (elem1 >= s && elem2 >= s)
+							return ord.tensor.getElem(elem1 - s, elem2 - s);
+						else
+							return alg.FALSE;
+					}
+				});
+
+		return new PartialOrder<BOOL>(alg, t);
 	}
 
 	public Relation<BOOL> downsetOf(Relation<BOOL> rel) {

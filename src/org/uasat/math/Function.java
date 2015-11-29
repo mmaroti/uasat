@@ -47,7 +47,7 @@ public final class Function<BOOL> {
 		this.tensor = tensor;
 
 		if (alg == BoolAlgebra.INSTANCE)
-			assert (Boolean) isFunction();
+			assert (Boolean) isPartialFunction();
 	}
 
 	public static Function<Boolean> wrap(Tensor<Boolean> tensor) {

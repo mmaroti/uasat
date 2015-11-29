@@ -18,6 +18,7 @@
 
 package org.uasat.math;
 
+import java.util.*;
 import org.uasat.core.*;
 
 public final class Operation<BOOL> {
@@ -85,35 +86,18 @@ public final class Operation<BOOL> {
 		return shape;
 	}
 
-	public static <BOOL> Operation<BOOL> makeProjection(
-			final BoolAlgebra<BOOL> alg, int size, int arity, final int coord) {
+	public static Operation<Boolean> projection(int size, int arity,
+			final int coord) {
 		assert 0 <= coord && coord < arity;
 
-		Tensor<BOOL> tensor = Tensor.generate(createShape(size, 1 + arity),
-				new Func1<BOOL, int[]>() {
+		Tensor<Boolean> tensor = Tensor.generate(createShape(size, 1 + arity),
+				new Func1<Boolean, int[]>() {
 					@Override
-					public BOOL call(int[] elem) {
-						return alg.lift(elem[0] == elem[1 + coord]);
+					public Boolean call(int[] elem) {
+						return elem[0] == elem[1 + coord];
 					}
 				});
-		return new Operation<BOOL>(alg, tensor);
-	}
-
-	public Operation<BOOL> polymer(int... variables) {
-		assert getArity() == variables.length;
-
-		int[] map = new int[variables.length + 1];
-
-		int a = 0;
-		for (int i = 0; i < variables.length; i++) {
-			assert 0 <= variables[i];
-			a = Math.max(a, variables[i]);
-			map[i + 1] = variables[i] + 1;
-		}
-
-		Tensor<BOOL> tmp = Tensor.reshape(tensor,
-				createShape(getSize(), 1 + a), map);
-		return new Operation<BOOL>(alg, tmp);
+		return Operation.wrap(tensor);
 	}
 
 	public BOOL isEqualTo(Operation<BOOL> op) {
@@ -135,21 +119,38 @@ public final class Operation<BOOL> {
 		return Tensor.fold(alg.ALL, tmp.getOrder(), tmp).get();
 	}
 
-	public BOOL isSatisfied(int... identity) {
-		assert getArity() == identity.length;
+	public Operation<BOOL> polymer(int... variables) {
+		assert getArity() == variables.length;
 
-		int[] map = new int[identity.length + 1];
+		int[] map = new int[variables.length + 1];
 
-		int vars = 0;
-		for (int i = 0; i < identity.length; i++) {
-			vars = Math.max(vars, 1 + identity[i]);
-			map[1 + i] = identity[i];
+		int a = 0;
+		for (int i = 0; i < variables.length; i++) {
+			assert 0 <= variables[i];
+			a = Math.max(a, variables[i] + 1);
+			map[i + 1] = variables[i] + 1;
 		}
 
-		Tensor<BOOL> tmp;
-		tmp = Tensor.reshape(tensor, tensor.getShape(), map);
-		tmp = Tensor.fold(alg.ALL, vars, tmp);
-		return tmp.get();
+		Tensor<BOOL> tmp = Tensor.reshape(tensor,
+				createShape(getSize(), 1 + a), map);
+		return new Operation<BOOL>(alg, tmp);
+	}
+
+	private BOOL isSatisfied(int... variables) {
+		assert getArity() == variables.length;
+
+		int[] map = new int[variables.length + 1];
+
+		int a = 0;
+		for (int i = 0; i < variables.length; i++) {
+			assert 0 <= variables[i];
+			a = Math.max(a, variables[i]);
+			map[1 + i] = variables[i];
+		}
+
+		Tensor<BOOL> tmp = Tensor.reshape(tensor,
+				createShape(getSize(), 1 + a), map);
+		return Tensor.fold(alg.ALL, 1 + a, tmp).get();
 	}
 
 	public BOOL isIdempotent() {
@@ -158,6 +159,29 @@ public final class Operation<BOOL> {
 
 	public BOOL isCommutative() {
 		return isEqualTo(polymer(1, 0));
+	}
+
+	public BOOL isAssociative() {
+		Operation<BOOL> x = lift(alg, projection(getSize(), 3, 0));
+		Operation<BOOL> y = lift(alg, projection(getSize(), 3, 1));
+		Operation<BOOL> z = lift(alg, projection(getSize(), 3, 2));
+
+		Operation<BOOL> a = compose(compose(x, y), z);
+		Operation<BOOL> b = compose(x, compose(y, z));
+
+		return a.isEqualTo(b);
+	}
+
+	public BOOL isSemilattice() {
+		return alg.and(alg.and(isIdempotent(), isCommutative()),
+				isAssociative());
+	}
+
+	public BOOL isTwoSemilattice() {
+		Operation<BOOL> x = lift(alg, projection(getSize(), 2, 0));
+		BOOL b = this.isEqualTo(this.compose(x, this));
+
+		return alg.and(alg.and(isIdempotent(), isCommutative()), b);
 	}
 
 	public BOOL isMajority() {
@@ -180,27 +204,98 @@ public final class Operation<BOOL> {
 		return b;
 	}
 
-	private void checkSize(Operation<BOOL> op) {
-		assert getAlg() == op.getAlg();
-		assert getSize() == op.getSize();
+	public BOOL isEssential() {
+		BOOL b = alg.FALSE;
+
+		int a = getArity() + 1;
+		int[] map = new int[a];
+
+		for (int i = 1; i < a; i++) {
+			for (int j = 0; j < i; j++)
+				map[j] = j + 1;
+
+			map[i] = 0;
+
+			for (int j = i + 1; j < a; j++)
+				map[j] = j;
+
+			Tensor<BOOL> t = Tensor.reshape(tensor, tensor.getShape(), map);
+			t = Tensor.fold(alg.ALL, getArity(), Tensor.fold(alg.EQS, 1, t));
+			b = alg.or(b, t.get());
+		}
+
+		return alg.not(b);
 	}
 
+	public BOOL isNearUnanimity() {
+		assert getArity() >= 3;
+
+		int[] vars = new int[getArity()];
+		BOOL b = alg.TRUE;
+		for (int i = 0; i < vars.length; i++) {
+			vars[i] = 1;
+			b = alg.and(b, polymer(vars).isProjection(0));
+			vars[i] = 0;
+		}
+
+		return b;
+	}
+
+	public BOOL isWeakNearUnanimity() {
+		assert getArity() >= 2;
+
+		int[] vars = new int[getArity()];
+
+		vars[0] = 1;
+		Operation<BOOL> p = polymer(vars);
+		vars[0] = 0;
+
+		BOOL b = isIdempotent();
+		for (int i = 1; i < vars.length; i++) {
+			vars[i] = 1;
+			b = alg.and(b, p.isEqualTo(polymer(vars)));
+			vars[i] = 0;
+		}
+
+		return b;
+	}
+
+	@SuppressWarnings("unchecked")
 	public Operation<BOOL> compose(Operation<BOOL> op) {
-		checkSize(op);
-		assert getArity() == 1;
+		return compose(new Operation[] { op });
+	}
 
-		int[] shape = createShape(getSize(), op.getArity() + 2);
+	@SuppressWarnings("unchecked")
+	public Operation<BOOL> compose(Operation<BOOL> op1, Operation<BOOL> op2) {
+		return compose(new Operation[] { op1, op2 });
+	}
 
-		Tensor<BOOL> tmp = Tensor.reshape(tensor, shape, new int[] { 1, 0 });
+	@SuppressWarnings("unchecked")
+	public Operation<BOOL> compose(Operation<BOOL> op1, Operation<BOOL> op2,
+			Operation<BOOL> op3) {
+		return compose(new Operation[] { op1, op2, op3 });
+	}
 
-		int[] map = new int[op.getArity() + 1];
-		for (int i = 0; i < map.length; i++)
-			map[i] = i + 1;
+	public Operation<BOOL> compose(Operation<BOOL>[] ops) {
+		assert getArity() == ops.length;
 
-		tmp = Tensor.map2(alg.AND, tmp, Tensor.reshape(op.tensor, shape, map));
-		tmp = Tensor.fold(alg.ANY, 1, tmp);
+		if (getArity() == 0)
+			return this;
 
-		return new Operation<BOOL>(alg, tmp);
+		int a = getArity();
+		int b = ops[0].getArity();
+		Contract<BOOL> c = Contract.logical(alg);
+
+		c.add(tensor, Contract.range(0, a + 1));
+		for (int i = 0; i < ops.length; i++) {
+			assert alg == ops[i].alg && getSize() == ops[i].getSize()
+					&& ops[i].getArity() == ops[0].getArity();
+
+			c.add(ops[i].tensor, Contract.range(1 + i, a + 1, a + b + 1));
+		}
+		Tensor<BOOL> t = c.get(Contract.range(0, a + 1, a + b + 1));
+
+		return new Operation<BOOL>(alg, t);
 	}
 
 	public static <BOOL> Operation<BOOL> lift(BoolAlgebra<BOOL> alg,
@@ -373,5 +468,41 @@ public final class Operation<BOOL> {
 				&& getArity() == op.getArity();
 
 		return alg.lexLess(getTensor(), op.getTensor());
+	}
+
+	public static Tensor<Integer> decode(Operation<Boolean> op) {
+		Func1<Integer, Iterable<Boolean>> lookup = new Func1<Integer, Iterable<Boolean>>() {
+			@Override
+			public Integer call(Iterable<Boolean> elem) {
+				int count = 0;
+				Iterator<Boolean> iter = elem.iterator();
+				while (iter.hasNext()) {
+					if (iter.next().booleanValue())
+						return count;
+
+					count += 1;
+				}
+				throw new IllegalArgumentException();
+			}
+		};
+
+		return Tensor.fold(lookup, 1, op.getTensor());
+	}
+
+	public static String format(Operation<Boolean> op) {
+		int size = op.getSize();
+		Tensor<Integer> tensor = decode(op);
+
+		String s = "";
+		int c = 0;
+		for (Integer elem : tensor) {
+			if (++c > size) {
+				c = 1;
+				s += ' ';
+			}
+			s += Relation.formatIndex(elem);
+		}
+
+		return s;
 	}
 }

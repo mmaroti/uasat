@@ -8,19 +8,19 @@ able to use it. As an example, it has a built in
 the number of certain structures from the [OEIS](http://oeis.org/):
 
 ```
-A000110 the number of equivalences on a 7 element set is 877.
-A000142 the number of permutations on a 7 element set is 5040.
+A000110 the number of equivalences on a 7-element set is 877.
+A000142 the number of permutations on a 7-element set is 5040.
 A000273 the number of non-isomorphic 4-element digraphs is 218.
 A000372 the number of antichains of 2^4 is 168.
-A001035 the number of partial orders on a 5 element set is 4231.
+A001035 the number of partial orders on a 5-element set is 4231.
 A001329 the number of non-isomorphic 3-element groupoids is 3330.
-A001710 the number of even permutations on a 7 element set is 2520.
+A001710 the number of even permutations on a 7-element set is 2520.
 A002720 the number of injective partial transformations on 5 is 1546.
+A023815 the number of commutative semigroups on 4 is 1140.
 A084279 the number of 3-colorable 5-element simple graphs is 958.
 A114714 the number of linear extensions of 2x2x4 is 2452.
 The number of essential binary relations on 3 is 462.
-Parsing the N5 poset relation and printing its covers: passed.
-Finished in 7.53 seconds.
+Finished in 9.23 seconds.
 ```
 
 I have also included a few small programs used for my research, you can
@@ -44,7 +44,7 @@ The `math` package contains classes that are easier to use than raw tensors.
 For example, a binary relation over a 5-element set is expressed by a 5×5
 boolean matrix R. This relation is transitive if and only if R·R ≤ R, where 
 the matrix multiplication is evaluated using disjunction and conjunction 
-(instead of boolean addition and product) and ≤ is the logical 
+(instead of boolean addition and multiplication) and ≤ is the logical 
 element-wise implication. Operations, equations and other mathematical
 objects and properties can also be expressed using tensors and tensor
 operations, and these are captured in this package. You should use these

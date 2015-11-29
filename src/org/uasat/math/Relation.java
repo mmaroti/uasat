@@ -62,7 +62,7 @@ public final class Relation<BOOL> {
 	}
 
 	private static int[] createShape(int size, int arity) {
-		assert size > 1 && arity >= 0;
+		assert size >= 1 && arity >= 0;
 
 		int[] shape = new int[arity];
 		for (int i = 0; i < arity; i++)
@@ -397,7 +397,7 @@ public final class Relation<BOOL> {
 	public BOOL isAntiReflexive() {
 		return diagonal().isEmpty();
 	}
-	
+
 	public BOOL isSymmetric() {
 		return isSubsetOf(rotate());
 	}
@@ -474,7 +474,7 @@ public final class Relation<BOOL> {
 		return c.get(new int[0]).get();
 	}
 
-	private static char formatIndex(int elem) {
+	public static char formatIndex(int elem) {
 		if (0 <= elem && elem < 10)
 			return (char) ('0' + elem);
 		else if (10 <= elem && elem < 36)
@@ -483,7 +483,7 @@ public final class Relation<BOOL> {
 			throw new IllegalArgumentException();
 	}
 
-	private static int parseIndex(int size, char c) {
+	public static int parseIndex(int size, char c) {
 		int i;
 		if ('0' <= c && c <= '9')
 			i = c - '0';

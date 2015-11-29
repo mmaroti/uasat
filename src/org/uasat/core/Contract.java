@@ -52,9 +52,20 @@ public class Contract<ELEM> {
 	}
 
 	public static List<Integer> range(int start, int end) {
-		assert end >= start;
+		assert start <= end;
 
 		List<Integer> list = new ArrayList<Integer>();
+		for (int i = start; i < end; i++)
+			list.add(i);
+
+		return list;
+	}
+
+	public static List<Integer> range(int first, int start, int end) {
+		assert start <= end;
+
+		List<Integer> list = new ArrayList<Integer>();
+		list.add(first);
 		for (int i = start; i < end; i++)
 			list.add(i);
 

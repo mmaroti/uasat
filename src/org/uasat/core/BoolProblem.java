@@ -23,6 +23,7 @@ import org.uasat.solvers.*;
 
 public abstract class BoolProblem {
 	protected final List<Tensor<Boolean>> masks;
+	public boolean verbose = true;
 
 	public BoolProblem(List<Tensor<Boolean>> masks) {
 		this.masks = masks;
@@ -109,15 +110,18 @@ public abstract class BoolProblem {
 
 			assert check(solution);
 			solutions.add(solution);
-			solver.clause(exclude);
 
 			if (solutions.size() == maxCount) {
-				System.out.println("... at least " + maxCount
-						+ " solutions found, aborting.");
+				if (verbose)
+					System.out.println("... at least " + maxCount
+							+ " solutions found, aborting.");
 				break;
 			} else if (solutions.size() % 100000 == 0)
-				System.out.println("... still working, " + solutions.size()
-						+ " solutions so far ...");
+				if (verbose)
+					System.out.println("... still working, " + solutions.size()
+							+ " solutions so far ...");
+
+			solver.clause(exclude);
 		}
 
 		List<Tensor<Boolean>> result = new ArrayList<Tensor<Boolean>>();
