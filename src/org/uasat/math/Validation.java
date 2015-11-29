@@ -48,7 +48,7 @@ public class Validation {
 		};
 
 		int count = problem.solveAll(solver).get(0).getLastDim();
-		verify("A000110 the number of equivalences on a 7 element set", count,
+		verify("A000110 the number of equivalences on a 7-element set", count,
 				877);
 	}
 
@@ -63,7 +63,7 @@ public class Validation {
 		};
 
 		int count = problem.solveAll(solver).get(0).getLastDim();
-		verify("A001035 the number of partial orders on a 5 element set",
+		verify("A001035 the number of partial orders on a 5-element set",
 				count, 4231);
 	}
 
@@ -99,7 +99,7 @@ public class Validation {
 		};
 
 		int count = problem.solveAll(solver).get(0).getLastDim();
-		verify("A000142 the number of permutations on a 7 element set", count,
+		verify("A000142 the number of permutations on a 7-element set", count,
 				5040);
 	}
 
@@ -115,7 +115,7 @@ public class Validation {
 		};
 
 		int count = problem.solveAll(solver).get(0).getLastDim();
-		verify("A001710 the number of even permutations on a 7 element set",
+		verify("A001710 the number of even permutations on a 7-element set",
 				count, 2520);
 	}
 

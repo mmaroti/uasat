@@ -4,8 +4,8 @@ uasat
 This is a SAT based universal algebra calculator framework. Currently it
 does not have any graphical user interface, you need to know java to be
 able to use it. As an example, it has a built in  
-[validation](src/org/uasat/math/Validation.java) program, 
-which calculates the number of certain structures:
+[validation](src/org/uasat/math/Validation.java) program, which calculates
+the number of certain structures from the [OEIS](http://oeis.org/):
 
 ```
 A000110 the number of equivalences on a 7 element set is 877.
@@ -42,9 +42,9 @@ classes needed to work with tensors and solvers.
 
 The `math` package contains classes that are easier to use than raw tensors.
 For example, a binary relation over a 5-element set is expressed by a 5×5
-boolean matrix R. This relation is transitive if and only if R·R→R, where 
+boolean matrix R. This relation is transitive if and only if R·R ≤ R, where 
 the matrix multiplication is evaluated using disjunction and conjunction 
-(instead of boolean addition and product) and the arrow is the logical 
+(instead of boolean addition and product) and ≤ is the logical 
 element-wise implication. Operations, equations and other mathematical
 objects and properties can also be expressed using tensors and tensor
 operations, and these are captured in this package. You should use these
