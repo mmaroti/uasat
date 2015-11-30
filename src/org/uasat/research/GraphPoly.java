@@ -19,6 +19,7 @@
 package org.uasat.research;
 
 import java.util.*;
+
 import org.uasat.core.*;
 import org.uasat.math.*;
 import org.uasat.solvers.*;
@@ -26,7 +27,7 @@ import org.uasat.solvers.*;
 public class GraphPoly {
 	private SatSolver<?> solver;
 	private Relation<Boolean> relation;
-	private int MAX_SOLUTIONS = 10;
+	private int MAX_SOLUTIONS = 100;
 
 	public GraphPoly(SatSolver<?> solver, Relation<Boolean> relation) {
 		this.solver = solver;
@@ -169,6 +170,68 @@ public class GraphPoly {
 		return 1 <= tensor.getLastDim();
 	}
 
+	public Relation<Boolean> makeGlobal(String... subsets) {
+		final List<Relation<Boolean>> subs = new ArrayList<Relation<Boolean>>();
+
+		for (String str : subsets)
+			subs.add(Relation.parseMembers(relation.getSize(), 1, str));
+
+		int[] shape = new int[relation.getArity()];
+		Arrays.fill(shape, subs.size());
+
+		Tensor<Boolean> tensor = Tensor.generate(shape,
+				new Func1<Boolean, int[]>() {
+					@Override
+					public Boolean call(int[] elem) {
+						Relation<Boolean> r = subs.get(elem[0]);
+						for (int i = 1; i < elem.length; i++)
+							r = r.cartesian(subs.get(elem[i]));
+
+						r = r.intersect(relation);
+
+						for (int i = 0; i < elem.length; i++)
+							if (!subs.get(elem[i]).isSubsetOf(r.project(i)))
+								return false;
+
+						return true;
+					}
+				});
+
+		return Relation.wrap(tensor);
+	}
+
+	public boolean printSurjectiveFuntions(int exp, final Relation<Boolean> rel) {
+		final Relation<Boolean> pow = relation.power(exp);
+
+		BoolProblem prob = new BoolProblem(new int[] { rel.getSize(),
+				pow.getSize() }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Function<BOOL> fun = new Function<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> rel1 = Relation.lift(alg, pow);
+				Relation<BOOL> rel2 = Relation.lift(alg, rel);
+
+				BOOL b = fun.preserves(rel1, rel2);
+				b = alg.and(b, fun.isFunction());
+				return alg.and(b, fun.isSurjective());
+			}
+		};
+
+		prob.verbose = false;
+		Tensor<Boolean> tensor = prob.solveAll(solver, MAX_SOLUTIONS).get(0);
+
+		printCount("surjectiv", "functions from power " + exp,
+				tensor.getLastDim());
+
+		if (1 <= tensor.getLastDim()) {
+			Tensor<Boolean> first = Tensor.unstack(tensor).get(0);
+			System.out.println("  " + Function.format(Function.wrap(first)));
+		}
+
+		return 1 <= tensor.getLastDim();
+	}
+
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		PartialOrder<Boolean> p1 = PartialOrder.antiChain(1);
@@ -189,5 +252,15 @@ public class GraphPoly {
 		poly.printTernaryOps("idempotent essential");
 		poly.printTernaryOps("majority");
 		poly.printTernaryOps("weak-nu");
+
+		System.out.println();
+		Relation<Boolean> glb = poly.makeGlobal("0", "1", "2", "3", "0 1",
+				"0 2", "0 3", "1 2", "1 3", "2 3");
+		GraphPoly glob = new GraphPoly(poly.solver, glb);
+		glob.printMembers();
+
+		System.out.println();
+		poly.printSurjectiveFuntions(1, glb);
+		poly.printSurjectiveFuntions(2, glb);
 	}
 }

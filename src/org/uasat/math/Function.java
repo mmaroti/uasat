@@ -18,6 +18,8 @@
 
 package org.uasat.math;
 
+import java.util.*;
+
 import org.uasat.core.*;
 
 public final class Function<BOOL> {
@@ -145,5 +147,34 @@ public final class Function<BOOL> {
 
 	public BOOL preserves(Relation<BOOL> rel1, Relation<BOOL> rel2) {
 		return evaluate(rel1).isSubsetOf(rel2);
+	}
+
+	public static Tensor<Integer> decode(Function<Boolean> fun) {
+		Func1<Integer, Iterable<Boolean>> lookup = new Func1<Integer, Iterable<Boolean>>() {
+			@Override
+			public Integer call(Iterable<Boolean> elem) {
+				int count = 0;
+				Iterator<Boolean> iter = elem.iterator();
+				while (iter.hasNext()) {
+					if (iter.next().booleanValue())
+						return count;
+
+					count += 1;
+				}
+				throw new IllegalArgumentException();
+			}
+		};
+
+		return Tensor.fold(lookup, 1, fun.getTensor());
+	}
+
+	public static String format(Function<Boolean> fun) {
+		Tensor<Integer> tensor = decode(fun);
+
+		String s = "";
+		for (Integer elem : tensor)
+			s += Relation.formatIndex(elem);
+
+		return s;
 	}
 }

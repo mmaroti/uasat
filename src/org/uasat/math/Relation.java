@@ -18,6 +18,8 @@
 
 package org.uasat.math;
 
+import java.util.*;
+
 import org.uasat.core.*;
 
 public final class Relation<BOOL> {
@@ -270,9 +272,29 @@ public final class Relation<BOOL> {
 		return new Relation<BOOL>(alg, tmp);
 	}
 
+	public Relation<BOOL> cartesian(Relation<BOOL> rel) {
+		assert alg == rel.getAlg() && getSize() == rel.getSize();
+
+		int size = getSize();
+		int[] shape = new int[getArity() + rel.getArity()];
+		Arrays.fill(shape, size);
+
+		int[] map = new int[rel.getArity()];
+		for (int i = 0; i < map.length; i++)
+			map[i] = getArity() + i;
+
+		Tensor<BOOL> tmp = Tensor.reshape(rel.getTensor(), shape, map);
+
+		map = new int[getArity()];
+		for (int i = 0; i < map.length; i++)
+			map[i] = i;
+
+		tmp = Tensor.map2(alg.AND, tmp, Tensor.reshape(tensor, shape, map));
+		return new Relation<BOOL>(alg, tmp);
+	}
+
 	public Relation<BOOL> product(Relation<BOOL> rel) {
-		assert getAlg() == rel.getAlg();
-		assert getArity() == rel.getArity();
+		assert alg == rel.getAlg() && getArity() == rel.getArity();
 
 		final int a = getSize();
 		int s = a * rel.getSize();
@@ -472,6 +494,14 @@ public final class Relation<BOOL> {
 		}
 		c.add(Tensor.map(alg.NOT, tensor), v);
 		return c.get(new int[0]).get();
+	}
+
+	public BOOL isSubdirect() {
+		BOOL b = alg.TRUE;
+		for (int i = 0; i < getArity(); i++)
+			b = alg.and(b, project(i).isFull());
+
+		return b;
 	}
 
 	public static char formatIndex(int elem) {
