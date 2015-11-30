@@ -198,7 +198,7 @@ public final class Relation<BOOL> {
 		int[] map = new int[getArity()];
 		map[0] = map.length - 1;
 		for (int i = 1; i < map.length; i++)
-			map[i] = 1 - i;
+			map[i] = i - 1;
 
 		Tensor<BOOL> tmp = Tensor.reshape(tensor, tensor.getShape(), map);
 		return new Relation<BOOL>(alg, tmp);

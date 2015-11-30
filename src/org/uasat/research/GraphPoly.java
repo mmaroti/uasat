@@ -90,6 +90,8 @@ public class GraphPoly {
 						res = alg.and(res, op.isCommutative());
 					else if (token.equals("associative"))
 						res = alg.and(res, op.isAssociative());
+					else if (token.equals("surjective"))
+						res = alg.and(res, op.isSurjective());
 					else if (token.equals("essential"))
 						res = alg.and(res, op.isEssential());
 					else if (token.equals("semilattice"))
@@ -136,6 +138,8 @@ public class GraphPoly {
 						res = alg.and(res, op.isIdempotent());
 					else if (token.equals("essential"))
 						res = alg.and(res, op.isEssential());
+					else if (token.equals("surjective"))
+						res = alg.and(res, op.isSurjective());
 					else if (token.equals("majority"))
 						res = alg.and(res, op.isMajority());
 					else if (token.equals("minority"))
@@ -172,14 +176,16 @@ public class GraphPoly {
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
 		PartialOrder<Boolean> c6 = PartialOrder.crown(6);
 
-		Relation<Boolean> rel = p2.plus(c6.plus(p1)).asRelation();
+		Relation<Boolean> rel = c4.asRelation();
 
 		GraphPoly poly = new GraphPoly(new Sat4J(), rel);
 		poly.printMembers();
+		poly.printBinaryOps("surjective essential");
 		poly.printBinaryOps("idempotent essential");
 		poly.printBinaryOps("idempotent commutative");
 		poly.printBinaryOps("semilattice");
 		poly.printBinaryOps("two-semilat");
+		poly.printTernaryOps("surjective essential");
 		poly.printTernaryOps("idempotent essential");
 		poly.printTernaryOps("majority");
 		poly.printTernaryOps("weak-nu");
