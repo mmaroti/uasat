@@ -27,7 +27,7 @@ import org.uasat.solvers.*;
 public class GraphPoly {
 	private SatSolver<?> solver;
 	private Relation<Boolean> relation;
-	private int MAX_SOLUTIONS = 100;
+	private int MAX_SOLUTIONS = 10000;
 
 	public GraphPoly(SatSolver<?> solver, Relation<Boolean> relation) {
 		this.solver = solver;
@@ -70,6 +70,42 @@ public class GraphPoly {
 		System.out.println(s);
 	}
 
+	public boolean printUnaryOps(final String options) {
+		int size = relation.getSize();
+		BoolProblem prob = new BoolProblem(new int[] { size, size }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+
+				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> rel = Relation.lift(alg, relation);
+
+				BOOL res = op.isOperation();
+				res = alg.and(res, op.preserves(rel));
+
+				String[] tokens = options.split(" ");
+				for (String token : tokens) {
+					if (token.equals("surjective"))
+						res = alg.and(res, op.isSurjective());
+					else if (!token.isEmpty())
+						throw new IllegalArgumentException("invalid option");
+				}
+
+				return res;
+			}
+		};
+
+		prob.verbose = false;
+		Tensor<Boolean> tensor = prob.solveAll(solver, MAX_SOLUTIONS).get(0);
+
+		printCount(options, "unary ops", tensor.getLastDim());
+
+		for (Tensor<Boolean> t : Tensor.unstack(tensor))
+			System.out.println("  " + Operation.format(Operation.wrap(t)));
+
+		return 1 <= tensor.getLastDim();
+	}
+
 	public boolean printBinaryOps(final String options) {
 		int size = relation.getSize();
 		BoolProblem prob = new BoolProblem(new int[] { size, size, size }) {
@@ -99,7 +135,7 @@ public class GraphPoly {
 						res = alg.and(res, op.isSemilattice());
 					else if (token.equals("two-semilat"))
 						res = alg.and(res, op.isTwoSemilattice());
-					else
+					else if (!token.isEmpty())
 						throw new IllegalArgumentException("invalid option");
 				}
 
@@ -149,7 +185,7 @@ public class GraphPoly {
 						res = alg.and(res, op.isMaltsev());
 					else if (token.equals("weak-nu"))
 						res = alg.and(res, op.isWeakNearUnanimity());
-					else
+					else if (!token.isEmpty())
 						throw new IllegalArgumentException("invalid option");
 				}
 
@@ -170,27 +206,30 @@ public class GraphPoly {
 		return 1 <= tensor.getLastDim();
 	}
 
-	public Relation<Boolean> makeGlobal(String... subsets) {
-		final List<Relation<Boolean>> subs = new ArrayList<Relation<Boolean>>();
-
+	public List<Relation<Boolean>> makeSubsets(String... subsets) {
+		List<Relation<Boolean>> subs = new ArrayList<Relation<Boolean>>();
 		for (String str : subsets)
 			subs.add(Relation.parseMembers(relation.getSize(), 1, str));
 
+		return subs;
+	}
+
+	public Relation<Boolean> makeGlobal(final List<Relation<Boolean>> subsets) {
 		int[] shape = new int[relation.getArity()];
-		Arrays.fill(shape, subs.size());
+		Arrays.fill(shape, subsets.size());
 
 		Tensor<Boolean> tensor = Tensor.generate(shape,
 				new Func1<Boolean, int[]>() {
 					@Override
 					public Boolean call(int[] elem) {
-						Relation<Boolean> r = subs.get(elem[0]);
+						Relation<Boolean> r = subsets.get(elem[0]);
 						for (int i = 1; i < elem.length; i++)
-							r = r.cartesian(subs.get(elem[i]));
+							r = r.cartesian(subsets.get(elem[i]));
 
 						r = r.intersect(relation);
 
 						for (int i = 0; i < elem.length; i++)
-							if (!subs.get(elem[i]).isSubsetOf(r.project(i)))
+							if (!subsets.get(elem[i]).isSubsetOf(r.project(i)))
 								return false;
 
 						return true;
@@ -243,6 +282,7 @@ public class GraphPoly {
 
 		GraphPoly poly = new GraphPoly(new Sat4J(), rel);
 		poly.printMembers();
+		poly.printUnaryOps("");
 		poly.printBinaryOps("surjective essential");
 		poly.printBinaryOps("idempotent essential");
 		poly.printBinaryOps("idempotent commutative");
@@ -254,13 +294,19 @@ public class GraphPoly {
 		poly.printTernaryOps("weak-nu");
 
 		System.out.println();
-		Relation<Boolean> glb = poly.makeGlobal("0", "1", "2", "3", "0 1",
-				"0 2", "0 3", "1 2", "1 3", "2 3");
+		List<Relation<Boolean>> subsets = poly.makeSubsets("0", "1", "2", "3",
+				"0 1", "0 2", "0 3", "1 2", "1 3", "2 3");
+		Relation<Boolean> glb = poly.makeGlobal(subsets);
 		GraphPoly glob = new GraphPoly(poly.solver, glb);
 		glob.printMembers();
+		glob.printBinaryOps("semilattice");
+		glob.printBinaryOps("two-semilat");
+		// glob.printBinaryOps("idempotent essential");
+		glob.printTernaryOps("majority");
 
 		System.out.println();
 		poly.printSurjectiveFuntions(1, glb);
 		poly.printSurjectiveFuntions(2, glb);
+		poly.printSurjectiveFuntions(3, glb);
 	}
 }

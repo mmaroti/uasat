@@ -59,16 +59,13 @@ public final class Permutation<BOOL> {
 	}
 
 	public static Permutation<Boolean> create(final int[] perm) {
-		Permutation<Boolean> p = wrap(Tensor.generate(perm.length, perm.length,
+		return wrap(Tensor.generate(perm.length, perm.length,
 				new Func2<Boolean, Integer, Integer>() {
 					@Override
 					public Boolean call(Integer elem1, Integer elem2) {
 						return perm[elem2] == elem1;
 					}
 				}));
-
-		assert p.isPermutation();
-		return p;
 	}
 
 	public static List<Permutation<Boolean>> transpositions(int size) {
