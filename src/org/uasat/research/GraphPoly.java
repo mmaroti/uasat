@@ -27,7 +27,7 @@ import org.uasat.solvers.*;
 public class GraphPoly {
 	private SatSolver<?> solver;
 	private Relation<Boolean> relation;
-	private int MAX_SOLUTIONS = 10000;
+	private int MAX_SOLUTIONS = 10;
 
 	public GraphPoly(SatSolver<?> solver, Relation<Boolean> relation) {
 		this.solver = solver;
@@ -278,7 +278,7 @@ public class GraphPoly {
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
 		PartialOrder<Boolean> c6 = PartialOrder.crown(6);
 
-		Relation<Boolean> rel = c4.asRelation();
+		Relation<Boolean> rel = c4.plus(c4).plus(p1).asRelation();
 
 		GraphPoly poly = new GraphPoly(new Sat4J(), rel);
 		poly.printMembers();
@@ -293,20 +293,19 @@ public class GraphPoly {
 		poly.printTernaryOps("majority");
 		poly.printTernaryOps("weak-nu");
 
-		System.out.println();
-		List<Relation<Boolean>> subsets = poly.makeSubsets("0", "1", "2", "3",
-				"0 1", "0 2", "0 3", "1 2", "1 3", "2 3");
-		Relation<Boolean> glb = poly.makeGlobal(subsets);
-		GraphPoly glob = new GraphPoly(poly.solver, glb);
-		glob.printMembers();
-		glob.printBinaryOps("semilattice");
-		glob.printBinaryOps("two-semilat");
-		// glob.printBinaryOps("idempotent essential");
-		glob.printTernaryOps("majority");
-
-		System.out.println();
-		poly.printSurjectiveFuntions(1, glb);
-		poly.printSurjectiveFuntions(2, glb);
-		poly.printSurjectiveFuntions(3, glb);
+		/*
+		 * System.out.println(); List<Relation<Boolean>> subsets =
+		 * poly.makeSubsets("0", "1", "2", "3", "0 1", "0 2", "0 3", "1 2",
+		 * "1 3", "2 3"); Relation<Boolean> glb = poly.makeGlobal(subsets);
+		 * GraphPoly glob = new GraphPoly(poly.solver, glb);
+		 * glob.printMembers(); glob.printBinaryOps("semilattice");
+		 * glob.printBinaryOps("two-semilat"); //
+		 * glob.printBinaryOps("idempotent essential");
+		 * glob.printTernaryOps("majority");
+		 * 
+		 * System.out.println(); poly.printSurjectiveFuntions(1, glb);
+		 * poly.printSurjectiveFuntions(2, glb); poly.printSurjectiveFuntions(3,
+		 * glb);
+		 */
 	}
 }
