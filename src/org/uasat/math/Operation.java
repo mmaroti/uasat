@@ -73,6 +73,11 @@ public final class Operation<BOOL> {
 		return new Relation<BOOL>(alg, tmp);
 	}
 
+	public BOOL hasValue(int... index) {
+		assert index.length == getArity() + 1;
+		return tensor.getElem(index);
+	}
+
 	public BOOL isSurjective() {
 		return range().isFull();
 	}

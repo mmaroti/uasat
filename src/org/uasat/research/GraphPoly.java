@@ -260,7 +260,7 @@ public class GraphPoly {
 		prob.verbose = false;
 		Tensor<Boolean> tensor = prob.solveAll(solver, MAX_SOLUTIONS).get(0);
 
-		printCount("surjectiv", "functions from power " + exp,
+		printCount("surjective", "functions from power " + exp,
 				tensor.getLastDim());
 
 		if (1 <= tensor.getLastDim()) {
@@ -271,6 +271,38 @@ public class GraphPoly {
 		return 1 <= tensor.getLastDim();
 	}
 
+	public boolean printSpecialOperation3(final int a1, final int a2,
+			final int b1, final int b2, final int c) {
+		int size = relation.getSize();
+		BoolProblem prob = new BoolProblem(new int[] { size, size, size, size,
+				size, size, size }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
+				BOOL t = alg.and(op.isOperation(), op.isIdempotent());
+
+				t = alg.and(t, op.hasValue(a1, a1, a1, a1, c, c, c));
+				t = alg.and(t, op.hasValue(a2, a2, a2, a2, c, c, c));
+				t = alg.and(t, op.hasValue(b1, c, b1, b1, c, a1, a2));
+				t = alg.and(t, op.hasValue(b1, b1, c, b1, a2, c, a1));
+				t = alg.and(t, op.hasValue(b1, b1, b1, c, a1, a2, c));
+
+				return t;
+			}
+		};
+
+		prob.verbose = false;
+		Tensor<Boolean> tensor = prob.solveOne(solver).get(0);
+
+		printCount("6-ary", "special funcion", tensor != null ? 1 : 0);
+
+		if (tensor != null)
+			System.out.println("  " + Operation.format(Operation.wrap(tensor)));
+
+		return tensor != null;
+	}
+
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		PartialOrder<Boolean> p1 = PartialOrder.antiChain(1);
@@ -278,7 +310,7 @@ public class GraphPoly {
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
 		PartialOrder<Boolean> c6 = PartialOrder.crown(6);
 
-		Relation<Boolean> rel = c4.plus(c4).plus(p1).asRelation();
+		Relation<Boolean> rel = c4.plus(p2).plus(p1).asRelation();
 
 		GraphPoly poly = new GraphPoly(new Sat4J(), rel);
 		poly.printMembers();
@@ -292,6 +324,8 @@ public class GraphPoly {
 		poly.printTernaryOps("idempotent essential");
 		poly.printTernaryOps("majority");
 		poly.printTernaryOps("weak-nu");
+
+		poly.printSpecialOperation3(0, 1, 2, 3, 4);
 
 		/*
 		 * System.out.println(); List<Relation<Boolean>> subsets =
