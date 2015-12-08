@@ -27,7 +27,7 @@ import org.uasat.solvers.*;
 public class GraphPoly {
 	private SatSolver<?> solver;
 	private Relation<Boolean> relation;
-	private int MAX_SOLUTIONS = 10;
+	private int MAX_SOLUTIONS = 1;
 
 	public GraphPoly(SatSolver<?> solver, Relation<Boolean> relation) {
 		this.solver = solver;
@@ -271,8 +271,8 @@ public class GraphPoly {
 		return 1 <= tensor.getLastDim();
 	}
 
-	public boolean printSpecialOperation3(final int a1, final int a2,
-			final int b1, final int b2, final int c) {
+	public boolean printSpecialOperation3(final int a, final int b,
+			final int c, final int d) {
 		int size = relation.getSize();
 		BoolProblem prob = new BoolProblem(new int[] { size, size, size, size,
 				size, size, size }) {
@@ -282,25 +282,22 @@ public class GraphPoly {
 				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
 				BOOL t = alg.and(op.isOperation(), op.isIdempotent());
 
-				t = alg.and(t, op.hasValue(a1, a1, a1, a1, c, c, c));
-				t = alg.and(t, op.hasValue(a2, a2, a2, a2, c, c, c));
-				t = alg.and(t, op.hasValue(b1, c, b1, b1, c, a1, a2));
-				t = alg.and(t, op.hasValue(b1, b1, c, b1, a2, c, a1));
-				t = alg.and(t, op.hasValue(b1, b1, b1, c, a1, a2, c));
+				t = alg.and(t, op.hasValue(a, a, a, a, d, d, d));
+				t = alg.and(t, op.hasValue(b, b, b, b, d, d, d));
+				t = alg.and(t, op.hasValue(c, d, c, c, d, a, b));
+				t = alg.and(t, op.hasValue(c, c, d, c, b, d, a));
+				t = alg.and(t, op.hasValue(c, c, c, d, a, b, d));
 
 				return t;
 			}
 		};
 
 		prob.verbose = false;
-		Tensor<Boolean> tensor = prob.solveOne(solver).get(0);
+		boolean solvable = prob.isSolvable(solver);
 
-		printCount("6-ary", "special funcion", tensor != null ? 1 : 0);
-
-		if (tensor != null)
-			System.out.println("  " + Operation.format(Operation.wrap(tensor)));
-
-		return tensor != null;
+		System.out.println("6-ary special function: "
+				+ (solvable ? ">= 1" : "0"));
+		return solvable;
 	}
 
 	@SuppressWarnings("unused")
@@ -310,22 +307,23 @@ public class GraphPoly {
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
 		PartialOrder<Boolean> c6 = PartialOrder.crown(6);
 
-		Relation<Boolean> rel = c4.plus(p2).plus(p1).asRelation();
+		Relation<Boolean> rel = c6.plus(p2).plus(p1).asRelation();
 
-		GraphPoly poly = new GraphPoly(new Sat4J(), rel);
+		SatSolver<?> solver = new MiniSat();
+		GraphPoly poly = new GraphPoly(solver, rel);
 		poly.printMembers();
-		poly.printUnaryOps("");
-		poly.printBinaryOps("surjective essential");
-		poly.printBinaryOps("idempotent essential");
-		poly.printBinaryOps("idempotent commutative");
-		poly.printBinaryOps("semilattice");
+		// poly.printUnaryOps("");
+		// poly.printBinaryOps("surjective essential");
+		// poly.printBinaryOps("idempotent essential");
+		// poly.printBinaryOps("idempotent commutative");
+		// poly.printBinaryOps("semilattice");
 		poly.printBinaryOps("two-semilat");
-		poly.printTernaryOps("surjective essential");
-		poly.printTernaryOps("idempotent essential");
-		poly.printTernaryOps("majority");
+		// poly.printTernaryOps("surjective essential");
+		// poly.printTernaryOps("idempotent essential");
+		// poly.printTernaryOps("majority");
 		poly.printTernaryOps("weak-nu");
 
-		poly.printSpecialOperation3(0, 1, 2, 3, 4);
+		poly.printSpecialOperation3(3, 4, 6, 8);
 
 		/*
 		 * System.out.println(); List<Relation<Boolean>> subsets =

@@ -58,6 +58,18 @@ public abstract class BoolProblem {
 		return compute(BoolAlgebra.INSTANCE, tensors);
 	}
 
+	public <BOOL> boolean isSolvable(SatSolver<BOOL> solver) {
+		solver.clear();
+
+		List<Tensor<BOOL>> tensors = new ArrayList<Tensor<BOOL>>();
+		for (Tensor<Boolean> mask : masks)
+			tensors.add(Tensor.generate(mask.getShape(), solver.VARIABLE));
+
+		solver.clause(Arrays.asList(compute(solver, tensors)));
+
+		return solver.solve();
+	}
+
 	public <BOOL> List<Tensor<Boolean>> solveOne(SatSolver<BOOL> solver) {
 		solver.clear();
 
