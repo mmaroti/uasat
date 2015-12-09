@@ -180,11 +180,11 @@ public final class Permutation<BOOL> {
 
 	public BOOL isOdd() {
 		Relation<BOOL> tmp1 = Relation.lift(alg,
-				Relation.makeLessThan(getSize()));
+				Relation.lessThan(getSize()));
 		tmp1 = tmp1.compose(asRelation());
 
 		Relation<BOOL> tmp2 = Relation.lift(alg,
-				Relation.makeGreaterThan(getSize()));
+				Relation.greaterThan(getSize()));
 		tmp2 = asRelation().compose(tmp2);
 
 		return tmp1.intersect(tmp2).isOddCard();

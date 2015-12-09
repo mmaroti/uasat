@@ -24,12 +24,14 @@ import org.uasat.core.*;
 import org.uasat.math.*;
 import org.uasat.solvers.*;
 
-public class GraphPoly {
+public class DigraphPoly {
 	private SatSolver<?> solver;
 	private Relation<Boolean> relation;
-	private int MAX_SOLUTIONS = 1;
+	private int MAX_SOLUTIONS = 5;
 
-	public GraphPoly(SatSolver<?> solver, Relation<Boolean> relation) {
+	public DigraphPoly(SatSolver<?> solver, Relation<Boolean> relation) {
+		assert relation.getArity() == 2;
+
 		this.solver = solver;
 		this.relation = relation;
 	}
@@ -83,10 +85,16 @@ public class GraphPoly {
 				BOOL res = op.isOperation();
 				res = alg.and(res, op.preserves(rel));
 
-				String[] tokens = options.split(" ");
-				for (String token : tokens) {
-					if (token.equals("surjective"))
+				for (String token : options.split(" ")) {
+					if (token.equals("automorphism"))
 						res = alg.and(res, op.isSurjective());
+					else if (token.equals("endomorphism"))
+						res = alg.and(res, alg.not(op.isSurjective()));
+					else if (token.equals("decreasing"))
+						res = alg.and(res, op.asRelation().isSubsetOf(rel));
+					else if (token.equals("increasing"))
+						res = alg.and(res,
+								op.asRelation().isSubsetOf(rel.rotate()));
 					else if (!token.isEmpty())
 						throw new IllegalArgumentException("invalid option");
 				}
@@ -99,11 +107,16 @@ public class GraphPoly {
 		Tensor<Boolean> tensor = prob.solveAll(solver, MAX_SOLUTIONS).get(0);
 
 		printCount(options, "unary ops", tensor.getLastDim());
-
 		for (Tensor<Boolean> t : Tensor.unstack(tensor))
-			System.out.println("  " + Operation.format(Operation.wrap(t)));
+			System.out.println(" " + Operation.format(Operation.wrap(t)));
 
 		return 1 <= tensor.getLastDim();
+	}
+
+	public void printUnaryOps() {
+		printUnaryOps("automorphism");
+		printUnaryOps("decreasing endomorphism");
+		printUnaryOps("increasing endomorphism");
 	}
 
 	public boolean printBinaryOps(final String options) {
@@ -119,8 +132,7 @@ public class GraphPoly {
 				BOOL res = op.isOperation();
 				res = alg.and(res, op.preserves(rel));
 
-				String[] tokens = options.split(" ");
-				for (String token : tokens) {
+				for (String token : options.split(" ")) {
 					if (token.equals("idempotent"))
 						res = alg.and(res, op.isIdempotent());
 					else if (token.equals("commutative"))
@@ -147,13 +159,24 @@ public class GraphPoly {
 		Tensor<Boolean> tensor = prob.solveAll(solver, MAX_SOLUTIONS).get(0);
 
 		printCount(options, "binary ops", tensor.getLastDim());
-
-		if (1 <= tensor.getLastDim()) {
-			Tensor<Boolean> first = Tensor.unstack(tensor).get(0);
-			System.out.println("  " + Operation.format(Operation.wrap(first)));
-		}
+		for (Tensor<Boolean> t : Tensor.unstack(tensor))
+			System.out.println(" " + Operation.format(Operation.wrap(t)));
 
 		return 1 <= tensor.getLastDim();
+	}
+
+	public void printBinaryOps() {
+		boolean semilattice = printBinaryOps("semilattice");
+		boolean two_semilat = semilattice || printBinaryOps("two-semilat");
+		boolean associative = semilattice
+				|| printBinaryOps("associative essential");
+		boolean idempotent = two_semilat
+				|| printBinaryOps("idempotent essential");
+		boolean surjective = idempotent
+				|| printBinaryOps("surjective essential");
+		@SuppressWarnings("unused")
+		boolean essential = associative || idempotent || surjective
+				|| printTernaryOps("essential");
 	}
 
 	public boolean printTernaryOps(final String options) {
@@ -169,8 +192,7 @@ public class GraphPoly {
 				BOOL res = op.isOperation();
 				res = alg.and(res, op.preserves(rel));
 
-				String[] tokens = options.split(" ");
-				for (String token : tokens) {
+				for (String token : options.split(" ")) {
 					if (token.equals("idempotent"))
 						res = alg.and(res, op.isIdempotent());
 					else if (token.equals("essential"))
@@ -197,13 +219,134 @@ public class GraphPoly {
 		Tensor<Boolean> tensor = prob.solveAll(solver, MAX_SOLUTIONS).get(0);
 
 		printCount(options, "ternary ops", tensor.getLastDim());
-
-		if (1 <= tensor.getLastDim()) {
-			Tensor<Boolean> first = Tensor.unstack(tensor).get(0);
-			System.out.println("  " + Operation.format(Operation.wrap(first)));
-		}
+		for (Tensor<Boolean> t : Tensor.unstack(tensor))
+			System.out.println(" " + Operation.format(Operation.wrap(t)));
 
 		return 1 <= tensor.getLastDim();
+	}
+
+	public void printTernaryOps() {
+		boolean majority = printTernaryOps("majority");
+		boolean minority = printTernaryOps("minority");
+		boolean maltsev = minority || printTernaryOps("maltsev");
+		boolean weaknu = majority || printTernaryOps("weak-nu");
+		boolean idempotent = weaknu || maltsev
+				|| printTernaryOps("idempotent essential");
+		boolean surjective = idempotent
+				|| printTernaryOps("surjective essential");
+		@SuppressWarnings("unused")
+		boolean essential = idempotent || surjective
+				|| printTernaryOps("essential");
+	}
+
+	public List<Relation<Boolean>> printDefinableSubalgs(String options,
+			boolean print) {
+		int size = relation.getSize();
+
+		final List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
+		list.add(Relation.full(size, 1));
+
+		List<BoolProblem> problems = new ArrayList<BoolProblem>();
+		Tensor<Boolean> full = Relation.full(size, 1).getTensor();
+		Tensor<Boolean> empty = Relation.empty(size, 1).getTensor();
+
+		BoolProblem intersect = new BoolProblem(full, empty, empty) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> s0 = new Relation<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> s1 = new Relation<BOOL>(alg, tensors.get(1));
+				Relation<BOOL> s2 = new Relation<BOOL>(alg, tensors.get(2));
+
+				BOOL b = alg.not(s0.isMemberOf(list));
+				b = alg.and(b, s1.isMemberOf(list));
+				b = alg.and(b, s2.isMemberOf(list));
+				b = alg.and(b, s0.isEqualTo(s1.intersect(s2)));
+
+				return b;
+			}
+		};
+
+		BoolProblem forward = new BoolProblem(full, empty) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel = Relation.lift(alg, relation);
+				Relation<BOOL> s0 = new Relation<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> s1 = new Relation<BOOL>(alg, tensors.get(1));
+
+				BOOL b = alg.not(s0.isMemberOf(list));
+				b = alg.and(b, s1.isMemberOf(list));
+				b = alg.and(b, s0.isEqualTo(s1.compose(rel)));
+
+				return b;
+			}
+		};
+
+		BoolProblem backward = new BoolProblem(full, empty) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel = Relation.lift(alg, relation);
+				Relation<BOOL> s0 = new Relation<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> s1 = new Relation<BOOL>(alg, tensors.get(1));
+
+				BOOL b = alg.not(s0.isMemberOf(list));
+				b = alg.and(b, s1.isMemberOf(list));
+				b = alg.and(b, s0.isEqualTo(rel.compose(s1)));
+
+				return b;
+			}
+		};
+
+		boolean nonempty = false;
+		for (String token : options.split(" ")) {
+			if (token.equals("singletons")) {
+				for (int i = 0; i < size; i++)
+					list.add(Relation.singleton(size, i));
+			} else if (token.equals("emptyset"))
+				list.add(Relation.empty(size, 1));
+			else if (token.equals("intersect"))
+				problems.add(intersect);
+			else if (token.equals("forward"))
+				problems.add(forward);
+			else if (token.equals("backward"))
+				problems.add(backward);
+			else if (token.equals("treedef")) {
+				problems.add(intersect);
+				problems.add(forward);
+				problems.add(backward);
+			} else if (token.equals("nonempty"))
+				nonempty = true;
+			else if (!token.isEmpty())
+				throw new IllegalArgumentException("invalid option");
+		}
+
+		int count = 0;
+		while (list.size() != count) {
+			count = list.size();
+			for (BoolProblem prob : problems) {
+				prob.verbose = false;
+
+				Tensor<Boolean> tensor = prob.solveAll(solver).get(0);
+				for (Tensor<Boolean> t : Tensor.unstack(tensor))
+					list.add(Relation.wrap(t));
+			}
+		}
+
+		if (nonempty)
+			list.remove(Relation.wrap(empty));
+
+		Relation.sort(list);
+
+		System.out.println(options + (options.isEmpty() ? "" : " ")
+				+ "definable subalgs: " + list.size());
+
+		if (print)
+			for (int i = 0; i < list.size(); i++)
+				System.out.println(" " + Relation.formatMembers(list.get(i)));
+
+		return list;
 	}
 
 	public List<Relation<Boolean>> makeSubsets(String... subsets) {
@@ -240,8 +383,9 @@ public class GraphPoly {
 	}
 
 	public boolean printSurjectiveFuntions(int exp, final Relation<Boolean> rel) {
-		final Relation<Boolean> pow = relation.power(exp);
+		assert rel.getArity() == 2;
 
+		final Relation<Boolean> pow = relation.power(exp);
 		BoolProblem prob = new BoolProblem(new int[] { rel.getSize(),
 				pow.getSize() }) {
 			@Override
@@ -302,42 +446,20 @@ public class GraphPoly {
 
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
-		PartialOrder<Boolean> p1 = PartialOrder.antiChain(1);
-		PartialOrder<Boolean> p2 = PartialOrder.antiChain(2);
+		PartialOrder<Boolean> a1 = PartialOrder.antiChain(1);
+		PartialOrder<Boolean> a2 = PartialOrder.antiChain(2);
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
 		PartialOrder<Boolean> c6 = PartialOrder.crown(6);
 
-		Relation<Boolean> rel = c6.plus(p2).plus(p1).asRelation();
+		Relation<Boolean> rel = c4.plus(a2).plus(a1).asRelation();
 
-		SatSolver<?> solver = new MiniSat();
-		GraphPoly poly = new GraphPoly(solver, rel);
+		DigraphPoly poly = new DigraphPoly(new Sat4J(), rel);
 		poly.printMembers();
-		// poly.printUnaryOps("");
-		// poly.printBinaryOps("surjective essential");
-		// poly.printBinaryOps("idempotent essential");
-		// poly.printBinaryOps("idempotent commutative");
-		// poly.printBinaryOps("semilattice");
-		poly.printBinaryOps("two-semilat");
-		// poly.printTernaryOps("surjective essential");
-		// poly.printTernaryOps("idempotent essential");
-		// poly.printTernaryOps("majority");
-		poly.printTernaryOps("weak-nu");
+		poly.printUnaryOps();
+		poly.printBinaryOps();
+		poly.printTernaryOps();
+		poly.printDefinableSubalgs("singletons treedef nonempty", true);
 
-		poly.printSpecialOperation3(3, 4, 6, 8);
-
-		/*
-		 * System.out.println(); List<Relation<Boolean>> subsets =
-		 * poly.makeSubsets("0", "1", "2", "3", "0 1", "0 2", "0 3", "1 2",
-		 * "1 3", "2 3"); Relation<Boolean> glb = poly.makeGlobal(subsets);
-		 * GraphPoly glob = new GraphPoly(poly.solver, glb);
-		 * glob.printMembers(); glob.printBinaryOps("semilattice");
-		 * glob.printBinaryOps("two-semilat"); //
-		 * glob.printBinaryOps("idempotent essential");
-		 * glob.printTernaryOps("majority");
-		 * 
-		 * System.out.println(); poly.printSurjectiveFuntions(1, glb);
-		 * poly.printSurjectiveFuntions(2, glb); poly.printSurjectiveFuntions(3,
-		 * glb);
-		 */
+		// poly.printSpecialOperation3(3, 4, 6, 8);
 	}
 }

@@ -397,6 +397,27 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		return list;
 	}
 
+	public static <ELEM> Tensor<ELEM> concat(Tensor<ELEM> arg1,
+			Tensor<ELEM> arg2) {
+		assert arg1.getOrder() == arg2.getOrder();
+
+		int a = arg1.getOrder() - 1;
+		for (int i = 0; i < a; i++)
+			assert arg1.getDim(i) == arg2.getDim(i);
+
+		int[] shape = new int[arg1.getOrder()];
+		System.arraycopy(arg1.getShape(), 0, shape, 0, a);
+		shape[a] = arg1.getDim(a) + arg2.getDim(a);
+
+		Tensor<ELEM> tensor = new Tensor<ELEM>(shape);
+		assert arg1.elems.length + arg2.elems.length == tensor.elems.length;
+		System.arraycopy(arg1.elems, 0, tensor.elems, 0, arg1.elems.length);
+		System.arraycopy(arg2.elems, 0, tensor.elems, arg1.elems.length,
+				arg2.elems.length);
+
+		return tensor;
+	}
+
 	public static class Named<ELEM> {
 		public final Tensor<ELEM> tensor;
 		public final String names;
@@ -510,11 +531,34 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		return str.toString();
 	}
 
+	@Override
 	public boolean equals(Object other) {
 		Tensor<?> tensor = (Tensor<?>) other;
 		assert Arrays.equals(shape, tensor.shape);
 
 		return Arrays.equals(elems, tensor.elems);
+	}
+
+	public static <ELEM> Comparator<Tensor<ELEM>> comparator(
+			final Comparator<ELEM> comp) {
+		return new Comparator<Tensor<ELEM>>() {
+			@Override
+			public int compare(Tensor<ELEM> arg0, Tensor<ELEM> arg1) {
+				Iterator<ELEM> iter0 = arg0.iterator();
+				Iterator<ELEM> iter1 = arg1.iterator();
+
+				while (iter0.hasNext()) {
+					assert iter1.hasNext();
+
+					int c = comp.compare(iter0.next(), iter1.next());
+					if (c != 0)
+						return c;
+				}
+
+				assert !iter1.hasNext();
+				return 0;
+			}
+		};
 	}
 
 	public String info() {

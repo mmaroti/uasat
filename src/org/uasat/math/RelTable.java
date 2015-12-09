@@ -21,50 +21,56 @@ package org.uasat.math;
 import java.util.*;
 import org.uasat.core.*;
 
-public final class SubPower<BOOL> {
+public final class RelTable<BOOL> {
 	private final BoolAlgebra<BOOL> alg;
-	private final Tensor<BOOL> tensor;
+	private int size;
+	private int arity;
+	private final List<Tensor<BOOL>> tensors;
 
-	public SubPower(BoolAlgebra<BOOL> alg, Tensor<BOOL> tensor) {
-		assert tensor.getOrder() == 3;
-
+	public RelTable(BoolAlgebra<BOOL> alg, int size, int arity) {
+		this.size = size;
+		this.arity = arity;
 		this.alg = alg;
-		this.tensor = tensor;
+		this.tensors = new ArrayList<Tensor<BOOL>>();
 	}
 
 	public BoolAlgebra<BOOL> getAlg() {
 		return alg;
 	}
 
-	public Tensor<BOOL> getTensor() {
-		return tensor;
-	}
-
 	public int getSize() {
-		return tensor.getDim(0);
+		return size;
 	}
 
 	public int getArity() {
-		return tensor.getDim(1);
+		return arity;
 	}
 
 	public int getCount() {
-		return tensor.getDim(2);
+		return tensors.size();
 	}
 
-	public BOOL isValid() {
-		Tensor<BOOL> t = Tensor.fold(alg.ONE, 1, tensor);
-		return Tensor.fold(alg.ALL, 2, t).get();
+	public void add(Relation<BOOL> rel) {
+		assert rel.getAlg() == alg && rel.getSize() == size
+				&& rel.getArity() == arity;
+
+		tensors.add(rel.getTensor());
 	}
 
-	public SubPower<BOOL> concat(SubPower<BOOL> sub) {
-		assert sub.getAlg() == alg && sub.getSize() == getSize()
-				&& sub.getArity() == getArity();
+	public Relation<BOOL> get(int index) {
+		return new Relation<BOOL>(alg, tensors.get(index));
+	}
 
-		List<Tensor<BOOL>> list = Tensor.unstack(tensor);
-		list.addAll(Tensor.unstack(sub.getTensor()));
-		Tensor<BOOL> tmp = Tensor.stack(tensor.getShape(), list);
+	public BOOL contains(Relation<BOOL> rel) {
+		assert rel.getAlg() == alg && rel.getSize() == size
+				&& rel.getArity() == arity;
 
-		return new SubPower<BOOL>(alg, tmp);
+		BOOL b = alg.TRUE;
+		for (Tensor<BOOL> tensor : tensors) {
+			Tensor<BOOL> tmp = Tensor.map2(alg.EQU, tensor, rel.getTensor());
+			b = alg.and(b, Tensor.fold(alg.ALL, arity, tmp).get());
+		}
+
+		return b;
 	}
 }

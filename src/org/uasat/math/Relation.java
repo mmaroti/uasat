@@ -72,19 +72,26 @@ public final class Relation<BOOL> {
 		return shape;
 	}
 
-	public static Relation<Boolean> makeFull(int size, int arity) {
+	public static Relation<Boolean> full(int size, int arity) {
 		Tensor<Boolean> tensor = Tensor.constant(createShape(size, arity),
 				Boolean.TRUE);
 		return wrap(tensor);
 	}
 
-	public static Relation<Boolean> makeEmpty(int size, int arity) {
+	public static Relation<Boolean> empty(int size, int arity) {
 		Tensor<Boolean> tensor = Tensor.constant(createShape(size, arity),
 				Boolean.FALSE);
 		return wrap(tensor);
 	}
 
-	public static Relation<Boolean> makeEqual(int size) {
+	public static Relation<Boolean> singleton(int size, int elem) {
+		Tensor<Boolean> tensor = Tensor.constant(createShape(size, 1),
+				Boolean.FALSE);
+		tensor.setElem(Boolean.TRUE, elem);
+		return wrap(tensor);
+	}
+
+	public static Relation<Boolean> equal(int size) {
 		Tensor<Boolean> tensor = Tensor.generate(size, size,
 				new Func2<Boolean, Integer, Integer>() {
 					@Override
@@ -95,7 +102,7 @@ public final class Relation<BOOL> {
 		return wrap(tensor);
 	}
 
-	public static Relation<Boolean> makeNotEqual(int size) {
+	public static Relation<Boolean> notEqual(int size) {
 		Tensor<Boolean> tensor = Tensor.generate(size, size,
 				new Func2<Boolean, Integer, Integer>() {
 					@Override
@@ -106,7 +113,7 @@ public final class Relation<BOOL> {
 		return wrap(tensor);
 	}
 
-	public static Relation<Boolean> makeLessThan(int size) {
+	public static Relation<Boolean> lessThan(int size) {
 		Tensor<Boolean> tensor = Tensor.generate(size, size,
 				new Func2<Boolean, Integer, Integer>() {
 					@Override
@@ -117,7 +124,7 @@ public final class Relation<BOOL> {
 		return wrap(tensor);
 	}
 
-	public static Relation<Boolean> makeLessOrEqual(int size) {
+	public static Relation<Boolean> lessOrEqual(int size) {
 		Tensor<Boolean> tensor = Tensor.generate(size, size,
 				new Func2<Boolean, Integer, Integer>() {
 					@Override
@@ -128,7 +135,7 @@ public final class Relation<BOOL> {
 		return wrap(tensor);
 	}
 
-	public static Relation<Boolean> makeGreaterThan(int size) {
+	public static Relation<Boolean> greaterThan(int size) {
 		Tensor<Boolean> tensor = Tensor.generate(size, size,
 				new Func2<Boolean, Integer, Integer>() {
 					@Override
@@ -139,7 +146,7 @@ public final class Relation<BOOL> {
 		return wrap(tensor);
 	}
 
-	public static Relation<Boolean> makeGreaterOrEqual(int size) {
+	public static Relation<Boolean> greaterOrEqual(int size) {
 		Tensor<Boolean> tensor = Tensor.generate(size, size,
 				new Func2<Boolean, Integer, Integer>() {
 					@Override
@@ -333,7 +340,7 @@ public final class Relation<BOOL> {
 	}
 
 	public Relation<BOOL> reflexiveClosure() {
-		return union(lift(alg, makeEqual(getSize())));
+		return union(lift(alg, equal(getSize())));
 	}
 
 	public Relation<BOOL> symmetricClosure() {
@@ -427,13 +434,13 @@ public final class Relation<BOOL> {
 	public BOOL isTransitive() {
 		assert tensor.getOrder() == 2;
 		// mask out diagonal to get fewer literals
-		Relation<BOOL> rel = intersect(lift(alg, makeNotEqual(getSize())));
+		Relation<BOOL> rel = intersect(lift(alg, notEqual(getSize())));
 		return rel.compose(rel).isSubsetOf(this);
 	}
 
 	public BOOL isAntiSymmetric() {
 		assert tensor.getOrder() == 2;
-		Relation<BOOL> rel = intersect(lift(alg, makeNotEqual(getSize())));
+		Relation<BOOL> rel = intersect(lift(alg, notEqual(getSize())));
 		rel = rel.intersect(rel.rotate());
 		return rel.isEmpty();
 	}
@@ -441,7 +448,7 @@ public final class Relation<BOOL> {
 	public BOOL isTrichotome() {
 		assert tensor.getOrder() == 2;
 		Relation<BOOL> rel1, rel2;
-		rel1 = lift(alg, makeLessThan(getSize()));
+		rel1 = lift(alg, lessThan(getSize()));
 		rel2 = rotate().complement().intersect(rel1);
 		rel1 = intersect(rel1);
 		return rel1.isEqualTo(rel2);
@@ -504,6 +511,14 @@ public final class Relation<BOOL> {
 		return b;
 	}
 
+	public BOOL isMemberOf(List<Relation<Boolean>> list) {
+		BOOL b = alg.FALSE;
+		for (Relation<Boolean> rel : list)
+			b = alg.or(b, isEqualTo(Relation.lift(alg, rel)));
+
+		return b;
+	}
+
 	public static char formatIndex(int elem) {
 		if (0 <= elem && elem < 10)
 			return (char) ('0' + elem);
@@ -554,30 +569,66 @@ public final class Relation<BOOL> {
 	}
 
 	public static Relation<Boolean> parseMembers(int size, int arity, String str) {
+		assert arity >= 1;
+
 		Tensor<Boolean> tensor;
 		tensor = Tensor.constant(createShape(size, arity), false);
 
 		int[] index = new int[arity];
 		int p = 0;
 
-		for (int i = 0; i <= str.length(); i++) {
-			if (i == str.length() || str.charAt(i) == ' ') {
+		for (int i = 0; i < str.length(); i++) {
+			if (Character.isWhitespace(str.charAt(i))) {
 				if (p == 0)
 					continue;
-				else if (p != index.length)
-					throw new IllegalArgumentException("too few dims: " + p);
-
-				tensor.setElem(true, index);
-				p = 0;
+				else
+					throw new IllegalArgumentException("bad format");
 			} else {
-				if (p > index.length)
-					throw new IllegalArgumentException("too many dims: " + p);
-
 				index[p++] = parseIndex(size, str.charAt(i));
+				if (p == index.length) {
+					tensor.setElem(true, index);
+					p = 0;
+				}
 			}
 		}
 		assert p == 0;
 
 		return new Relation<Boolean>(BoolAlgebra.INSTANCE, tensor);
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		@SuppressWarnings("unchecked")
+		Relation<BOOL> rel = (Relation<BOOL>) other;
+		return alg == rel.alg && tensor.equals(rel.tensor);
+	}
+
+	public static int cardinality(Relation<Boolean> rel) {
+		int c = 0;
+		for (Boolean b : rel.getTensor())
+			if (b.booleanValue())
+				c += 1;
+
+		return c;
+	}
+
+	public static void sort(List<Relation<Boolean>> list) {
+		final Comparator<Tensor<Boolean>> comp = Tensor
+				.comparator(BoolAlgebra.COMPARATOR);
+
+		Collections.sort(list, new Comparator<Relation<Boolean>>() {
+			@Override
+			public int compare(Relation<Boolean> o1, Relation<Boolean> o2) {
+				assert o1.getSize() == o2.getSize()
+						&& o1.getArity() == o2.getArity();
+
+				int c1 = cardinality(o1);
+				int c2 = cardinality(o2);
+				if (c1 != c2)
+					return c1 - c2;
+
+				return comp.compare(o2.getTensor(), o1.getTensor());
+			}
+		});
 	}
 }

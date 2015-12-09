@@ -311,4 +311,11 @@ public abstract class BoolAlgebra<BOOL> {
 			return false;
 		}
 	};
+
+	public static Comparator<Boolean> COMPARATOR = new Comparator<Boolean>() {
+		@Override
+		public int compare(Boolean o1, Boolean o2) {
+			return o1.compareTo(o2);
+		}
+	};
 }

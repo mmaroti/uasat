@@ -34,11 +34,11 @@ public final class Function<BOOL> {
 		return tensor;
 	}
 
-	public int getCodomainSize() {
+	public int getCodomain() {
 		return tensor.getDim(0);
 	}
 
-	public int getDomainSize() {
+	public int getDomain() {
 		return tensor.getDim(1);
 	}
 
@@ -76,7 +76,7 @@ public final class Function<BOOL> {
 	}
 
 	public BOOL isSurjective() {
-		if (getDomainSize() < getCodomainSize())
+		if (getDomain() < getCodomain())
 			return alg.FALSE;
 
 		return range().isFull();
@@ -91,18 +91,18 @@ public final class Function<BOOL> {
 	}
 
 	public BOOL isEqualTo(Function<BOOL> fun) {
-		assert alg == fun.alg && getDomainSize() == fun.getDomainSize()
-				&& getCodomainSize() == fun.getCodomainSize();
+		assert alg == fun.alg && getDomain() == fun.getDomain()
+				&& getCodomain() == fun.getCodomain();
 
 		Tensor<BOOL> tmp = Tensor.map2(alg.EQU, tensor, fun.tensor);
 		return Tensor.fold(alg.ALL, 2, tmp).get();
 	}
 
 	public Function<BOOL> compose(Function<BOOL> fun) {
-		assert alg == fun.alg && getDomainSize() == fun.getCodomainSize();
+		assert alg == fun.alg && getDomain() == fun.getCodomain();
 
-		int[] shape = new int[] { getDomainSize(), getCodomainSize(),
-				fun.getDomainSize() };
+		int[] shape = new int[] { getDomain(), getCodomain(),
+				fun.getDomain() };
 
 		Tensor<BOOL> t1 = Tensor.reshape(tensor, shape, new int[] { 1, 0 });
 		Tensor<BOOL> t2 = Tensor.reshape(fun.tensor, shape, new int[] { 0, 2 });
@@ -119,21 +119,21 @@ public final class Function<BOOL> {
 	}
 
 	public BOOL isLexLeq(Function<BOOL> fun) {
-		assert alg == fun.alg && getDomainSize() == fun.getDomainSize()
-				&& getCodomainSize() == fun.getCodomainSize();
+		assert alg == fun.alg && getDomain() == fun.getDomain()
+				&& getCodomain() == fun.getCodomain();
 
 		return alg.lexLeq(getTensor(), fun.getTensor());
 	}
 
 	public BOOL isLexLess(Function<BOOL> fun) {
-		assert alg == fun.alg && getDomainSize() == fun.getDomainSize()
-				&& getCodomainSize() == fun.getCodomainSize();
+		assert alg == fun.alg && getDomain() == fun.getDomain()
+				&& getCodomain() == fun.getCodomain();
 
 		return alg.lexLess(getTensor(), fun.getTensor());
 	}
 
 	public Relation<BOOL> evaluate(Relation<BOOL> rel) {
-		assert alg == rel.getAlg() && getDomainSize() == rel.getSize();
+		assert alg == rel.getAlg() && getDomain() == rel.getSize();
 		Contract<BOOL> c = Contract.logical(alg);
 
 		int a = rel.getArity();

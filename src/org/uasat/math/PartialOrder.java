@@ -48,11 +48,11 @@ public final class PartialOrder<BOOL> {
 	}
 
 	public static PartialOrder<Boolean> chain(int size) {
-		return Relation.makeLessOrEqual(size).asPartialOrder();
+		return Relation.lessOrEqual(size).asPartialOrder();
 	}
 
 	public static PartialOrder<Boolean> antiChain(int size) {
-		return Relation.makeEqual(size).asPartialOrder();
+		return Relation.equal(size).asPartialOrder();
 	}
 
 	public static PartialOrder<Boolean> crown(int size) {
@@ -122,7 +122,7 @@ public final class PartialOrder<BOOL> {
 
 	public Relation<BOOL> covers() {
 		Relation<BOOL> tmp = Relation.lift(alg,
-				Relation.makeNotEqual(getSize()));
+				Relation.notEqual(getSize()));
 		tmp = tmp.intersect(asRelation());
 		return tmp.subtract(tmp.compose(tmp));
 	}
@@ -174,6 +174,7 @@ public final class PartialOrder<BOOL> {
 	}
 
 	public Relation<BOOL> downsetOf(Relation<BOOL> rel) {
+		assert rel.getArity() == 1;
 		return asRelation().compose(rel);
 	}
 
@@ -182,6 +183,7 @@ public final class PartialOrder<BOOL> {
 	}
 
 	public Relation<BOOL> upsetOf(Relation<BOOL> rel) {
+		assert rel.getArity() == 1;
 		return rel.compose(asRelation());
 	}
 
@@ -193,7 +195,7 @@ public final class PartialOrder<BOOL> {
 		assert rel.getArity() == 1;
 
 		Relation<BOOL> tmp = Relation.lift(alg,
-				Relation.makeNotEqual(getSize()));
+				Relation.notEqual(getSize()));
 		tmp = tmp.intersect(asRelation());
 		tmp = rel.compose(tmp).intersect(rel);
 		return tmp.isEmpty();

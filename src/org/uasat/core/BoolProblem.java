@@ -29,14 +29,27 @@ public abstract class BoolProblem {
 		this.masks = masks;
 	}
 
-	public BoolProblem(Tensor<Boolean> mask) {
-		masks = new ArrayList<Tensor<Boolean>>();
-		masks.add(mask);
-	}
-
 	public BoolProblem(int[] shape) {
 		masks = new ArrayList<Tensor<Boolean>>();
 		masks.add(Tensor.constant(shape, Boolean.TRUE));
+	}
+
+	public BoolProblem(int[] shape1, int[] shape2) {
+		masks = new ArrayList<Tensor<Boolean>>();
+		masks.add(Tensor.constant(shape1, Boolean.TRUE));
+		masks.add(Tensor.constant(shape2, Boolean.TRUE));
+	}
+
+	public BoolProblem(int[] shape1, int[] shape2, int[] shape3) {
+		masks = new ArrayList<Tensor<Boolean>>();
+		masks.add(Tensor.constant(shape1, Boolean.TRUE));
+		masks.add(Tensor.constant(shape2, Boolean.TRUE));
+		masks.add(Tensor.constant(shape3, Boolean.TRUE));
+	}
+
+	public BoolProblem(Tensor<Boolean> mask) {
+		masks = new ArrayList<Tensor<Boolean>>();
+		masks.add(mask);
 	}
 
 	public BoolProblem(Tensor<Boolean> mask1, Tensor<Boolean> mask2) {
@@ -45,10 +58,12 @@ public abstract class BoolProblem {
 		masks.add(mask2);
 	}
 
-	public BoolProblem(int[] shape1, int[] shape2) {
+	public BoolProblem(Tensor<Boolean> mask1, Tensor<Boolean> mask2,
+			Tensor<Boolean> mask3) {
 		masks = new ArrayList<Tensor<Boolean>>();
-		masks.add(Tensor.constant(shape1, Boolean.TRUE));
-		masks.add(Tensor.constant(shape2, Boolean.TRUE));
+		masks.add(mask1);
+		masks.add(mask2);
+		masks.add(mask3);
 	}
 
 	public abstract <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
