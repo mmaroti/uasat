@@ -255,6 +255,15 @@ public class DigraphPoly {
 		final List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
 		list.add(Relation.full(size, 1));
 
+		Func1<Void, Relation<Boolean>> insert = new Func1<Void, Relation<Boolean>>() {
+			@Override
+			public Void call(Relation<Boolean> elem) {
+				if (!elem.isMemberOf(list))
+					list.add(elem);
+				return null;
+			}
+		};
+
 		List<BoolProblem> problems = new ArrayList<BoolProblem>();
 		Tensor<Boolean> full = Relation.full(size, 1).getTensor();
 		Tensor<Boolean> empty = Relation.empty(size, 1).getTensor();
@@ -367,18 +376,18 @@ public class DigraphPoly {
 				list.add(Relation.empty(size, 1));
 			else if (token.equals("singletons")) {
 				for (int i = 0; i < size; i++)
-					list.add(Relation.singleton(size, i));
+					insert.call(Relation.singleton(size, i));
 			} else if (token.equals("primesets")) {
 				for (int i = 0; i < size; i++) {
-					list.add(Relation.singleton(size, i).compose(relation));
-					list.add(relation.compose(Relation.singleton(size, i)));
+					insert.call(Relation.singleton(size, i).compose(relation));
+					insert.call(relation.compose(Relation.singleton(size, i)));
 				}
 			} else if (token.equals("prime-upsets")) {
 				for (int i = 0; i < size; i++)
-					list.add(Relation.singleton(size, i).compose(relation));
+					insert.call(Relation.singleton(size, i).compose(relation));
 			} else if (token.equals("prime-downsets")) {
 				for (int i = 0; i < size; i++)
-					list.add(relation.compose(Relation.singleton(size, i)));
+					insert.call(relation.compose(Relation.singleton(size, i)));
 			} else if (token.equals("intersect"))
 				problems.add(intersect);
 			else if (token.equals("union"))
@@ -412,8 +421,10 @@ public class DigraphPoly {
 				prob.verbose = false;
 
 				Tensor<Boolean> tensor = prob.solveAll(solver).get(0);
-				for (Tensor<Boolean> t : Tensor.unstack(tensor))
+				for (Tensor<Boolean> t : Tensor.unstack(tensor)) {
+					assert !Relation.wrap(t).isMemberOf(list);
 					list.add(Relation.wrap(t));
+				}
 			}
 		}
 

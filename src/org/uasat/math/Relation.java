@@ -511,9 +511,9 @@ public final class Relation<BOOL> {
 		return b;
 	}
 
-	public BOOL isMemberOf(List<Relation<Boolean>> list) {
+	public BOOL isMemberOf(Collection<Relation<Boolean>> coll) {
 		BOOL b = alg.FALSE;
-		for (Relation<Boolean> rel : list)
+		for (Relation<Boolean> rel : coll)
 			b = alg.or(b, isEqualTo(Relation.lift(alg, rel)));
 
 		return b;
