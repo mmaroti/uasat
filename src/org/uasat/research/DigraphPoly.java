@@ -95,6 +95,8 @@ public class DigraphPoly {
 					else if (token.equals("increasing"))
 						res = alg.and(res,
 								op.asRelation().isSubsetOf(rel.rotate()));
+					else if (token.equals("retraction"))
+						res = alg.and(res, op.compose(op).isEqualTo(op));
 					else if (!token.isEmpty())
 						throw new IllegalArgumentException("invalid option");
 				}
@@ -113,10 +115,17 @@ public class DigraphPoly {
 		return 1 <= tensor.getLastDim();
 	}
 
+	@SuppressWarnings("unused")
 	public void printUnaryOps() {
-		printUnaryOps("automorphism");
-		printUnaryOps("decreasing endomorphism");
-		printUnaryOps("increasing endomorphism");
+		boolean automorphism = printUnaryOps("automorphism");
+		boolean dec_retraction = printUnaryOps("decreasing retraction endomorphism");
+		boolean inc_retraction = printUnaryOps("increasing retraction endomorphism");
+		boolean retraction = dec_retraction || inc_retraction
+				|| printUnaryOps("retraction endomorphism");
+		boolean decreasing = dec_retraction
+				|| printUnaryOps("decreasing endomorphism");
+		boolean increasing = inc_retraction
+				|| printUnaryOps("increasing endomorphism");
 	}
 
 	public boolean printBinaryOps(final String options) {
@@ -228,10 +237,10 @@ public class DigraphPoly {
 	public void printTernaryOps() {
 		boolean majority = printTernaryOps("majority");
 		boolean minority = printTernaryOps("minority");
+		@SuppressWarnings("unused")
 		boolean maltsev = minority || printTernaryOps("maltsev");
-		boolean weaknu = majority || printTernaryOps("weak-nu");
-		boolean idempotent = weaknu || maltsev
-				|| printTernaryOps("idempotent essential");
+		boolean weaknu = majority || minority || printTernaryOps("weak-nu");
+		boolean idempotent = weaknu || printTernaryOps("idempotent essential");
 		boolean surjective = idempotent
 				|| printTernaryOps("surjective essential");
 		@SuppressWarnings("unused")
@@ -267,7 +276,24 @@ public class DigraphPoly {
 			}
 		};
 
-		BoolProblem forward = new BoolProblem(full, empty) {
+		BoolProblem union = new BoolProblem(full, empty, empty) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> s0 = new Relation<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> s1 = new Relation<BOOL>(alg, tensors.get(1));
+				Relation<BOOL> s2 = new Relation<BOOL>(alg, tensors.get(2));
+
+				BOOL b = alg.not(s0.isMemberOf(list));
+				b = alg.and(b, s1.isMemberOf(list));
+				b = alg.and(b, s2.isMemberOf(list));
+				b = alg.and(b, s0.isEqualTo(s1.union(s2)));
+
+				return b;
+			}
+		};
+
+		BoolProblem upset = new BoolProblem(full, empty) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -283,7 +309,7 @@ public class DigraphPoly {
 			}
 		};
 
-		BoolProblem backward = new BoolProblem(full, empty) {
+		BoolProblem downset = new BoolProblem(full, empty) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -299,23 +325,80 @@ public class DigraphPoly {
 			}
 		};
 
+		BoolProblem union_upset = new BoolProblem(full, empty, empty) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel = Relation.lift(alg, relation);
+				Relation<BOOL> s0 = new Relation<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> s1 = new Relation<BOOL>(alg, tensors.get(1));
+				Relation<BOOL> s2 = new Relation<BOOL>(alg, tensors.get(2));
+
+				BOOL b = alg.not(s0.isMemberOf(list));
+				b = alg.and(b, s1.isMemberOf(list));
+				b = alg.and(b, s2.isMemberOf(list));
+				b = alg.and(b, s0.isEqualTo(s1.union(s2).compose(rel)));
+
+				return b;
+			}
+		};
+
+		BoolProblem union_downset = new BoolProblem(full, empty, empty) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel = Relation.lift(alg, relation);
+				Relation<BOOL> s0 = new Relation<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> s1 = new Relation<BOOL>(alg, tensors.get(1));
+				Relation<BOOL> s2 = new Relation<BOOL>(alg, tensors.get(2));
+
+				BOOL b = alg.not(s0.isMemberOf(list));
+				b = alg.and(b, s1.isMemberOf(list));
+				b = alg.and(b, s2.isMemberOf(list));
+				b = alg.and(b, s0.isEqualTo(rel.compose(s1.union(s2))));
+
+				return b;
+			}
+		};
+
 		boolean nonempty = false;
 		for (String token : options.split(" ")) {
-			if (token.equals("singletons")) {
+			if (token.equals("emptyset"))
+				list.add(Relation.empty(size, 1));
+			else if (token.equals("singletons")) {
 				for (int i = 0; i < size; i++)
 					list.add(Relation.singleton(size, i));
-			} else if (token.equals("emptyset"))
-				list.add(Relation.empty(size, 1));
-			else if (token.equals("intersect"))
+			} else if (token.equals("primesets")) {
+				for (int i = 0; i < size; i++) {
+					list.add(Relation.singleton(size, i).compose(relation));
+					list.add(relation.compose(Relation.singleton(size, i)));
+				}
+			} else if (token.equals("prime-upsets")) {
+				for (int i = 0; i < size; i++)
+					list.add(Relation.singleton(size, i).compose(relation));
+			} else if (token.equals("prime-downsets")) {
+				for (int i = 0; i < size; i++)
+					list.add(relation.compose(Relation.singleton(size, i)));
+			} else if (token.equals("intersect"))
 				problems.add(intersect);
-			else if (token.equals("forward"))
-				problems.add(forward);
-			else if (token.equals("backward"))
-				problems.add(backward);
+			else if (token.equals("union"))
+				problems.add(union);
+			else if (token.equals("upset"))
+				problems.add(upset);
+			else if (token.equals("downset"))
+				problems.add(downset);
+			else if (token.equals("union-upset"))
+				problems.add(union_upset);
+			else if (token.equals("union-downset"))
+				problems.add(union_downset);
 			else if (token.equals("treedef")) {
 				problems.add(intersect);
-				problems.add(forward);
-				problems.add(backward);
+				problems.add(upset);
+				problems.add(downset);
+			} else if (token.equals("convex")) {
+				problems.add(intersect);
+				problems.add(union_upset);
+				problems.add(union_downset);
 			} else if (token.equals("nonempty"))
 				nonempty = true;
 			else if (!token.isEmpty())
@@ -451,14 +534,17 @@ public class DigraphPoly {
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
 		PartialOrder<Boolean> c6 = PartialOrder.crown(6);
 
-		Relation<Boolean> rel = c4.plus(a2).plus(a1).asRelation();
-
-		DigraphPoly poly = new DigraphPoly(new Sat4J(), rel);
-		poly.printMembers();
-		poly.printUnaryOps();
-		poly.printBinaryOps();
-		poly.printTernaryOps();
-		poly.printDefinableSubalgs("singletons treedef nonempty", true);
+		Relation<Boolean> rel1 = c4.plus(a1).asRelation();
+		DigraphPoly pol1 = new DigraphPoly(new Sat4J(), rel1);
+		pol1.printMembers();
+		pol1.printUnaryOps();
+		pol1.printBinaryOps();
+		pol1.printTernaryOps();
+		pol1.printDefinableSubalgs("intersect prime-upsets nonempty", true);
+		pol1.printDefinableSubalgs("intersect prime-downsets nonempty", true);
+		pol1.printDefinableSubalgs("singletons treedef nonempty", true);
+		pol1.printDefinableSubalgs("singletons convex nonempty", true);
+		pol1.printDefinableSubalgs("primesets convex nonempty", true);
 
 		// poly.printSpecialOperation3(3, 4, 6, 8);
 	}
