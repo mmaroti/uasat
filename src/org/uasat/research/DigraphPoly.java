@@ -536,15 +536,15 @@ public class DigraphPoly {
 		pol1.printUnaryOps();
 		pol1.printBinaryOps();
 		pol1.printTernaryOps();
-		// pol1.printDefinableSubalgs("singletons treedef nonempty", true);
+		pol1.printDefinableSubalgs("singletons convex nonempty", true);
 		List<Relation<Boolean>> subs = pol1.printDefinableSubalgs(
-				"singletons convex nonempty", true);
+				"singletons treedef nonempty", true);
 
 		Relation<Boolean> rel2 = pol1.makeSubdirectRel(subs);
 		DigraphPoly pol2 = new DigraphPoly(rel2);
 		pol2.printMembers();
 		pol2.printUnaryOps();
 		pol2.printBinaryOps();
-		pol2.printTernaryOps();
+		// pol2.printTernaryOps();
 	}
 }
