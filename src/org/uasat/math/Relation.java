@@ -612,23 +612,21 @@ public final class Relation<BOOL> {
 		return c;
 	}
 
-	public static void sort(List<Relation<Boolean>> list) {
+	public static final Comparator<Relation<Boolean>> COMPARATOR = new Comparator<Relation<Boolean>>() {
 		final Comparator<Tensor<Boolean>> comp = Tensor
 				.comparator(BoolAlgebra.COMPARATOR);
 
-		Collections.sort(list, new Comparator<Relation<Boolean>>() {
-			@Override
-			public int compare(Relation<Boolean> o1, Relation<Boolean> o2) {
-				assert o1.getSize() == o2.getSize()
-						&& o1.getArity() == o2.getArity();
+		@Override
+		public int compare(Relation<Boolean> o1, Relation<Boolean> o2) {
+			assert o1.getSize() == o2.getSize()
+					&& o1.getArity() == o2.getArity();
 
-				int c1 = cardinality(o1);
-				int c2 = cardinality(o2);
-				if (c1 != c2)
-					return c1 - c2;
+			int c1 = cardinality(o1);
+			int c2 = cardinality(o2);
+			if (c1 != c2)
+				return c1 - c2;
 
-				return comp.compare(o2.getTensor(), o1.getTensor());
-			}
-		});
-	}
+			return comp.compare(o2.getTensor(), o1.getTensor());
+		}
+	};
 }

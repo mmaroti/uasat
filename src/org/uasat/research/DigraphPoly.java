@@ -25,14 +25,11 @@ import org.uasat.math.*;
 import org.uasat.solvers.*;
 
 public class DigraphPoly {
-	private SatSolver<?> solver;
 	private Relation<Boolean> relation;
 	private int MAX_SOLUTIONS = 5;
 
-	public DigraphPoly(SatSolver<?> solver, Relation<Boolean> relation) {
+	public DigraphPoly(Relation<Boolean> relation) {
 		assert relation.getArity() == 2;
-
-		this.solver = solver;
 		this.relation = relation;
 	}
 
@@ -252,17 +249,9 @@ public class DigraphPoly {
 			boolean print) {
 		int size = relation.getSize();
 
-		final List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
-		list.add(Relation.full(size, 1));
-
-		Func1<Void, Relation<Boolean>> insert = new Func1<Void, Relation<Boolean>>() {
-			@Override
-			public Void call(Relation<Boolean> elem) {
-				if (!elem.isMemberOf(list))
-					list.add(elem);
-				return null;
-			}
-		};
+		final Set<Relation<Boolean>> set = new TreeSet<Relation<Boolean>>(
+				Relation.COMPARATOR);
+		set.add(Relation.full(size, 1));
 
 		List<BoolProblem> problems = new ArrayList<BoolProblem>();
 		Tensor<Boolean> full = Relation.full(size, 1).getTensor();
@@ -276,9 +265,9 @@ public class DigraphPoly {
 				Relation<BOOL> s1 = new Relation<BOOL>(alg, tensors.get(1));
 				Relation<BOOL> s2 = new Relation<BOOL>(alg, tensors.get(2));
 
-				BOOL b = alg.not(s0.isMemberOf(list));
-				b = alg.and(b, s1.isMemberOf(list));
-				b = alg.and(b, s2.isMemberOf(list));
+				BOOL b = alg.not(s0.isMemberOf(set));
+				b = alg.and(b, s1.isMemberOf(set));
+				b = alg.and(b, s2.isMemberOf(set));
 				b = alg.and(b, s0.isEqualTo(s1.intersect(s2)));
 
 				return b;
@@ -293,9 +282,9 @@ public class DigraphPoly {
 				Relation<BOOL> s1 = new Relation<BOOL>(alg, tensors.get(1));
 				Relation<BOOL> s2 = new Relation<BOOL>(alg, tensors.get(2));
 
-				BOOL b = alg.not(s0.isMemberOf(list));
-				b = alg.and(b, s1.isMemberOf(list));
-				b = alg.and(b, s2.isMemberOf(list));
+				BOOL b = alg.not(s0.isMemberOf(set));
+				b = alg.and(b, s1.isMemberOf(set));
+				b = alg.and(b, s2.isMemberOf(set));
 				b = alg.and(b, s0.isEqualTo(s1.union(s2)));
 
 				return b;
@@ -310,8 +299,8 @@ public class DigraphPoly {
 				Relation<BOOL> s0 = new Relation<BOOL>(alg, tensors.get(0));
 				Relation<BOOL> s1 = new Relation<BOOL>(alg, tensors.get(1));
 
-				BOOL b = alg.not(s0.isMemberOf(list));
-				b = alg.and(b, s1.isMemberOf(list));
+				BOOL b = alg.not(s0.isMemberOf(set));
+				b = alg.and(b, s1.isMemberOf(set));
 				b = alg.and(b, s0.isEqualTo(s1.compose(rel)));
 
 				return b;
@@ -326,8 +315,8 @@ public class DigraphPoly {
 				Relation<BOOL> s0 = new Relation<BOOL>(alg, tensors.get(0));
 				Relation<BOOL> s1 = new Relation<BOOL>(alg, tensors.get(1));
 
-				BOOL b = alg.not(s0.isMemberOf(list));
-				b = alg.and(b, s1.isMemberOf(list));
+				BOOL b = alg.not(s0.isMemberOf(set));
+				b = alg.and(b, s1.isMemberOf(set));
 				b = alg.and(b, s0.isEqualTo(rel.compose(s1)));
 
 				return b;
@@ -343,9 +332,9 @@ public class DigraphPoly {
 				Relation<BOOL> s1 = new Relation<BOOL>(alg, tensors.get(1));
 				Relation<BOOL> s2 = new Relation<BOOL>(alg, tensors.get(2));
 
-				BOOL b = alg.not(s0.isMemberOf(list));
-				b = alg.and(b, s1.isMemberOf(list));
-				b = alg.and(b, s2.isMemberOf(list));
+				BOOL b = alg.not(s0.isMemberOf(set));
+				b = alg.and(b, s1.isMemberOf(set));
+				b = alg.and(b, s2.isMemberOf(set));
 				b = alg.and(b, s0.isEqualTo(s1.union(s2).compose(rel)));
 
 				return b;
@@ -361,9 +350,9 @@ public class DigraphPoly {
 				Relation<BOOL> s1 = new Relation<BOOL>(alg, tensors.get(1));
 				Relation<BOOL> s2 = new Relation<BOOL>(alg, tensors.get(2));
 
-				BOOL b = alg.not(s0.isMemberOf(list));
-				b = alg.and(b, s1.isMemberOf(list));
-				b = alg.and(b, s2.isMemberOf(list));
+				BOOL b = alg.not(s0.isMemberOf(set));
+				b = alg.and(b, s1.isMemberOf(set));
+				b = alg.and(b, s2.isMemberOf(set));
 				b = alg.and(b, s0.isEqualTo(rel.compose(s1.union(s2))));
 
 				return b;
@@ -373,21 +362,21 @@ public class DigraphPoly {
 		boolean nonempty = false;
 		for (String token : options.split(" ")) {
 			if (token.equals("emptyset"))
-				list.add(Relation.empty(size, 1));
+				set.add(Relation.empty(size, 1));
 			else if (token.equals("singletons")) {
 				for (int i = 0; i < size; i++)
-					insert.call(Relation.singleton(size, i));
+					set.add(Relation.singleton(size, i));
 			} else if (token.equals("primesets")) {
 				for (int i = 0; i < size; i++) {
-					insert.call(Relation.singleton(size, i).compose(relation));
-					insert.call(relation.compose(Relation.singleton(size, i)));
+					set.add(Relation.singleton(size, i).compose(relation));
+					set.add(relation.compose(Relation.singleton(size, i)));
 				}
 			} else if (token.equals("prime-upsets")) {
 				for (int i = 0; i < size; i++)
-					insert.call(Relation.singleton(size, i).compose(relation));
+					set.add(Relation.singleton(size, i).compose(relation));
 			} else if (token.equals("prime-downsets")) {
 				for (int i = 0; i < size; i++)
-					insert.call(relation.compose(Relation.singleton(size, i)));
+					set.add(relation.compose(Relation.singleton(size, i)));
 			} else if (token.equals("intersect"))
 				problems.add(intersect);
 			else if (token.equals("union"))
@@ -415,43 +404,37 @@ public class DigraphPoly {
 		}
 
 		int count = 0;
-		while (list.size() != count) {
-			count = list.size();
+		while (set.size() != count) {
+			count = set.size();
 			for (BoolProblem prob : problems) {
 				prob.verbose = false;
 
 				Tensor<Boolean> tensor = prob.solveAll(solver).get(0);
 				for (Tensor<Boolean> t : Tensor.unstack(tensor)) {
-					assert !Relation.wrap(t).isMemberOf(list);
-					list.add(Relation.wrap(t));
+					assert !Relation.wrap(t).isMemberOf(set);
+					set.add(Relation.wrap(t));
 				}
 			}
 		}
 
 		if (nonempty)
-			list.remove(Relation.wrap(empty));
-
-		Relation.sort(list);
+			set.remove(Relation.wrap(empty));
 
 		System.out.println(options + (options.isEmpty() ? "" : " ")
-				+ "definable subalgs: " + list.size());
+				+ "definable subalgs: " + set.size());
+
+		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>(set);
 
 		if (print)
 			for (int i = 0; i < list.size(); i++)
-				System.out.println(" " + Relation.formatMembers(list.get(i)));
+				System.out.println(i + ": "
+						+ Relation.formatMembers(list.get(i)));
 
 		return list;
 	}
 
-	public List<Relation<Boolean>> makeSubsets(String... subsets) {
-		List<Relation<Boolean>> subs = new ArrayList<Relation<Boolean>>();
-		for (String str : subsets)
-			subs.add(Relation.parseMembers(relation.getSize(), 1, str));
-
-		return subs;
-	}
-
-	public Relation<Boolean> makeGlobal(final List<Relation<Boolean>> subsets) {
+	public Relation<Boolean> makeSubdirectRel(
+			final List<Relation<Boolean>> subsets) {
 		int[] shape = new int[relation.getArity()];
 		Arrays.fill(shape, subsets.size());
 
@@ -538,6 +521,8 @@ public class DigraphPoly {
 		return solvable;
 	}
 
+	private SatSolver<?> solver = new Sat4J();
+
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		PartialOrder<Boolean> a1 = PartialOrder.antiChain(1);
@@ -546,17 +531,20 @@ public class DigraphPoly {
 		PartialOrder<Boolean> c6 = PartialOrder.crown(6);
 
 		Relation<Boolean> rel1 = c4.plus(a1).asRelation();
-		DigraphPoly pol1 = new DigraphPoly(new Sat4J(), rel1);
+		DigraphPoly pol1 = new DigraphPoly(rel1);
 		pol1.printMembers();
 		pol1.printUnaryOps();
 		pol1.printBinaryOps();
 		pol1.printTernaryOps();
-		pol1.printDefinableSubalgs("intersect prime-upsets nonempty", true);
-		pol1.printDefinableSubalgs("intersect prime-downsets nonempty", true);
-		pol1.printDefinableSubalgs("singletons treedef nonempty", true);
-		pol1.printDefinableSubalgs("singletons convex nonempty", true);
-		pol1.printDefinableSubalgs("primesets convex nonempty", true);
+		// pol1.printDefinableSubalgs("singletons treedef nonempty", true);
+		List<Relation<Boolean>> subs = pol1.printDefinableSubalgs(
+				"singletons convex nonempty", true);
 
-		// poly.printSpecialOperation3(3, 4, 6, 8);
+		Relation<Boolean> rel2 = pol1.makeSubdirectRel(subs);
+		DigraphPoly pol2 = new DigraphPoly(rel2);
+		pol2.printMembers();
+		pol2.printUnaryOps();
+		pol2.printBinaryOps();
+		pol2.printTernaryOps();
 	}
 }
