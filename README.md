@@ -1,11 +1,12 @@
 uasat
 =====
 
-This is a SAT based universal algebra calculator framework. Currently it
-does not have any graphical user interface, you need to know java to be
-able to use it. As an example, it has a built in  
-[validation](src/org/uasat/math/Validation.java) program, which calculates
-the number of certain structures from the [OEIS](http://oeis.org/):
+This is a SAT based universal algebra calculator framework. 
+Currently it does not have any graphical user interface, 
+you need to know java to be able to use it. As an example, 
+it has a built in [validation](src/org/uasat/math/Validation.java)
+program, which calculates the number of certain structures from 
+the [OEIS](http://oeis.org/):
 
 ```
 A000110 the number of equivalences on a 7-element set is 877.
@@ -55,9 +56,9 @@ cannot express your problem otherwise.
 ## Build
 
 You can use the enclosed `build.xml` [ant](http://ant.apache.org/) file to create
-the `uasat.jar` file. You can use the `java -jar uasat.jar` command to run the 
-validation program on your machine. You can also link your program against this
-jar file, or fork this project for your research.
+the `uasat.jar` file, just type `ant` or `and jar` in the project directory. 
+You can also link your program against this jar file, or fork this project 
+for your research.
 
 ## License
 
