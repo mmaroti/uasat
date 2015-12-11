@@ -25,6 +25,8 @@ import org.uasat.core.*;
 
 public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 	public boolean debugging = false;
+	public int totalLiterals = 0;
+	public int totalClauses = 0;
 
 	public SatSolver(BOOL FALSE, BOOL TRUE) {
 		super(FALSE, TRUE);

@@ -89,6 +89,7 @@ public class Sat4J extends SatSolver<Integer> {
 
 	@Override
 	public Integer variable() {
+		totalLiterals += 1;
 		int a = solver.newVar(++variables);
 		assert a == variables;
 
@@ -96,6 +97,7 @@ public class Sat4J extends SatSolver<Integer> {
 	}
 
 	public void clause(int[] clause) {
+		totalClauses += 1;
 		try {
 			solver.addClause(new VecInt(clause));
 		} catch (ContradictionException e) {
@@ -105,6 +107,7 @@ public class Sat4J extends SatSolver<Integer> {
 
 	@Override
 	public void clause(List<Integer> clause) {
+		totalClauses += 1;
 		int[] c = new int[clause.size()];
 		for (int i = 0; i < clause.size(); i++)
 			c[i] = clause.get(i);

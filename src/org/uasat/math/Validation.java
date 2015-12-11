@@ -274,6 +274,9 @@ public class Validation {
 		checkEssentialRelations();
 		time = System.currentTimeMillis() - time;
 
+		System.out.println("Total literals: " + solver.totalLiterals
+				+ ", clauses: " + solver.totalClauses + ".");
+
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
 				+ " seconds.");
 

@@ -47,11 +47,13 @@ public class MiniSat extends SatSolver<Integer> {
 
 	@Override
 	public final Integer variable() {
+		totalLiterals += 1;
 		return ++variables;
 	}
 
 	@Override
 	public void clause(List<Integer> clause) {
+		totalClauses += 1;
 		int[] c = new int[clause.size()];
 		for (int i = 0; i < clause.size(); i++)
 			c[i] = clause.get(i);

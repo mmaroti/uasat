@@ -20,11 +20,18 @@ A023815 the number of commutative semigroups on 4 is 1140.
 A084279 the number of 3-colorable 5-element simple graphs is 958.
 A114714 the number of linear extensions of 2x2x4 is 2452.
 The number of essential binary relations on 3 is 462.
-Finished in 9.23 seconds.
+Total literals: 9179, clauses: 106889.
+Finished in 8.19 seconds.
 ```
 
 I have also included a few small programs used for my research, you can
 disregard those.
+
+## Build
+
+You can use the enclosed `build.xml` [ant](ant.apache.org/) file to create
+a `jar` file and run the validation program. You can also link your program
+against this jar file, or fork this project.
 
 ## Internal structure
 
@@ -58,4 +65,5 @@ Internally, the code uses the pure java SAT4J package for SAT solving
 (licensed under the LGPL) or produces a DIMACS file which can be parsed 
 and solved by external SAT solvers, such as MiniSat.
 
-If you use this code for anything serious in your research, please let me know.
+If you use this code for anything serious in your research, please let 
+[me](www.math.u-szeged.hu/~mmaroti/) know.

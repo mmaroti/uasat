@@ -167,14 +167,18 @@ public final class Operation<BOOL> {
 	}
 
 	public BOOL isAssociative() {
-		Operation<BOOL> x = lift(alg, projection(getSize(), 3, 0));
-		Operation<BOOL> y = lift(alg, projection(getSize(), 3, 1));
-		Operation<BOOL> z = lift(alg, projection(getSize(), 3, 2));
+		assert getArity() == 2;
+		Contract<BOOL> c = Contract.logical(alg);
 
-		Operation<BOOL> a = compose(compose(x, y), z);
-		Operation<BOOL> b = compose(x, compose(y, z));
+		c.add(tensor, "txy");
+		c.add(tensor, "atz");
+		Tensor<BOOL> tmp = c.get("axyz");
+		c.add(tensor, "tyz");
+		c.add(tensor, "axt");
+		tmp = Tensor.map2(alg.EQU, tmp, c.get("axyz"));
+		tmp = Tensor.fold(alg.ALL, 4, tmp);
 
-		return a.isEqualTo(b);
+		return tmp.get();
 	}
 
 	public BOOL isSemilattice() {
