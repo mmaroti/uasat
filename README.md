@@ -55,9 +55,9 @@ cannot express your problem otherwise.
 ## Build
 
 You can use the enclosed `build.xml` [ant](http://ant.apache.org/) file to create
-the `uasat.jar` file. You can use the `java -jar uasat.jar` to run the validation
-program on your machine. You can also link your program against this jar file, 
-or fork this project for your research.
+the `uasat.jar` file. You can use the `java -jar uasat.jar` command to run the 
+validation program on your machine. You can also link your program against this
+jar file, or fork this project for your research.
 
 ## License
 

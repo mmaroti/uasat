@@ -544,7 +544,7 @@ public class DigraphPoly {
 		DigraphPoly pol2 = new DigraphPoly(rel2);
 		pol2.printMembers();
 		pol2.printUnaryOps();
-		pol2.printBinaryOps();
-		// pol2.printTernaryOps();
+		// pol2.printBinaryOps();
+		pol2.printTernaryOps();
 	}
 }

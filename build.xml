@@ -1,35 +1,40 @@
 <!-- This is an ANT makefile -->
-<project>
-    <target name="clean">
-        <delete includeEmptyDirs="true">
+<project name="uasat" default="validate">
+	<target name="clean">
+		<delete includeEmptyDirs="true">
 			<fileset dir="bin" includes="**/*"/>
 		</delete>
 		<delete file="uasat.jar"/>
-    </target>
+	</target>
 
 	<path id="classpath">
 		<fileset dir="" includes="lib/*.jar"/>
 		<pathelement path="bin"/>
 	</path>
-    <target name="build">
-        <mkdir dir="bin"/>
-        <javac srcdir="src" destdir="bin" classpathref="classpath" includeantruntime="false"/>
-    </target>
 
-    <target name="jar" depends="build">
+	<target name="build">
+		<mkdir dir="bin"/>
+		<javac srcdir="src" destdir="bin" classpathref="classpath" includeantruntime="false"/>
+	</target>
+
+	<target name="jar" depends="build">
 		<manifestclasspath property="jar.classpath" jarfile="uasat.jar">
 			<classpath refid="classpath"/>
 		</manifestclasspath>	
-        <jar destfile="uasat.jar" includes="" compress="true" update="true">
+		<jar destfile="uasat.jar" includes="" compress="true" update="true">
 			<fileset dir="" includes="src/**/*"/>
 			<fileset dir="" includes="lib/*.jar"/>
 			<fileset dir="" includes="bin/**/*.class"/>
 			<fileset file="LICENSE"/>
 			<fileset file="README.md"/>
-            <manifest>
+			<manifest>
 				<attribute name="Main-Class" value="org.uasat.math.Validation"/>
 				<attribute name="Class-Path" value="${jar.classpath}"/>
-            </manifest>
-        </jar>
-    </target>
+			</manifest>
+		</jar>
+	</target>
+	
+	<target name="validate" depends="jar">
+		<java jar="uasat.jar" fork="true"/>
+	</target>
 </project>

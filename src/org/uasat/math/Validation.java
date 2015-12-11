@@ -233,7 +233,7 @@ public class Validation {
 		};
 
 		int count = problem.solveAll(solver).get(0).getLastDim();
-		verify("A002720 the number of injective partial transformations on 5",
+		verify("A002720 the number of partial permutations on 5",
 				count, 1546);
 	}
 
