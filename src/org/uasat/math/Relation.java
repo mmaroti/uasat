@@ -203,11 +203,16 @@ public final class Relation<BOOL> {
 		return new Relation<BOOL>(alg, tmp);
 	}
 
-	public Relation<BOOL> rotate() {
-		int[] map = new int[getArity()];
-		map[0] = map.length - 1;
-		for (int i = 1; i < map.length; i++)
-			map[i] = i - 1;
+	// offset 1 shifts dim0 to dim1
+	public Relation<BOOL> rotate(int offset) {
+		int a = getArity();
+		offset %= a;
+		if (offset < 0)
+			offset += a;
+
+		int[] map = new int[a];
+		for (int i = 0; i < map.length; i++)
+			map[i] = (i + offset) % a;
 
 		Tensor<BOOL> tmp = Tensor.reshape(tensor, tensor.getShape(), map);
 		return new Relation<BOOL>(alg, tmp);
@@ -345,7 +350,7 @@ public final class Relation<BOOL> {
 
 	public Relation<BOOL> symmetricClosure() {
 		assert getArity() == 2;
-		return union(rotate());
+		return union(rotate(1));
 	}
 
 	public static Relation<Boolean> transitiveClosure(Relation<Boolean> rel) {
@@ -428,7 +433,7 @@ public final class Relation<BOOL> {
 	}
 
 	public BOOL isSymmetric() {
-		return isSubsetOf(rotate());
+		return isSubsetOf(rotate(1));
 	}
 
 	public BOOL isTransitive() {
@@ -441,7 +446,7 @@ public final class Relation<BOOL> {
 	public BOOL isAntiSymmetric() {
 		assert tensor.getOrder() == 2;
 		Relation<BOOL> rel = intersect(lift(alg, notEqual(getSize())));
-		rel = rel.intersect(rel.rotate());
+		rel = rel.intersect(rel.rotate(1));
 		return rel.isEmpty();
 	}
 
@@ -449,7 +454,7 @@ public final class Relation<BOOL> {
 		assert tensor.getOrder() == 2;
 		Relation<BOOL> rel1, rel2;
 		rel1 = lift(alg, lessThan(getSize()));
-		rel2 = rotate().complement().intersect(rel1);
+		rel2 = rotate(1).complement().intersect(rel1);
 		rel1 = intersect(rel1);
 		return rel1.isEqualTo(rel2);
 	}

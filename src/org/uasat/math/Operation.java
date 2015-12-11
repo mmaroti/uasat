@@ -68,7 +68,7 @@ public final class Operation<BOOL> {
 	}
 
 	public Relation<BOOL> range() {
-		Tensor<BOOL> tmp = asRelation().rotate().getTensor();
+		Tensor<BOOL> tmp = asRelation().rotate(-1).getTensor();
 		tmp = Tensor.fold(alg.ANY, tensor.getOrder() - 1, tmp);
 		return new Relation<BOOL>(alg, tmp);
 	}
@@ -160,6 +160,32 @@ public final class Operation<BOOL> {
 
 	public BOOL isIdempotent() {
 		return isSatisfied(new int[getArity()]);
+	}
+
+	public BOOL isUnitElement(int elem) {
+		assert getArity() == 2;
+
+		BOOL b = alg.TRUE;
+		for (int i = 0; i < getSize(); i++) {
+			b = alg.and(b, tensor.getElem(i, elem, i));
+			if (i != elem)
+				b = alg.and(b, tensor.getElem(i, i, elem));
+		}
+
+		return b;
+	}
+
+	public BOOL isZeroElement(int elem) {
+		assert getArity() == 2;
+
+		BOOL b = alg.TRUE;
+		for (int i = 0; i < getSize(); i++) {
+			b = alg.and(b, tensor.getElem(elem, elem, i));
+			if (i != elem)
+				b = alg.and(b, tensor.getElem(elem, i, elem));
+		}
+
+		return b;
 	}
 
 	public BOOL isCommutative() {

@@ -91,7 +91,7 @@ public class DigraphPoly {
 						res = alg.and(res, op.asRelation().isSubsetOf(rel));
 					else if (token.equals("increasing"))
 						res = alg.and(res,
-								op.asRelation().isSubsetOf(rel.rotate()));
+								op.asRelation().isSubsetOf(rel.rotate(1)));
 					else if (token.equals("retraction"))
 						res = alg.and(res, op.compose(op).isEqualTo(op));
 					else if (!token.isEmpty())

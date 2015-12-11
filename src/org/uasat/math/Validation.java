@@ -136,20 +136,6 @@ public class Validation {
 		verify("A000372 the number of antichains of 2^4", count, 168);
 	}
 
-	void checkEssentialRelations() {
-		BoolProblem problem = new BoolProblem(new int[] { 3, 3 }) {
-			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
-				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
-				return rel.isEssential();
-			}
-		};
-
-		int count = problem.solveAll(solver).get(0).getLastDim();
-		verify("The number of essential binary relations on 3", count, 462);
-	}
-
 	void checkNonIsomorphicDigraphs() {
 		final List<Permutation<Boolean>> perms = Permutation.symmetricGroup(4);
 
@@ -233,8 +219,7 @@ public class Validation {
 		};
 
 		int count = problem.solveAll(solver).get(0).getLastDim();
-		verify("A002720 the number of partial permutations on 5",
-				count, 1546);
+		verify("A002720 the number of partial permutations on 5", count, 1546);
 	}
 
 	void checkCommutativeSemigroups() {
@@ -254,12 +239,58 @@ public class Validation {
 		verify("A023815 the number of commutative semigroups on 4", count, 1140);
 	}
 
+	void checkLatinSquares() {
+		BoolProblem problem = new BoolProblem(new int[] { 4, 4, 4 }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
+				BOOL b = rel.isOperation();
+				b = alg.and(b, rel.rotate(1).isOperation());
+				b = alg.and(b, rel.rotate(2).isOperation());
+				return b;
+			}
+		};
+
+		int count = problem.solveAll(solver).get(0).getLastDim();
+		verify("A002860 the number of labelled quasigroups of order 4", count, 576);
+	}
+
+	void checkFiniteGroups() {
+		final List<Permutation<Boolean>> perms = Permutation.symmetricGroup(4);
+
+		BoolProblem problem = new BoolProblem(new int[] { 4, 4, 4 }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
+				BOOL b = rel.isOperation();
+				b = alg.and(b, rel.rotate(1).isOperation());
+				b = alg.and(b, rel.rotate(2).isOperation());
+
+				Operation<BOOL> op = rel.asOperation();
+				b = alg.and(b, op.isAssociative());
+
+				for (Permutation<Boolean> p : perms) {
+					Permutation<BOOL> perm = Permutation.lift(alg, p);
+					b = alg.and(b, op.isLexLeq(op.conjugate(perm)));
+				}
+
+				return b;
+			}
+		};
+
+		int count = problem.solveAll(solver).get(0).getLastDim();
+		verify("A000001 the number of groups of order 4", count, 2);
+	}
+
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
 	void check() {
 		failed = false;
 
 		long time = System.currentTimeMillis();
+		checkFiniteGroups();
 		checkEquivalences();
 		checkPermutations();
 		checkNonIsomorphicDigraphs();
@@ -268,10 +299,10 @@ public class Validation {
 		checkNonIsomorphicGroupoids();
 		checkAlternations();
 		checkPartialInjections();
+		checkLatinSquares();
 		checkCommutativeSemigroups();
 		checkThreeColorableGraphs();
 		checkLinearExtensions();
-		checkEssentialRelations();
 		time = System.currentTimeMillis() - time;
 
 		System.out.println("Total literals: " + solver.totalLiterals

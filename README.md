@@ -9,6 +9,7 @@ program, which calculates the number of certain structures from
 the [OEIS](http://oeis.org/):
 
 ```
+A000001 the number of groups of order 4 is 2.
 A000110 the number of equivalences on a 7-element set is 877.
 A000142 the number of permutations on a 7-element set is 5040.
 A000273 the number of non-isomorphic 4-element digraphs is 218.
@@ -16,13 +17,13 @@ A000372 the number of antichains of 2^4 is 168.
 A001035 the number of partial orders on a 5-element set is 4231.
 A001329 the number of non-isomorphic 3-element groupoids is 3330.
 A001710 the number of even permutations on a 7-element set is 2520.
-A002720 the number of injective partial transformations on 5 is 1546.
+A002720 the number of partial permutations on 5 is 1546.
+A002860 the number of labelled quasigroups of order 4 is 576.
 A023815 the number of commutative semigroups on 4 is 1140.
 A084279 the number of 3-colorable 5-element simple graphs is 958.
 A114714 the number of linear extensions of 2x2x4 is 2452.
-The number of essential binary relations on 3 is 462.
-Total literals: 9179, clauses: 106889.
-Finished in 8.19 seconds.
+Total literals: 20187, clauses: 178728.
+Finished in 9.16 seconds.
 ```
 
 I have also included a few small programs used for my research, you can
@@ -56,9 +57,9 @@ cannot express your problem otherwise.
 ## Build
 
 You can use the enclosed `build.xml` [ant](http://ant.apache.org/) file to create
-the `uasat.jar` file, just type `ant` or `and jar` in the project directory. 
-You can also link your program against this jar file, or fork this project 
-for your research.
+the `uasat.jar` file, just run the `ant` or `ant jar` command line programs
+in the project directory. You can also link your program against this jar file, 
+or fork this project for your research.
 
 ## License
 
