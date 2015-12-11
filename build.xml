@@ -1,3 +1,4 @@
+<!-- This is an ANT makefile -->
 <project>
     <target name="clean">
         <delete includeEmptyDirs="true">
@@ -6,18 +7,18 @@
 		<delete file="uasat.jar"/>
     </target>
 
-	<path id="jars">
+	<path id="classpath">
 		<fileset dir="" includes="lib/*.jar"/>
 		<pathelement path="bin"/>
 	</path>
     <target name="build">
         <mkdir dir="bin"/>
-        <javac srcdir="src" destdir="bin" classpathref="jars" includeantruntime="false"/>
+        <javac srcdir="src" destdir="bin" classpathref="classpath" includeantruntime="false"/>
     </target>
 
     <target name="jar" depends="build">
-		<manifestclasspath property="jarcp" jarfile="uasat.jar">
-			<classpath refid="jars"/>
+		<manifestclasspath property="jar.classpath" jarfile="uasat.jar">
+			<classpath refid="classpath"/>
 		</manifestclasspath>	
         <jar destfile="uasat.jar" includes="" compress="true" update="true">
 			<fileset dir="" includes="src/**/*"/>
@@ -27,7 +28,7 @@
 			<fileset file="README.md"/>
             <manifest>
 				<attribute name="Main-Class" value="org.uasat.math.Validation"/>
-				<attribute name="Class-Path" value="${jarcp}"/>
+				<attribute name="Class-Path" value="${jar.classpath}"/>
             </manifest>
         </jar>
     </target>
