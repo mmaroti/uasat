@@ -27,12 +27,6 @@ Finished in 8.19 seconds.
 I have also included a few small programs used for my research, you can
 disregard those.
 
-## Build
-
-You can use the enclosed `build.xml` [ant](ant.apache.org/) file to create
-a `jar` file and run the validation program. You can also link your program
-against this jar file, or fork this project.
-
 ## Internal structure
 
 Every mathematical object is represented internally by a boolean tensor 
@@ -58,6 +52,13 @@ operations, and these are captured in this package. You should use these
 classes in your program and resort to raw tensor manipulation only when you 
 cannot express your problem otherwise.
 
+## Build
+
+You can use the enclosed `build.xml` [ant](http://ant.apache.org/) file to create
+the `uasat.jar` file. You can use the `java -jar uasat.jar` to run the validation
+program on your machine. You can also link your program against this jar file, 
+or fork this project for your research.
+
 ## License
 
 The code is licensed under the GNU [GPL](LICENSE) version 2 or later. 
@@ -66,4 +67,4 @@ Internally, the code uses the pure java SAT4J package for SAT solving
 and solved by external SAT solvers, such as MiniSat.
 
 If you use this code for anything serious in your research, please let 
-[me](www.math.u-szeged.hu/~mmaroti/) know.
+[me](http://www.math.u-szeged.hu/~mmaroti/) know.
