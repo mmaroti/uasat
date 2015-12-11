@@ -427,7 +427,7 @@ public class DigraphPoly {
 
 		if (print)
 			for (int i = 0; i < list.size(); i++)
-				System.out.println(i + ": "
+				System.out.println(Relation.formatIndex(i) + ": "
 						+ Relation.formatMembers(list.get(i)));
 
 		return list;
@@ -459,37 +459,43 @@ public class DigraphPoly {
 		return Relation.wrap(tensor);
 	}
 
-	public boolean printSurjectiveFuntions(int exp, final Relation<Boolean> rel) {
-		assert rel.getArity() == 2;
+	public void printHomomorphism(final Relation<Boolean> target, String pairs) {
+		assert target.getArity() == 2;
 
-		final Relation<Boolean> pow = relation.power(exp);
-		BoolProblem prob = new BoolProblem(new int[] { rel.getSize(),
-				pow.getSize() }) {
+		final List<Integer> p = new ArrayList<Integer>();
+		for (String pair : pairs.split(" ")) {
+			if (pair.length() == 2) {
+				p.add(Relation.parseIndex(relation.getSize(), pair.charAt(0)));
+				p.add(Relation.parseIndex(target.getSize(), pair.charAt(1)));
+			} else if (!pair.isEmpty())
+				throw new IllegalArgumentException();
+		}
+
+		BoolProblem prob = new BoolProblem(new int[] { target.getSize(),
+				relation.getSize() }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
 				Function<BOOL> fun = new Function<BOOL>(alg, tensors.get(0));
-				Relation<BOOL> rel1 = Relation.lift(alg, pow);
-				Relation<BOOL> rel2 = Relation.lift(alg, rel);
+				Relation<BOOL> trg = Relation.lift(alg, target);
+				Relation<BOOL> src = Relation.lift(alg, relation);
 
-				BOOL b = fun.preserves(rel1, rel2);
-				b = alg.and(b, fun.isFunction());
-				return alg.and(b, fun.isSurjective());
+				BOOL b = fun.isFunction();
+				b = alg.and(b, fun.preserves(src, trg));
+
+				for (int i = 0; i < p.size(); i += 2)
+					b = alg.and(b, fun.hasValue(p.get(i + 1), p.get(i)));
+
+				return b;
 			}
 		};
 
 		prob.verbose = false;
 		Tensor<Boolean> tensor = prob.solveAll(solver, MAX_SOLUTIONS).get(0);
 
-		printCount("surjective", "functions from power " + exp,
-				tensor.getLastDim());
-
-		if (1 <= tensor.getLastDim()) {
-			Tensor<Boolean> first = Tensor.unstack(tensor).get(0);
-			System.out.println("  " + Function.format(Function.wrap(first)));
-		}
-
-		return 1 <= tensor.getLastDim();
+		printCount(pairs, "extending homs", tensor.getLastDim());
+		for (Tensor<Boolean> t : Tensor.unstack(tensor))
+			System.out.println(" " + Function.format(Function.wrap(t)));
 	}
 
 	public boolean printSpecialOperation3(final int a, final int b,
@@ -536,15 +542,16 @@ public class DigraphPoly {
 		pol1.printUnaryOps();
 		pol1.printBinaryOps();
 		pol1.printTernaryOps();
-		pol1.printDefinableSubalgs("singletons convex nonempty", true);
 		List<Relation<Boolean>> subs = pol1.printDefinableSubalgs(
-				"singletons treedef nonempty", true);
+				"singletons convex nonempty", true);
 
 		Relation<Boolean> rel2 = pol1.makeSubdirectRel(subs);
 		DigraphPoly pol2 = new DigraphPoly(rel2);
 		pol2.printMembers();
-		pol2.printUnaryOps();
+
+		pol2.printHomomorphism(rel1, "00 11 22 33 44 60 91");
+		// pol2.printUnaryOps();
 		// pol2.printBinaryOps();
-		pol2.printTernaryOps();
+		// pol2.printTernaryOps();
 	}
 }

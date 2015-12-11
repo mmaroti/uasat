@@ -98,11 +98,14 @@ public final class Function<BOOL> {
 		return Tensor.fold(alg.ALL, 2, tmp).get();
 	}
 
+	public BOOL hasValue(int res, int arg) {
+		return tensor.getElem(res, arg);
+	}
+
 	public Function<BOOL> compose(Function<BOOL> fun) {
 		assert alg == fun.alg && getDomain() == fun.getCodomain();
 
-		int[] shape = new int[] { getDomain(), getCodomain(),
-				fun.getDomain() };
+		int[] shape = new int[] { getDomain(), getCodomain(), fun.getDomain() };
 
 		Tensor<BOOL> t1 = Tensor.reshape(tensor, shape, new int[] { 1, 0 });
 		Tensor<BOOL> t2 = Tensor.reshape(fun.tensor, shape, new int[] { 0, 2 });
