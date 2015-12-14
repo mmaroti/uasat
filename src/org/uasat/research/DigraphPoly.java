@@ -427,7 +427,7 @@ public class DigraphPoly {
 
 		if (print)
 			for (int i = 0; i < list.size(); i++)
-				System.out.println(Relation.formatIndex(i) + ": "
+				System.out.println(Util.formatIndex(i) + ": "
 						+ Relation.formatMembers(list.get(i)));
 
 		return list;
@@ -465,8 +465,8 @@ public class DigraphPoly {
 		final List<Integer> p = new ArrayList<Integer>();
 		for (String pair : pairs.split(" ")) {
 			if (pair.length() == 2) {
-				p.add(Relation.parseIndex(relation.getSize(), pair.charAt(0)));
-				p.add(Relation.parseIndex(target.getSize(), pair.charAt(1)));
+				p.add(Util.parseIndex(relation.getSize(), pair.charAt(0)));
+				p.add(Util.parseIndex(target.getSize(), pair.charAt(1)));
 			} else if (!pair.isEmpty())
 				throw new IllegalArgumentException();
 		}

@@ -176,7 +176,7 @@ public final class Function<BOOL> {
 
 		String s = "";
 		for (Integer elem : tensor)
-			s += Relation.formatIndex(elem);
+			s += Util.formatIndex(elem);
 
 		return s;
 	}

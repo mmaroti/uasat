@@ -253,7 +253,8 @@ public class Validation {
 		};
 
 		int count = problem.solveAll(solver).get(0).getLastDim();
-		verify("A002860 the number of labelled quasigroups of order 4", count, 576);
+		verify("A002860 the number of labelled quasigroups of order 4", count,
+				576);
 	}
 
 	void checkFiniteGroups() {

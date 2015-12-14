@@ -535,7 +535,7 @@ public final class Operation<BOOL> {
 				c = 1;
 				s += ' ';
 			}
-			s += Relation.formatIndex(elem);
+			s += Util.formatIndex(elem);
 		}
 
 		return s;

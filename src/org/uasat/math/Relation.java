@@ -63,23 +63,14 @@ public final class Relation<BOOL> {
 		return new Relation<BOOL>(alg, tensor);
 	}
 
-	private static int[] createShape(int size, int arity) {
-		assert size >= 1 && arity >= 0;
-
-		int[] shape = new int[arity];
-		for (int i = 0; i < arity; i++)
-			shape[i] = size;
-		return shape;
-	}
-
 	public static Relation<Boolean> full(int size, int arity) {
-		Tensor<Boolean> tensor = Tensor.constant(createShape(size, arity),
+		Tensor<Boolean> tensor = Tensor.constant(Util.createShape(size, arity),
 				Boolean.TRUE);
 		return wrap(tensor);
 	}
 
 	public static Relation<Boolean> empty(int size, int arity) {
-		Tensor<Boolean> tensor = Tensor.constant(createShape(size, arity),
+		Tensor<Boolean> tensor = Tensor.constant(Util.createShape(size, arity),
 				Boolean.FALSE);
 		return wrap(tensor);
 	}
@@ -87,7 +78,7 @@ public final class Relation<BOOL> {
 	public static Relation<Boolean> singleton(int size, int... tuple) {
 		assert tuple.length >= 1;
 		Tensor<Boolean> tensor = Tensor.constant(
-				createShape(size, tuple.length), Boolean.FALSE);
+				Util.createShape(size, tuple.length), Boolean.FALSE);
 		tensor.setElem(Boolean.TRUE, tuple);
 		return wrap(tensor);
 	}
@@ -250,7 +241,8 @@ public final class Relation<BOOL> {
 		checkSize(rel);
 		assert getArity() + rel.getArity() >= 3;
 
-		int[] shape = createShape(getSize(), getArity() + rel.getArity() - 1);
+		int[] shape = Util.createShape(getSize(), getArity() + rel.getArity()
+				- 1);
 
 		int[] map = new int[getArity()];
 		for (int i = 0; i < map.length - 1; i++)
@@ -525,30 +517,6 @@ public final class Relation<BOOL> {
 		return b;
 	}
 
-	public static char formatIndex(int elem) {
-		if (0 <= elem && elem < 10)
-			return (char) ('0' + elem);
-		else if (10 <= elem && elem < 36)
-			return (char) ('a' + elem - 10);
-		else
-			throw new IllegalArgumentException();
-	}
-
-	public static int parseIndex(int size, char c) {
-		int i;
-		if ('0' <= c && c <= '9')
-			i = c - '0';
-		else if ('a' <= c && c <= 'z')
-			i = c - 'a' + 10;
-		else
-			i = size;
-
-		if (i < size)
-			return i;
-		else
-			throw new IllegalArgumentException("invalid coordinate: " + c);
-	}
-
 	public static String formatMembers(Relation<Boolean> rel) {
 		String s = "";
 
@@ -559,7 +527,7 @@ public final class Relation<BOOL> {
 				if (s.length() != 0)
 					s += ' ';
 				for (int i = 0; i < index.length; i++)
-					s += formatIndex(index[i]);
+					s += Util.formatIndex(index[i]);
 			}
 
 			for (int i = index.length - 1; i >= 0; i--) {
@@ -578,7 +546,7 @@ public final class Relation<BOOL> {
 		assert arity >= 1;
 
 		Tensor<Boolean> tensor;
-		tensor = Tensor.constant(createShape(size, arity), false);
+		tensor = Tensor.constant(Util.createShape(size, arity), false);
 
 		int[] index = new int[arity];
 		int p = 0;
@@ -590,7 +558,7 @@ public final class Relation<BOOL> {
 				else
 					throw new IllegalArgumentException("bad format");
 			} else {
-				index[p++] = parseIndex(size, str.charAt(i));
+				index[p++] = Util.parseIndex(size, str.charAt(i));
 				if (p == index.length) {
 					tensor.setElem(true, index);
 					p = 0;
