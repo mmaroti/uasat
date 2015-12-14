@@ -21,21 +21,15 @@ package org.uasat.math;
 import java.util.*;
 import org.uasat.core.*;
 
-public final class RelTable<BOOL> {
-	private final BoolAlgebra<BOOL> alg;
+public final class RelTable {
 	private int size;
 	private int arity;
-	private final List<Tensor<BOOL>> tensors;
+	private final List<Tensor<Boolean>> tensors;
 
-	public RelTable(BoolAlgebra<BOOL> alg, int size, int arity) {
+	public RelTable(int size, int arity) {
 		this.size = size;
 		this.arity = arity;
-		this.alg = alg;
-		this.tensors = new ArrayList<Tensor<BOOL>>();
-	}
-
-	public BoolAlgebra<BOOL> getAlg() {
-		return alg;
+		this.tensors = new ArrayList<Tensor<Boolean>>();
 	}
 
 	public int getSize() {
@@ -50,27 +44,33 @@ public final class RelTable<BOOL> {
 		return tensors.size();
 	}
 
-	public void add(Relation<BOOL> rel) {
-		assert rel.getAlg() == alg && rel.getSize() == size
+	public void add(Relation<Boolean> rel) {
+		assert rel.getAlg() == BoolAlgebra.INSTANCE && rel.getSize() == size
 				&& rel.getArity() == arity;
 
-		tensors.add(rel.getTensor());
+		if (!tensors.contains(rel.getTensor()))
+			tensors.add(rel.getTensor());
 	}
 
-	public Relation<BOOL> get(int index) {
-		return new Relation<BOOL>(alg, tensors.get(index));
+	public Relation<Boolean> get(int index) {
+		return Relation.wrap(tensors.get(index));
 	}
 
-	public BOOL contains(Relation<BOOL> rel) {
-		assert rel.getAlg() == alg && rel.getSize() == size
-				&& rel.getArity() == arity;
+	public <BOOL> BOOL contains(Relation<BOOL> rel) {
+		assert rel.getSize() == size && rel.getArity() == arity;
+		BoolAlgebra<BOOL> alg = rel.getAlg();
 
 		BOOL b = alg.TRUE;
-		for (Tensor<BOOL> tensor : tensors) {
-			Tensor<BOOL> tmp = Tensor.map2(alg.EQU, tensor, rel.getTensor());
-			b = alg.and(b, Tensor.fold(alg.ALL, arity, tmp).get());
+		for (Tensor<Boolean> tensor : tensors) {
+			Relation<BOOL> tmp = Relation.lift(alg, Relation.wrap(tensor));
+			b = alg.and(b, tmp.isEqualTo(rel));
 		}
 
 		return b;
+	}
+
+	public void addSingletons() {
+		
+		add(Relation.full(size, arity));
 	}
 }

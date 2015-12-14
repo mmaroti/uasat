@@ -84,10 +84,11 @@ public final class Relation<BOOL> {
 		return wrap(tensor);
 	}
 
-	public static Relation<Boolean> singleton(int size, int elem) {
-		Tensor<Boolean> tensor = Tensor.constant(createShape(size, 1),
-				Boolean.FALSE);
-		tensor.setElem(Boolean.TRUE, elem);
+	public static Relation<Boolean> singleton(int size, int... tuple) {
+		assert tuple.length >= 1;
+		Tensor<Boolean> tensor = Tensor.constant(
+				createShape(size, tuple.length), Boolean.FALSE);
+		tensor.setElem(Boolean.TRUE, tuple);
 		return wrap(tensor);
 	}
 
