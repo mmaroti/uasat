@@ -1,6 +1,6 @@
-<!-- This is an ANT makefile -->
+<!-- This is an ant makefile, type "ant" to run it -->
 <project name="uasat" default="validate">
-	<target name="clean">
+	<target name="clean" description="removes all build artifacts">
 		<delete includeEmptyDirs="true">
 			<fileset dir="bin" includes="**/*"/>
 		</delete>
@@ -12,15 +12,15 @@
 		<pathelement path="bin"/>
 	</path>
 
-	<target name="build">
+	<target name="build" description="compiles all java files">
 		<mkdir dir="bin"/>
 		<javac srcdir="src" destdir="bin" classpathref="classpath" includeantruntime="false"/>
 	</target>
 
-	<target name="jar" depends="build">
+	<target name="jar" depends="build" description="builds the uasat.jar file">
 		<manifestclasspath property="jar.classpath" jarfile="uasat.jar">
 			<classpath refid="classpath"/>
-		</manifestclasspath>	
+		</manifestclasspath>
 		<jar destfile="uasat.jar" includes="" compress="true" update="true">
 			<fileset dir="" includes="src/**/*"/>
 			<fileset dir="" includes="lib/*.jar"/>
@@ -33,8 +33,8 @@
 			</manifest>
 		</jar>
 	</target>
-	
-	<target name="validate" depends="jar">
+
+	<target name="validate" depends="jar" description="runs the validation program">
 		<java jar="uasat.jar" fork="true"/>
 	</target>
 </project>
