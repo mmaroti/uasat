@@ -459,7 +459,8 @@ public class DigraphPoly {
 		return Relation.wrap(tensor);
 	}
 
-	public void printHomomorphism(final Relation<Boolean> target, String pairs) {
+	public void printHomomorphismExt(final Relation<Boolean> target,
+			String pairs) {
 		assert target.getArity() == 2;
 
 		final List<Integer> p = new ArrayList<Integer>();
@@ -496,6 +497,44 @@ public class DigraphPoly {
 		printCount(pairs, "extending homs", tensor.getLastDim());
 		for (Tensor<Boolean> t : Tensor.unstack(tensor))
 			System.out.println(" " + Function.format(Function.wrap(t)));
+	}
+
+	public boolean printOperationExt(int arity, String tuples) {
+		final List<int[]> t = new ArrayList<int[]>();
+		for (String tuple : tuples.split(" ")) {
+			if (tuple.length() == arity + 1) {
+				int[] index = new int[arity + 1];
+				for (int i = 0; i <= arity; i++)
+					index[i] = Util.parseIndex(relation.getSize(),
+							tuple.charAt(i));
+				t.add(index);
+			} else if (!tuple.isEmpty())
+				throw new IllegalArgumentException();
+		}
+
+		BoolProblem prob = new BoolProblem(Util.createShape(relation.getSize(),
+				arity + 1)) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
+
+				BOOL b = op.isOperation();
+				for (int[] tuple : t)
+					b = alg.and(b, op.hasValue(tuple));
+
+				return b;
+			}
+		};
+
+		prob.verbose = false;
+		Tensor<Boolean> tensor = prob.solveAll(solver, MAX_SOLUTIONS).get(0);
+
+		printCount(tuples, "extending ops", tensor.getLastDim());
+		for (Tensor<Boolean> a : Tensor.unstack(tensor))
+			System.out.println(" " + Operation.format(Operation.wrap(a)));
+
+		return tensor.getLastDim() > 0;
 	}
 
 	public boolean printSpecialOperation3(final int a, final int b,
@@ -542,14 +581,18 @@ public class DigraphPoly {
 		pol1.printUnaryOps();
 		pol1.printBinaryOps();
 		pol1.printTernaryOps();
-		List<Relation<Boolean>> subs = pol1.printDefinableSubalgs(
-				"singletons convex nonempty", true);
+		// List<Relation<Boolean>> subs =
+		// pol1.printDefinableSubalgs("singletons convex nonempty", true);
 
-		Relation<Boolean> rel2 = pol1.makeSubdirectRel(subs);
-		DigraphPoly pol2 = new DigraphPoly(rel2);
-		pol2.printMembers();
+		pol1.printOperationExt(
+				3,
+				"0000 0001 0002 0003 0004 1110 1111 1112 1113 1114 2220 2221 2222 2223 2224 3330 3331 3332 3333 3334 4440 4441 4442 4443 4444 0004 1104 2204 3304 4404");
 
-		pol2.printHomomorphism(rel1, "00 11 22 33 44 60 91");
+		// Relation<Boolean> rel2 = pol1.makeSubdirectRel(subs);
+		// DigraphPoly pol2 = new DigraphPoly(rel2);
+		// pol2.printMembers();
+
+		// pol2.printHomomorphismExt(rel1, "00 11 22 33 44 60 91");
 		// pol2.printUnaryOps();
 		// pol2.printBinaryOps();
 		// pol2.printTernaryOps();
