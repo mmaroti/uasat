@@ -41,6 +41,16 @@ public class Contract<ELEM> {
 		return new Contract<ELEM>(alg.SUM, alg.AND);
 	}
 
+	private static String format(List<?> vars) {
+		String s = new String();
+		for (Object var : vars) {
+			if (s.length() != 0)
+				s += ' ';
+			s += var.toString();
+		}
+		return s;
+	}
+
 	private static class Entry<ELEM> {
 		public final Tensor<ELEM> tensor;
 		public final List<?> vars;
@@ -48,6 +58,11 @@ public class Contract<ELEM> {
 		public Entry(Tensor<ELEM> tensor, List<?> vars) {
 			this.tensor = tensor;
 			this.vars = vars;
+		}
+
+		@Override
+		public String toString() {
+			return tensor.info() + " vars " + format(vars);
 		}
 	}
 
@@ -62,7 +77,7 @@ public class Contract<ELEM> {
 	}
 
 	public static List<Integer> range(int first, int start, int end) {
-		assert start <= end;
+		assert first < start && start <= end;
 
 		List<Integer> list = new ArrayList<Integer>();
 		list.add(first);
@@ -237,6 +252,17 @@ public class Contract<ELEM> {
 			list.add(new Character(vars.charAt(i)));
 
 		return get(list);
+	}
+
+	public void debug(List<?> output) {
+		System.out.println("variables: " + format(varOrder));
+		for (Entry<ELEM> entry : entries)
+			System.out.println(entry);
+
+		if (output != null)
+			System.out.println("output: " + format(output));
+
+		System.out.println();
 	}
 
 	public static void main(String[] args) {

@@ -105,6 +105,28 @@ public final class Operation<BOOL> {
 		return Operation.wrap(tensor);
 	}
 
+	public static Operation<Boolean> moduloAdd(final int size) {
+		Tensor<Boolean> tensor = Tensor.generate(
+				new int[] { size, size, size }, new Func1<Boolean, int[]>() {
+					@Override
+					public Boolean call(int[] elem) {
+						return elem[0] == (elem[1] + elem[2]) % size;
+					}
+				});
+		return Operation.wrap(tensor);
+	}
+
+	public static Operation<Boolean> moduloMul(final int size) {
+		Tensor<Boolean> tensor = Tensor.generate(
+				new int[] { size, size, size }, new Func1<Boolean, int[]>() {
+					@Override
+					public Boolean call(int[] elem) {
+						return elem[0] == (elem[1] * elem[2]) % size;
+					}
+				});
+		return Operation.wrap(tensor);
+	}
+
 	public BOOL isEqualTo(Operation<BOOL> op) {
 		return asRelation().isEqualTo(op.asRelation());
 	}
