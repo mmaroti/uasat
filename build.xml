@@ -35,6 +35,8 @@
 	</target>
 
 	<target name="validate" depends="jar" description="runs the validation program">
-		<java jar="uasat.jar" fork="true"/>
+		<java jar="uasat.jar" fork="true">
+			<jvmarg value="-ea"/>
+		</java>
 	</target>
 </project>

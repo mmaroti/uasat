@@ -26,7 +26,7 @@ import org.uasat.solvers.*;
 
 public class DigraphPoly {
 	private Relation<Boolean> relation;
-	private int MAX_SOLUTIONS = 5;
+	private int MAX_SOLUTIONS = 10;
 
 	public DigraphPoly(Relation<Boolean> relation) {
 		assert relation.getArity() == 2;
@@ -520,6 +520,7 @@ public class DigraphPoly {
 				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
 
 				BOOL b = op.isOperation();
+				b = alg.and(b, op.isIdempotent());
 				for (int[] tuple : t)
 					b = alg.and(b, op.hasValue(tuple));
 
@@ -580,13 +581,11 @@ public class DigraphPoly {
 		pol1.printMembers();
 		pol1.printUnaryOps();
 		pol1.printBinaryOps();
-		pol1.printTernaryOps();
+		// pol1.printTernaryOps();
 		// List<Relation<Boolean>> subs =
 		// pol1.printDefinableSubalgs("singletons convex nonempty", true);
 
-		pol1.printOperationExt(
-				3,
-				"0000 0001 0002 0003 0004 1110 1111 1112 1113 1114 2220 2221 2222 2223 2224 3330 3331 3332 3333 3334 4440 4441 4442 4443 4444 0004 1104 2204 3304 4404");
+		pol1.printOperationExt(3, "0001 1101 2301 3201 4401");
 
 		// Relation<Boolean> rel2 = pol1.makeSubdirectRel(subs);
 		// DigraphPoly pol2 = new DigraphPoly(rel2);
