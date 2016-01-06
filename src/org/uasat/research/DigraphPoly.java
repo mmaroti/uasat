@@ -517,9 +517,12 @@ public class DigraphPoly {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel = Relation.lift(alg, relation);
 				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
 
 				BOOL b = op.isOperation();
+				b = alg.and(b, op.preserves(rel));
+				
 				b = alg.and(b, op.isIdempotent());
 				for (int[] tuple : t)
 					b = alg.and(b, op.hasValue(tuple));
@@ -585,7 +588,7 @@ public class DigraphPoly {
 		// List<Relation<Boolean>> subs =
 		// pol1.printDefinableSubalgs("singletons convex nonempty", true);
 
-		pol1.printOperationExt(3, "0001 1101 2301 3201 4401");
+		pol1.printOperationExt(3, "0001 1101 2201 3301 4401");
 
 		// Relation<Boolean> rel2 = pol1.makeSubdirectRel(subs);
 		// DigraphPoly pol2 = new DigraphPoly(rel2);
