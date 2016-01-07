@@ -31,19 +31,64 @@ public class FewSubpowers {
 	public static Algebra<Boolean> IMPALG = Algebra.wrap(Operation.parseTable(
 			2, 2, "11 01"));
 
-	public void printSubpowers(Algebra<Boolean> ua, int arity) {
-		List<Relation<Boolean>> list = Algebra.getSubpowers(solver, ua, arity);
+	public static Algebra<Boolean> IMPALG0 = IMPALG.extend(Operation
+			.parseTable(2, 0, "0"));
 
+	public static Algebra<Boolean> IMPALG1 = IMPALG.extend(Operation
+			.parseTable(2, 0, "1"));
+
+	public void printAllSubpowers(Algebra<Boolean> ua, int arity) {
+		List<Relation<Boolean>> list = Algebra.findAllSubpowers(solver, ua,
+				arity);
+
+		System.out.println("Subpowers of arity " + arity);
 		for (int i = 0; i < list.size(); i++)
 			System.out.println("" + i + ": "
 					+ Relation.formatMembers(list.get(i)));
+		System.out.println();
+	}
+
+	public void printMaxSubpowers(Algebra<Boolean> ua, int arity) {
+		List<Relation<Boolean>> list = Algebra.findMaximalSubpowers(solver, ua,
+				arity);
+
+		System.out.println("Maximal subpowers of arity " + arity + ":");
+		for (int i = 0; i < list.size(); i++)
+			System.out.println("" + i + ": "
+					+ Relation.formatMembers(list.get(i)));
+		System.out.println();
+	}
+
+	public void printMinSubpowers(Algebra<Boolean> ua, int arity) {
+		List<Relation<Boolean>> list = Algebra.findMinimalSubpowers(solver, ua,
+				arity);
+
+		System.out.println("Minimal subpowers of arity " + arity + ":");
+		for (int i = 0; i < list.size(); i++)
+			System.out.println("" + i + ": "
+					+ Relation.formatMembers(list.get(i)));
+		System.out.println();
+	}
+
+	public void printSmallestSubpower(Algebra<Boolean> ua, int arity) {
+		Relation<Boolean> rel = Algebra.findSmallestSubpower(solver, ua, arity);
+
+		System.out.println("Smallest subpower of arity " + arity + ":");
+		System.out.println(Relation.formatMembers(rel));
+		System.out.println();
 	}
 
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 		FewSubpowers test = new FewSubpowers();
 
-		test.printSubpowers(IMPALG, 3);
+		Algebra<Boolean> alg = IMPALG1;
+		int arity = 5;
+
+		// test.printAllSubpowers(alg, arity);
+		test.printMaxSubpowers(alg, arity);
+		test.printMinSubpowers(alg, arity);
+		test.printSmallestSubpower(alg, arity);
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

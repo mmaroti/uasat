@@ -376,6 +376,8 @@ public final class Operation<BOOL> {
 			return evaluate_op2_rel3(rel);
 		else if (getArity() == 2 && rel.getArity() == 4)
 			return evaluate_op2_rel4(rel);
+		else if (getArity() == 2 && rel.getArity() == 5)
+			return evaluate_op2_rel5(rel);
 		else if (getArity() == 3 && rel.getArity() == 3)
 			return evaluate_op3_rel3(rel);
 		else if (getArity() == 3 && rel.getArity() == 4)
@@ -457,6 +459,23 @@ public final class Operation<BOOL> {
 		c.add(tensor, "zcg");
 		c.add(tensor, "udh");
 		Tensor<BOOL> t = c.get("xyzu");
+
+		return new Relation<BOOL>(alg, t);
+	}
+
+	private Relation<BOOL> evaluate_op2_rel5(Relation<BOOL> rel) {
+		assert getArity() == 2 && rel.getArity() == 5;
+		Contract<BOOL> c = Contract.logical(alg);
+
+		// the order matters for performance
+		c.add(rel.getTensor(), "abcde");
+		c.add(tensor, "xaf");
+		c.add(tensor, "ybg");
+		c.add(rel.getTensor(), "fghij");
+		c.add(tensor, "zch");
+		c.add(tensor, "udi");
+		c.add(tensor, "vej");
+		Tensor<BOOL> t = c.get("xyzuv");
 
 		return new Relation<BOOL>(alg, t);
 	}
@@ -565,31 +584,29 @@ public final class Operation<BOOL> {
 	}
 
 	public static Operation<Boolean> parseTable(int size, int arity, String str) {
-		assert arity >= 1;
+		assert size >= 1 && arity >= 0;
 
 		Tensor<Boolean> tensor;
 		tensor = Tensor.constant(Util.createShape(size, arity + 1), false);
 
 		int[] index = new int[arity + 1];
-		int p = 0;
-
 		for (int i = 0; i < str.length(); i++) {
 			if (Character.isWhitespace(str.charAt(i))) {
-				if (p == 0)
-					continue;
-				else
-					throw new IllegalArgumentException("bad format");
+				continue;
 			} else {
 				index[0] = Util.parseIndex(size, str.charAt(i));
 				tensor.setElem(true, index);
 
 				index[0] = size - 1;
-				if (Util.nextIndex(tensor.getShape(), index) != (i != str
-						.length() - 1))
+				boolean cont = Util.nextIndex(tensor.getShape(), index);
+
+				if (cont != (i < str.length() - 1))
 					throw new IllegalArgumentException("bad entry count");
 			}
 		}
-		assert p == 0;
+
+		for (int i = 0; i < index.length; i++)
+			assert index[i] == 0;
 
 		return Operation.wrap(tensor);
 	}

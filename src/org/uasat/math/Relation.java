@@ -171,7 +171,7 @@ public final class Relation<BOOL> {
 		return new Relation<BOOL>(alg, tmp);
 	}
 
-	public Relation<BOOL> symmdiff(Relation<BOOL> rel) {
+	public Relation<BOOL> symmDiff(Relation<BOOL> rel) {
 		checkArity(rel);
 		Tensor<BOOL> tmp = Tensor.map2(alg.ADD, tensor, rel.tensor);
 		return new Relation<BOOL>(alg, tmp);
@@ -274,6 +274,21 @@ public final class Relation<BOOL> {
 		int[] map = new int[getArity()];
 
 		Tensor<BOOL> tmp = Tensor.reshape(tensor, shape, map);
+		return new Relation<BOOL>(alg, tmp);
+	}
+
+	public Relation<BOOL> diagExtend(int arity) {
+		assert getArity() == 1;
+
+		Tensor<BOOL> tmp = Tensor.constant(Util.createShape(getSize(), arity),
+				alg.FALSE);
+
+		int[] index = new int[arity];
+		for (int i = 0; i < getSize(); i++) {
+			Arrays.fill(index, i);
+			tmp.setElem(tensor.getElem(i), index);
+		}
+
 		return new Relation<BOOL>(alg, tmp);
 	}
 
