@@ -107,7 +107,7 @@ public class DigraphPoly {
 
 		printCount(options, "unary ops", tensor.getLastDim());
 		for (Tensor<Boolean> t : Tensor.unstack(tensor))
-			System.out.println(" " + Operation.format(Operation.wrap(t)));
+			System.out.println(" " + Operation.formatTable(Operation.wrap(t)));
 
 		return 1 <= tensor.getLastDim();
 	}
@@ -166,7 +166,7 @@ public class DigraphPoly {
 
 		printCount(options, "binary ops", tensor.getLastDim());
 		for (Tensor<Boolean> t : Tensor.unstack(tensor))
-			System.out.println(" " + Operation.format(Operation.wrap(t)));
+			System.out.println(" " + Operation.formatTable(Operation.wrap(t)));
 
 		return 1 <= tensor.getLastDim();
 	}
@@ -226,7 +226,7 @@ public class DigraphPoly {
 
 		printCount(options, "ternary ops", tensor.getLastDim());
 		for (Tensor<Boolean> t : Tensor.unstack(tensor))
-			System.out.println(" " + Operation.format(Operation.wrap(t)));
+			System.out.println(" " + Operation.formatTable(Operation.wrap(t)));
 
 		return 1 <= tensor.getLastDim();
 	}
@@ -536,7 +536,7 @@ public class DigraphPoly {
 
 		printCount(tuples, "extending ops", tensor.getLastDim());
 		for (Tensor<Boolean> a : Tensor.unstack(tensor))
-			System.out.println(" " + Operation.format(Operation.wrap(a)));
+			System.out.println(" " + Operation.formatTable(Operation.wrap(a)));
 
 		return tensor.getLastDim() > 0;
 	}

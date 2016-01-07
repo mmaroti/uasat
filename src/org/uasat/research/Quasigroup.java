@@ -93,9 +93,9 @@ public class Quasigroup {
 			Operation<Boolean> p3 = Operation.wrap(sol.get(2));
 
 			System.out.println("has solution:");
-			System.out.println(Operation.format(p1));
-			System.out.println(Operation.format(p2));
-			System.out.println(Operation.format(p3));
+			System.out.println(Operation.formatTable(p1));
+			System.out.println(Operation.formatTable(p2));
+			System.out.println(Operation.formatTable(p3));
 		}
 	}
 
@@ -107,9 +107,9 @@ public class Quasigroup {
 
 		int size = 15;
 		Operation<Boolean> q1 = test.generateLatinSquare(size);
-		System.out.println(Operation.format(q1));
+		System.out.println(Operation.formatTable(q1));
 		Operation<Boolean> q2 = Operation.moduloAdd(size);
-		System.out.println(Operation.format(q2));
+		System.out.println(Operation.formatTable(q2));
 		test.checkEquivalence(q1, q2);
 
 		time = System.currentTimeMillis() - time;

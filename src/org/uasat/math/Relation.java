@@ -518,16 +518,17 @@ public final class Relation<BOOL> {
 	}
 
 	public static String formatMembers(Relation<Boolean> rel) {
-		String s = "";
+		StringBuilder s = new StringBuilder();
 
 		Tensor<Boolean> tensor = rel.getTensor();
 		int[] index = new int[tensor.getOrder()];
+
 		outer: for (;;) {
 			if (tensor.getElem(index)) {
 				if (s.length() != 0)
-					s += ' ';
-				for (int i = 0; i < index.length; i++)
-					s += Util.formatIndex(index[i]);
+					s.append(' ');
+
+				Util.formatTuple(index, s);
 			}
 
 			for (int i = index.length - 1; i >= 0; i--) {
@@ -539,7 +540,7 @@ public final class Relation<BOOL> {
 			break;
 		}
 
-		return s;
+		return s.toString();
 	}
 
 	public static Relation<Boolean> parseMembers(int size, int arity, String str) {
@@ -567,7 +568,7 @@ public final class Relation<BOOL> {
 		}
 		assert p == 0;
 
-		return new Relation<Boolean>(BoolAlgebra.INSTANCE, tensor);
+		return Relation.wrap(tensor);
 	}
 
 	@Override

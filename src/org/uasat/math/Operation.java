@@ -395,8 +395,8 @@ public final class Operation<BOOL> {
 		int a = getArity();
 		Contract<BOOL> c = Contract.logical(alg);
 
-		c.add(tensor, Contract.range(0, a));
-		for (int i = 1; i < a; i++)
+		c.add(tensor, Contract.range(0, a + 1));
+		for (int i = 1; i <= a; i++)
 			c.add(rel.getTensor(), i);
 		Tensor<BOOL> t = c.get(0);
 
@@ -546,20 +546,51 @@ public final class Operation<BOOL> {
 		return Tensor.fold(lookup, 1, op.getTensor());
 	}
 
-	public static String format(Operation<Boolean> op) {
+	public static String formatTable(Operation<Boolean> op) {
+		StringBuilder s = new StringBuilder();
+
 		int size = op.getSize();
 		Tensor<Integer> tensor = decode(op);
 
-		String s = "";
 		int c = 0;
 		for (Integer elem : tensor) {
 			if (++c > size) {
 				c = 1;
-				s += ' ';
+				s.append(' ');
 			}
-			s += Util.formatIndex(elem);
+			s.append(Util.formatIndex(elem));
 		}
 
-		return s;
+		return s.toString();
+	}
+
+	public static Operation<Boolean> parseTable(int size, int arity, String str) {
+		assert arity >= 1;
+
+		Tensor<Boolean> tensor;
+		tensor = Tensor.constant(Util.createShape(size, arity + 1), false);
+
+		int[] index = new int[arity + 1];
+		int p = 0;
+
+		for (int i = 0; i < str.length(); i++) {
+			if (Character.isWhitespace(str.charAt(i))) {
+				if (p == 0)
+					continue;
+				else
+					throw new IllegalArgumentException("bad format");
+			} else {
+				index[0] = Util.parseIndex(size, str.charAt(i));
+				tensor.setElem(true, index);
+
+				index[0] = size - 1;
+				if (Util.nextIndex(tensor.getShape(), index) != (i != str
+						.length() - 1))
+					throw new IllegalArgumentException("bad entry count");
+			}
+		}
+		assert p == 0;
+
+		return Operation.wrap(tensor);
 	}
 }

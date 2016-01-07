@@ -51,4 +51,33 @@ public final class Util {
 		else
 			throw new IllegalArgumentException("invalid coordinate: " + c);
 	}
+
+	public static void formatTuple(int[] tuple, StringBuilder s) {
+		for (int i = 0; i < tuple.length; i++)
+			s.append(formatIndex(tuple[i]));
+	}
+
+	public static int[] parseTuple(int size, String str) {
+		int[] tuple = new int[str.length()];
+
+		for (int i = 0; i < str.length(); i++)
+			tuple[i] = parseIndex(size, str.charAt(i));
+
+		return tuple;
+	}
+
+	public static boolean nextIndex(int[] shape, int[] index) {
+		assert shape.length == index.length;
+
+		for (int i = 0; i < index.length; i++) {
+			assert 0 <= index[i] && index[i] < shape[i];
+
+			if (++index[i] >= shape[i])
+				index[i] = 0;
+			else
+				return true;
+		}
+
+		return false;
+	}
 }

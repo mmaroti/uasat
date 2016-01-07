@@ -19,6 +19,7 @@
 package org.uasat.core;
 
 import java.util.*;
+
 import org.uasat.solvers.*;
 
 public abstract class BoolProblem {
@@ -161,8 +162,12 @@ public abstract class BoolProblem {
 			result.add(Tensor.stack(shape, list));
 		}
 
+		Collections.sort(result, TENSOR_COMPARATOR);
 		return result;
 	}
+
+	private static Comparator<Tensor<Boolean>> TENSOR_COMPARATOR = Tensor
+			.comparator(BoolAlgebra.COMPARATOR);
 
 	public <BOOL> List<Tensor<Boolean>> solveAll(SatSolver<BOOL> solver) {
 		return solveAll(solver, 0);
