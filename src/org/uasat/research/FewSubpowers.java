@@ -21,7 +21,6 @@ package org.uasat.research;
 import java.text.*;
 import java.util.*;
 
-import org.uasat.core.*;
 import org.uasat.math.*;
 import org.uasat.solvers.*;
 
@@ -29,38 +28,22 @@ public class FewSubpowers {
 	private SatSolver<?> solver = new Sat4J();
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
-	public static Operation<Boolean> IMPLICATION = Operation.parseTable(2, 2,
-			"11 01");
+	public static Algebra<Boolean> IMPALG = Algebra.wrap(Operation.parseTable(
+			2, 2, "11 01"));
 
-	public void printSubpowers(final Operation<Boolean> op, int arity) {
+	public void printSubpowers(Algebra<Boolean> ua, int arity) {
+		List<Relation<Boolean>> list = Algebra.getSubpowers(solver, ua, arity);
 
-		BoolProblem problem = new BoolProblem(Util.createShape(op.getSize(),
-				arity)) {
-			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
-				Operation<BOOL> op2 = Operation.lift(alg, op);
-				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
-
-				return op2.preserves(rel);
-			}
-		};
-
-		Tensor<Boolean> tensor = problem.solveAll(solver).get(0);
-
-		int i = 0;
-		for (Tensor<Boolean> t : Tensor.unstack(tensor)) {
+		for (int i = 0; i < list.size(); i++)
 			System.out.println("" + i + ": "
-					+ Relation.formatMembers(Relation.wrap(t)));
-			i += 1;
-		}
+					+ Relation.formatMembers(list.get(i)));
 	}
 
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 		FewSubpowers test = new FewSubpowers();
 
-		test.printSubpowers(IMPLICATION, 2);
+		test.printSubpowers(IMPALG, 3);
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

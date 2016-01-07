@@ -108,7 +108,7 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		this.elems = (ELEM[]) new Object[getSize(shape)];
 	}
 
-	public static int getSize(int[] shape) {
+	private static int getSize(int[] shape) {
 		int size = 1;
 		for (int i = 0; i < shape.length; i++) {
 			assert 0 <= shape[i];
