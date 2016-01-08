@@ -58,8 +58,8 @@ cannot express your problem otherwise.
 
 ## Build
 
-You can use the enclosed [build.xml](build.xml) [ant](http://ant.apache.org/) file
-to create the `uasat.jar` file, just run the `ant` or `ant jar` command line programs
+You can use the enclosed [build.xml](build.xml) ant makefile file
+to create the `uasat.jar` file: just run the `ant` or `ant jar` command line programs
 in the project directory. You can also link your program against this jar file, 
 or fork this project for your research.
 

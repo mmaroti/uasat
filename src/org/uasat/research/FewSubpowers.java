@@ -37,6 +37,10 @@ public class FewSubpowers {
 	public static Algebra<Boolean> IMPALG1 = IMPALG.extend(Operation
 			.parseTable(2, 0, "1"));
 
+	public static Algebra<Boolean> LATTICE = Algebra.wrap(
+			Operation.parseTable(2, 2, "00 01"),
+			Operation.parseTable(2, 2, "01 11"));
+
 	public void printAllSubpowers(Algebra<Boolean> ua, int arity) {
 		List<Relation<Boolean>> list = Algebra.findAllSubpowers(solver, ua,
 				arity);
@@ -82,13 +86,13 @@ public class FewSubpowers {
 		long time = System.currentTimeMillis();
 		FewSubpowers test = new FewSubpowers();
 
-		Algebra<Boolean> alg = IMPALG1;
-		int arity = 5;
+		Algebra<Boolean> alg = IMPALG;
+		int arity = 3;
 
-		// test.printAllSubpowers(alg, arity);
-		test.printMaxSubpowers(alg, arity);
-		test.printMinSubpowers(alg, arity);
-		test.printSmallestSubpower(alg, arity);
+		test.printAllSubpowers(alg, arity);
+		// test.printMaxSubpowers(alg, arity);
+		// test.printMinSubpowers(alg, arity);
+		// test.printSmallestSubpower(alg, arity);
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

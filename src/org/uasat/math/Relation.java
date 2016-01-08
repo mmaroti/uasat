@@ -490,6 +490,37 @@ public final class Relation<BOOL> {
 		return alg.and(b, isTransitive());
 	}
 
+	public BOOL isTrivialCoord(int coord) {
+		assert 0 <= coord && coord < getArity();
+
+		Tensor<BOOL> tmp = tensor;
+		if (coord != 0) {
+			int[] map = new int[getArity()];
+
+			for (int i = 0; i < coord; i++)
+				map[i] = i + 1;
+
+			map[coord] = 0;
+
+			for (int i = coord + 1; i < map.length; i++)
+				map[i] = i;
+
+			tmp = Tensor.reshape(tensor, tensor.getShape(), map);
+		}
+
+		tmp = Tensor.fold(alg.EQS, 1, tmp);
+		tmp = Tensor.fold(alg.ALL, tmp.getOrder(), tmp);
+		return tmp.get();
+	}
+
+	public BOOL hasTrivialCoord() {
+		BOOL b = alg.FALSE;
+		for (int i = 0; i < getArity(); i++)
+			b = alg.or(b, isTrivialCoord(i));
+
+		return b;
+	}
+
 	public PartialOrder<BOOL> asPartialOrder() {
 		return new PartialOrder<BOOL>(alg, tensor);
 	}
