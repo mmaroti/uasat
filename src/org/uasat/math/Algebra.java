@@ -126,6 +126,20 @@ public final class Algebra<BOOL> {
 		return list;
 	}
 
+	public static Relation<Boolean> findSmallestSubpower(SatSolver<?> solver,
+			Algebra<Boolean> ua, int arity) {
+		if (!ua.hasConstants())
+			return Relation.empty(ua.getSize(), arity);
+
+		List<Relation<Boolean>> list = findMinimalSubpowers(solver, ua,
+				Relation.empty(ua.getSize(), 1));
+
+		if (list.size() != 1)
+			throw new IllegalStateException("this cannot happen");
+
+		return list.get(0).diagExtend(arity);
+	}
+
 	public static Relation<Boolean> findOneSubpower(SatSolver<?> solver,
 			final Algebra<Boolean> ua, final Relation<Boolean> above,
 			final Relation<Boolean> below,
@@ -247,23 +261,74 @@ public final class Algebra<BOOL> {
 		return list;
 	}
 
-	public static Relation<Boolean> findSmallestSubpower(SatSolver<?> solver,
-			Algebra<Boolean> ua, int arity) {
-		if (!ua.hasConstants())
-			return Relation.empty(ua.getSize(), arity);
-
-		List<Relation<Boolean>> list = findMinimalSubpowers(solver, ua,
-				Relation.empty(ua.getSize(), 1));
-
-		if (list.size() != 1)
-			throw new IllegalStateException("this cannot happen");
-
-		return list.get(0).diagExtend(arity);
-	}
-
 	public static List<Relation<Boolean>> findMinimalSubpowers(
 			SatSolver<?> solver, Algebra<Boolean> ua, int arity) {
 		Relation<Boolean> rel = findSmallestSubpower(solver, ua, arity);
 		return findMinimalSubpowers(solver, ua, rel);
+	}
+
+	public static List<Relation<Boolean>> findMeetIrredSubpowers(
+			SatSolver<?> solver, final Algebra<Boolean> ua, int arity) {
+		assert arity >= 1;
+
+		final List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
+
+		int[] shape = Util.createShape(ua.getSize(), arity);
+		BoolProblem problem = new BoolProblem(shape, shape) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> sin = new Relation<BOOL>(alg, tensors.get(1));
+				Algebra<BOOL> ualg = Algebra.lift(alg, ua);
+
+				BOOL b = ualg.isSubuniverse(rel);
+				b = alg.and(b, sin.isSingleton());
+				b = alg.and(b, rel.isDisjointOf(sin));
+
+				for (Relation<Boolean> ir1 : list) {
+					Relation<BOOL> ir2 = Relation.lift(alg, ir1);
+
+					BOOL c = alg.not(rel.isSubsetOf(ir2));
+					c = alg.or(c, sin.isSubsetOf(ir2));
+					b = alg.and(b, c);
+				}
+
+				return b;
+			}
+		};
+
+		for (;;) {
+			List<Tensor<Boolean>> sol = problem.solveOne(solver);
+			if (sol == null)
+				break;
+
+			Relation<Boolean> below = Relation.wrap(sol.get(1)).complement();
+			if (ua.isSubuniverse(below)) {
+				System.out.println(Relation.formatMembers(below.complement())
+						+ " - " + Relation.formatMembers(below));
+				list.add(below);
+				continue;
+			}
+
+			Relation<Boolean> rel = Relation.wrap(sol.get(0));
+			for (;;) {
+				Relation<Boolean> r = findOneSubpower(solver, ua, rel, below,
+						null, list);
+				System.out.println("test  " + Relation.formatMembers(rel) + " "
+						+ (r != null) + " " + list.size());
+
+				if (r == null)
+					break;
+				else
+					rel = r;
+			}
+
+			System.out.println(Relation.formatMembers(below.complement())
+					+ " - " + Relation.formatMembers(rel));
+			list.add(rel);
+		}
+
+		return list;
 	}
 }

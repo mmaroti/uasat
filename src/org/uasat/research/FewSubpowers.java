@@ -45,14 +45,14 @@ public class FewSubpowers {
 		List<Relation<Boolean>> list = Algebra.findAllSubpowers(solver, ua,
 				arity);
 
-		System.out.println("Subpowers of arity " + arity);
+		System.out.println("Subpowers of arity " + arity + ":");
 		for (int i = 0; i < list.size(); i++)
 			System.out.println("" + i + ": "
 					+ Relation.formatMembers(list.get(i)));
 		System.out.println();
 	}
 
-	public void printMaxSubpowers(Algebra<Boolean> ua, int arity) {
+	public void printMaximalSubpowers(Algebra<Boolean> ua, int arity) {
 		List<Relation<Boolean>> list = Algebra.findMaximalSubpowers(solver, ua,
 				arity);
 
@@ -63,7 +63,7 @@ public class FewSubpowers {
 		System.out.println();
 	}
 
-	public void printMinSubpowers(Algebra<Boolean> ua, int arity) {
+	public void printMinimalSubpowers(Algebra<Boolean> ua, int arity) {
 		List<Relation<Boolean>> list = Algebra.findMinimalSubpowers(solver, ua,
 				arity);
 
@@ -82,6 +82,18 @@ public class FewSubpowers {
 		System.out.println();
 	}
 
+	public void printMeetIrredSubpowers(Algebra<Boolean> ua, int arity) {
+		List<Relation<Boolean>> list = Algebra.findMeetIrredSubpowers(
+				solver, ua, arity);
+
+		System.out
+				.println("Meet irreducible subpowers of arity " + arity + ":");
+		for (int i = 0; i < list.size(); i++)
+			System.out.println("" + i + ": "
+					+ Relation.formatMembers(list.get(i)));
+		System.out.println();
+	}
+
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 		FewSubpowers test = new FewSubpowers();
@@ -90,8 +102,9 @@ public class FewSubpowers {
 		int arity = 3;
 
 		test.printAllSubpowers(alg, arity);
-		// test.printMaxSubpowers(alg, arity);
-		// test.printMinSubpowers(alg, arity);
+		test.printMeetIrredSubpowers(alg, arity);
+		// test.printMaximalSubpowers(alg, arity);
+		// test.printMinimalSubpowers(alg, arity);
 		// test.printSmallestSubpower(alg, arity);
 
 		time = System.currentTimeMillis() - time;

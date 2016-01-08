@@ -401,6 +401,10 @@ public final class Relation<BOOL> {
 		return Tensor.fold(alg.ALL, getArity(), tensor).get();
 	}
 
+	public BOOL isNotFull() {
+		return alg.not(isFull());
+	}
+
 	public BOOL isEmpty() {
 		return alg.not(isNotEmpty());
 	}
@@ -411,6 +415,14 @@ public final class Relation<BOOL> {
 
 	public BOOL isOddCard() {
 		return Tensor.fold(alg.SUM, getArity(), tensor).get();
+	}
+
+	public BOOL isEvenCard() {
+		return alg.not(isOddCard());
+	}
+
+	public BOOL isSingleton() {
+		return Tensor.fold(alg.ONE, getArity(), tensor).get();
 	}
 
 	public BOOL isEqualTo(Relation<BOOL> rel) {
@@ -425,6 +437,10 @@ public final class Relation<BOOL> {
 		Tensor<BOOL> tmp = Tensor.map2(alg.LEQ, tensor, rel.tensor);
 		tmp = Tensor.fold(alg.ALL, getArity(), tmp);
 		return tmp.get();
+	}
+
+	public BOOL isDisjointOf(Relation<BOOL> rel) {
+		return isSubsetOf(rel.complement());
 	}
 
 	public BOOL isOperation() {
