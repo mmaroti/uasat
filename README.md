@@ -6,7 +6,7 @@ Currently it does not have any graphical user interface,
 you need to know java to be able to use it. As an example, 
 it has a built in [validation](src/org/uasat/math/Validation.java)
 program, which calculates the number of certain structures from 
-the [OEIS](http://oeis.org/):
+the [on-line encyclopedia of integer sequences](http://oeis.org/):
 
 ```
 A000001 the number of groups of order 4 is 2.
@@ -19,11 +19,12 @@ A001329 the number of non-isomorphic 3-element groupoids is 3330.
 A001710 the number of even permutations on a 7-element set is 2520.
 A002720 the number of partial permutations on 5 is 1546.
 A002860 the number of labelled quasigroups of order 4 is 576.
+A006117 the number of subspaces of Z_3^4 is 212.
 A023815 the number of commutative semigroups on 4 is 1140.
 A084279 the number of 3-colorable 5-element simple graphs is 958.
 A114714 the number of linear extensions of 2x2x4 is 2452.
-Total literals: 20187, clauses: 178728.
-Finished in 9.16 seconds.
+Total literals: 27884, clauses: 235863.
+Finished in 7.80 seconds.
 ```
 
 I have also included a few small programs used for my research, you can

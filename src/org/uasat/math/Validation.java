@@ -285,6 +285,15 @@ public class Validation {
 		verify("A000001 the number of groups of order 4", count, 2);
 	}
 
+	void checkSubspaces() {
+		final Algebra<Boolean> z3 = Algebra.wrap(
+				Operation.parseTable(3, 2, "012 120 201"),
+				Operation.parseTable(3, 0, "0"));
+
+		int count = Algebra.findAllSubpowers(solver, z3, 4).size();
+		verify("A006117 the number of subspaces of Z_3^4", count, 212);
+	}
+
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
 	void check() {
@@ -301,6 +310,7 @@ public class Validation {
 		checkAlternations();
 		checkPartialInjections();
 		checkLatinSquares();
+		checkSubspaces();
 		checkCommutativeSemigroups();
 		checkThreeColorableGraphs();
 		checkLinearExtensions();
