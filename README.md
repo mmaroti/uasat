@@ -38,12 +38,14 @@ concrete boolean values or boolean terms. You can use tensor operations
 tensors and boolean values. A problem is expressed as a function that 
 takes some boolean tensors as input and calculates a boolean value as 
 output, in essence it is just a huge boolean formula. 
-You can use problem instances to check whether a concrete boolean
-tensor has the given property, or use SAT solvers to find one or all satisfying
-boolean assignments. The `core` and `solvers` packages contain the
+You can use that formula to check whether concrete boolean
+tensors have the given property, or use SAT solvers to find one or all satisfying
+boolean assignments. The [org.uasat.core](src/org/uasat/core) and 
+[org.uasat.solvers](src/org/uasat/solvers) packages contain the
 classes needed to work with tensors and solvers.
 
-The `math` package contains classes that are easier to use than raw tensors.
+The [org.uasat.math](src/org/uasat/math) package contains classes that are 
+easier to use than raw tensors.
 For example, a binary relation over a 5-element set is expressed by a 5×5
 boolean matrix R. This relation is transitive if and only if R·R ≤ R, where 
 the matrix multiplication is evaluated using disjunction and conjunction 
@@ -56,8 +58,8 @@ cannot express your problem otherwise.
 
 ## Build
 
-You can use the enclosed `build.xml` [ant](http://ant.apache.org/) file to create
-the `uasat.jar` file, just run the `ant` or `ant jar` command line programs
+You can use the enclosed [build.xml](build.xml) [ant](http://ant.apache.org/) file
+to create the `uasat.jar` file, just run the `ant` or `ant jar` command line programs
 in the project directory. You can also link your program against this jar file, 
 or fork this project for your research.
 
