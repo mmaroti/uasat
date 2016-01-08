@@ -11,7 +11,6 @@ the [on-line encyclopedia of integer sequences](http://oeis.org/):
 ```
 A000001 the number of groups of order 4 is 2.
 A000110 the number of equivalences on a 7-element set is 877.
-A000142 the number of permutations on a 7-element set is 5040.
 A000273 the number of non-isomorphic 4-element digraphs is 218.
 A000372 the number of antichains of 2^4 is 168.
 A001035 the number of partial orders on a 5-element set is 4231.
@@ -23,8 +22,8 @@ A006117 the number of subspaces of Z_3^4 is 212.
 A023815 the number of commutative semigroups on 4 is 1140.
 A084279 the number of 3-colorable 5-element simple graphs is 958.
 A114714 the number of linear extensions of 2x2x4 is 2452.
-Total literals: 27884, clauses: 235863.
-Finished in 7.80 seconds.
+Total literals: 27699, clauses: 224874.
+Finished in 7.00 seconds.
 ```
 
 I have also included a few small programs used for my research, you can

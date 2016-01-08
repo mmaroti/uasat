@@ -87,22 +87,6 @@ public class Validation {
 		verify("A114714 the number of linear extensions of 2x2x4", count, 2452);
 	}
 
-	void checkPermutations() {
-		BoolProblem problem = new BoolProblem(new int[] { 7, 7 }) {
-			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
-				Permutation<BOOL> perm = new Permutation<BOOL>(alg,
-						tensors.get(0));
-				return perm.isPermutation();
-			}
-		};
-
-		int count = problem.solveAll(solver).get(0).getLastDim();
-		verify("A000142 the number of permutations on a 7-element set", count,
-				5040);
-	}
-
 	void checkAlternations() {
 		BoolProblem problem = new BoolProblem(new int[] { 7, 7 }) {
 			@Override
@@ -302,7 +286,6 @@ public class Validation {
 		long time = System.currentTimeMillis();
 		checkFiniteGroups();
 		checkEquivalences();
-		checkPermutations();
 		checkNonIsomorphicDigraphs();
 		checkAntiChains();
 		checkPartialOrders();
