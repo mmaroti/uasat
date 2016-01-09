@@ -163,7 +163,6 @@ public final class Algebra<BOOL> {
 				BOOL b = ualg.isSubuniverse(rel);
 
 				Relation<BOOL> rel2;
-
 				if (above != null) {
 					rel2 = Relation.lift(alg, above);
 					b = alg.and(b, rel2.isSubsetOf(rel));
@@ -278,19 +277,20 @@ public final class Algebra<BOOL> {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
-				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
-				Relation<BOOL> sin = new Relation<BOOL>(alg, tensors.get(1));
+				Relation<BOOL> rel1 = new Relation<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> rel2 = new Relation<BOOL>(alg, tensors.get(1));
 				Algebra<BOOL> ualg = Algebra.lift(alg, ua);
 
-				BOOL b = ualg.isSubuniverse(rel);
-				b = alg.and(b, sin.isSingleton());
-				b = alg.and(b, rel.isDisjointOf(sin));
+				BOOL b = ualg.isSubuniverse(rel1);
+				b = alg.and(b, ualg.isSubuniverse(rel2));
+				b = alg.and(b, rel1.isSubsetOf(rel2));
+				b = alg.and(b, alg.not(rel2.isSubsetOf(rel1)));
 
-				for (Relation<Boolean> ir1 : list) {
-					Relation<BOOL> ir2 = Relation.lift(alg, ir1);
+				for (Relation<Boolean> r : list) {
+					Relation<BOOL> irr = Relation.lift(alg, r);
 
-					BOOL c = alg.not(rel.isSubsetOf(ir2));
-					c = alg.or(c, sin.isSubsetOf(ir2));
+					BOOL c = rel1.isSubsetOf(irr);
+					c = alg.leq(c, rel2.isSubsetOf(irr));
 					b = alg.and(b, c);
 				}
 
@@ -303,32 +303,37 @@ public final class Algebra<BOOL> {
 			if (sol == null)
 				break;
 
-			Relation<Boolean> below = Relation.wrap(sol.get(1)).complement();
-			if (ua.isSubuniverse(below)) {
-				System.out.println(Relation.formatMembers(below.complement())
-						+ " - " + Relation.formatMembers(below));
-				list.add(below);
-				continue;
-			}
+			Relation<Boolean> above = Relation.wrap(sol.get(0));
+			Relation<Boolean> cover = Relation.wrap(sol.get(1));
 
-			Relation<Boolean> rel = Relation.wrap(sol.get(0));
+			List<Relation<Boolean>> notabove = new ArrayList<Relation<Boolean>>();
+			notabove.add(cover);
+
 			for (;;) {
-				Relation<Boolean> r = findOneSubpower(solver, ua, rel, below,
-						null, list);
-				System.out.println("test  " + Relation.formatMembers(rel) + " "
-						+ (r != null) + " " + list.size());
+				Relation<Boolean> r = findOneSubpower(solver, ua, above, null,
+						notabove, null);
 
 				if (r == null)
 					break;
 				else
-					rel = r;
+					above = r;
 			}
 
-			System.out.println(Relation.formatMembers(below.complement())
-					+ " - " + Relation.formatMembers(rel));
-			list.add(rel);
+			list.add(above);
 		}
 
 		return list;
+	}
+
+	public static List<Relation<Boolean>> findCriticalSubpowers(
+			SatSolver<?> solver, final Algebra<Boolean> ua, int arity) {
+		List<Relation<Boolean>> list = findMeetIrredSubpowers(solver, ua, arity);
+		List<Relation<Boolean>> crit = new ArrayList<Relation<Boolean>>();
+
+		for (Relation<Boolean> r : list)
+			if (r.hasEssentialCoords())
+				crit.add(r);
+
+		return crit;
 	}
 }

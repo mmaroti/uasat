@@ -506,7 +506,7 @@ public final class Relation<BOOL> {
 		return alg.and(b, isTransitive());
 	}
 
-	public BOOL isTrivialCoord(int coord) {
+	public BOOL isEssentialCoord(int coord) {
 		assert 0 <= coord && coord < getArity();
 
 		Tensor<BOOL> tmp = tensor;
@@ -526,13 +526,13 @@ public final class Relation<BOOL> {
 
 		tmp = Tensor.fold(alg.EQS, 1, tmp);
 		tmp = Tensor.fold(alg.ALL, tmp.getOrder(), tmp);
-		return tmp.get();
+		return alg.not(tmp.get());
 	}
 
-	public BOOL hasTrivialCoord() {
-		BOOL b = alg.FALSE;
+	public BOOL hasEssentialCoords() {
+		BOOL b = alg.TRUE;
 		for (int i = 0; i < getArity(); i++)
-			b = alg.or(b, isTrivialCoord(i));
+			b = alg.and(b, isEssentialCoord(i));
 
 		return b;
 	}

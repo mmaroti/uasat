@@ -41,6 +41,15 @@ public class FewSubpowers {
 			Operation.parseTable(2, 2, "00 01"),
 			Operation.parseTable(2, 2, "01 11"));
 
+	public static Algebra<Boolean> SEMILAT = Algebra.wrap(Operation.parseTable(
+			2, 2, "01 11"));
+
+	public static Algebra<Boolean> GROUP2 = Algebra.wrap(Operation.parseTable(
+			2, 2, "01 10"));
+
+	public static Algebra<Boolean> GROUP3 = Algebra.wrap(Operation.parseTable(
+			3, 2, "012 120 201"));
+
 	public void printAllSubpowers(Algebra<Boolean> ua, int arity) {
 		List<Relation<Boolean>> list = Algebra.findAllSubpowers(solver, ua,
 				arity);
@@ -83,11 +92,22 @@ public class FewSubpowers {
 	}
 
 	public void printMeetIrredSubpowers(Algebra<Boolean> ua, int arity) {
-		List<Relation<Boolean>> list = Algebra.findMeetIrredSubpowers(
-				solver, ua, arity);
+		List<Relation<Boolean>> list = Algebra.findMeetIrredSubpowers(solver,
+				ua, arity);
 
 		System.out
 				.println("Meet irreducible subpowers of arity " + arity + ":");
+		for (int i = 0; i < list.size(); i++)
+			System.out.println("" + i + ": "
+					+ Relation.formatMembers(list.get(i)));
+		System.out.println();
+	}
+
+	public void printCriticalSubpowers(Algebra<Boolean> ua, int arity) {
+		List<Relation<Boolean>> list = Algebra.findCriticalSubpowers(solver,
+				ua, arity);
+
+		System.out.println("Critical subpowers of arity " + arity + ":");
 		for (int i = 0; i < list.size(); i++)
 			System.out.println("" + i + ": "
 					+ Relation.formatMembers(list.get(i)));
@@ -98,11 +118,16 @@ public class FewSubpowers {
 		long time = System.currentTimeMillis();
 		FewSubpowers test = new FewSubpowers();
 
-		Algebra<Boolean> alg = IMPALG;
-		int arity = 3;
+		Algebra<Boolean> alg = GROUP3;
 
-		test.printAllSubpowers(alg, arity);
-		test.printMeetIrredSubpowers(alg, arity);
+		test.printCriticalSubpowers(alg, 1);
+		test.printCriticalSubpowers(alg, 2);
+		test.printCriticalSubpowers(alg, 3);
+		test.printCriticalSubpowers(alg, 4);
+
+		// int arity = 1;
+		// test.printAllSubpowers(alg, arity);
+		// test.printMeetIrredSubpowers(alg, arity);
 		// test.printMaximalSubpowers(alg, arity);
 		// test.printMinimalSubpowers(alg, arity);
 		// test.printSmallestSubpower(alg, arity);
