@@ -24,31 +24,22 @@ import java.util.*;
 import org.uasat.math.*;
 import org.uasat.solvers.*;
 
-public class FewSubpowers {
+public class Subpowers {
 	private SatSolver<?> solver = new Sat4J();
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
-	public static Algebra<Boolean> IMPALG = Algebra.wrap(Operation.parseTable(
-			2, 2, "11 01"));
-
-	public static Algebra<Boolean> IMPALG0 = IMPALG.extend(Operation
-			.parseTable(2, 0, "0"));
-
-	public static Algebra<Boolean> IMPALG1 = IMPALG.extend(Operation
-			.parseTable(2, 0, "1"));
-
-	public static Algebra<Boolean> LATTICE = Algebra.wrap(
-			Operation.parseTable(2, 2, "00 01"),
-			Operation.parseTable(2, 2, "01 11"));
-
-	public static Algebra<Boolean> SEMILAT = Algebra.wrap(Operation.parseTable(
-			2, 2, "01 11"));
-
-	public static Algebra<Boolean> GROUP2 = Algebra.wrap(Operation.parseTable(
-			2, 2, "01 10"));
-
-	public static Algebra<Boolean> GROUP3 = Algebra.wrap(Operation.parseTable(
-			3, 2, "012 120 201"));
+	public static Operation<Boolean> ZERO = Operation.parseTable(2, 0, "0");
+	public static Operation<Boolean> ONE = Operation.parseTable(2, 0, "1");
+	public static Operation<Boolean> NOT = Operation.parseTable(2, 1, "10");
+	public static Operation<Boolean> MEET = Operation.parseTable(2, 2, "00 01");
+	public static Operation<Boolean> JOIN = Operation.parseTable(2, 2, "01 11");
+	public static Operation<Boolean> ADD = Operation.parseTable(2, 2, "01 10");
+	public static Operation<Boolean> EQU = Operation.parseTable(2, 2, "10 01");
+	public static Operation<Boolean> IMPL = Operation.parseTable(2, 2, "11 01");
+	public static Operation<Boolean> MAJOR = Operation.parseTable(2, 3,
+			"00 01 01 11");
+	public static Operation<Boolean> MINOR = Operation.parseTable(2, 3,
+			"01 10 10 01");
 
 	public void printAllSubpowers(Algebra<Boolean> ua, int arity) {
 		List<Relation<Boolean>> list = Algebra.findAllSubpowers(solver, ua,
@@ -116,14 +107,16 @@ public class FewSubpowers {
 
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
-		FewSubpowers test = new FewSubpowers();
+		Subpowers test = new Subpowers();
 
-		Algebra<Boolean> alg = GROUP3;
+		Algebra<Boolean> alg = Algebra.wrap(IMPL, JOIN);
 
 		test.printCriticalSubpowers(alg, 1);
 		test.printCriticalSubpowers(alg, 2);
 		test.printCriticalSubpowers(alg, 3);
 		test.printCriticalSubpowers(alg, 4);
+		test.printCriticalSubpowers(alg, 5);
+		// test.printCriticalSubpowers(alg, 6);
 
 		// int arity = 1;
 		// test.printAllSubpowers(alg, arity);

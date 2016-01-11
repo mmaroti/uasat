@@ -678,15 +678,20 @@ public class DigraphPoly {
 		int arity = 6;
 		String options;
 
-		options = "reflexive two-semilattice non-isomorphic";
-		System.out.println(findDigraphs(solver, arity, options).size());
+		// 377543
+		// System.out.println("two-semilat");
+		// options = "reflexive two-semilattice non-isomorphic";
+		// System.out.println(findDigraphs(solver, arity, options).size());
 
+		System.out.println("sd-meet");
 		options = "reflexive sd-meet non-isomorphic";
 		System.out.println(findDigraphs(solver, arity, options).size());
 
+		System.out.println("majority");
 		options = "reflexive majority non-isomorphic";
 		System.out.println(findDigraphs(solver, arity, options).size());
 
+		System.out.println("taylor");
 		options = "reflexive taylor non-isomorphic";
 		System.out.println(findDigraphs(solver, arity, options).size());
 	}

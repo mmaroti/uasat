@@ -339,7 +339,7 @@ public final class Operation<BOOL> {
 	}
 
 	/**
-	 * Testing meet semi-distributivity (omitting types 1 and 2):
+	 * Testing congruence meet semi-distributivity (omitting types 1 and 2):
 	 * 
 	 * p(x,x,x) = x. p(x,x,y) = p(x,y,x) = p(y,x,x) = q(x,y,x). q(x,x,y) =
 	 * q(x,y,y).
@@ -357,6 +357,47 @@ public final class Operation<BOOL> {
 
 		r = q.polymer(0, 0, 1);
 		b = p.alg.and(b, r.isEqualTo(q.polymer(0, 1, 1)));
+
+		return b;
+	}
+
+	/**
+	 * Testing congruence distributivity (omitting types 1, 2 and 5 and no
+	 * tails)
+	 * 
+	 * p_i(x,y,x) = x. x = p_0(x,x,y). p_0(x,y,y) = p_1(x,y,y). p_1(x,x,y) =
+	 * p_2(x,x,y). p_{n-1}(x,y,y) = y (for n odd). p_{n-1}(x,x,y) = y (for n
+	 * even).
+	 */
+	@SafeVarargs
+	public static <BOOL> BOOL areJonssonTerms(Operation<BOOL>... ops) {
+		assert ops.length >= 1;
+		BoolAlgebra<BOOL> alg = ops[0].getAlg();
+
+		BOOL b = alg.TRUE;
+		for (int i = 0; i < ops.length; i++) {
+			assert ops[i].getArity() == 3 && ops[i].getAlg() == alg;
+			b = alg.and(b, ops[i].isSatisfied(0, 1, 0));
+		}
+
+		b = alg.and(b, ops[0].isSatisfied(0, 0, 1));
+
+		for (int i = 0; i + 1 < ops.length; i += 2) {
+			BOOL c = ops[i].polymer(0, 1, 1).isEqualTo(
+					ops[i + 1].polymer(0, 1, 1));
+			b = alg.and(b, c);
+		}
+
+		for (int i = 1; i + 1 < ops.length; i += 2) {
+			BOOL c = ops[i].polymer(0, 0, 1).isEqualTo(
+					ops[i + 1].polymer(0, 0, 1));
+			b = alg.and(b, c);
+		}
+
+		if (ops.length % 2 == 0)
+			b = alg.and(b, ops[ops.length - 1].isSatisfied(1, 0, 0));
+		else
+			b = alg.and(b, ops[ops.length - 1].isSatisfied(1, 1, 0));
 
 		return b;
 	}
@@ -422,10 +463,14 @@ public final class Operation<BOOL> {
 			return evaluate_op2_rel4(rel);
 		else if (getArity() == 2 && rel.getArity() == 5)
 			return evaluate_op2_rel5(rel);
+		else if (getArity() == 2 && rel.getArity() == 6)
+			return evaluate_op2_rel6(rel);
 		else if (getArity() == 3 && rel.getArity() == 3)
 			return evaluate_op3_rel3(rel);
 		else if (getArity() == 3 && rel.getArity() == 4)
 			return evaluate_op3_rel4(rel);
+		else if (getArity() == 3 && rel.getArity() == 5)
+			return evaluate_op3_rel5(rel);
 
 		throw new IllegalArgumentException("not implemented for these arities");
 	}
@@ -524,6 +569,24 @@ public final class Operation<BOOL> {
 		return new Relation<BOOL>(alg, t);
 	}
 
+	private Relation<BOOL> evaluate_op2_rel6(Relation<BOOL> rel) {
+		assert getArity() == 2 && rel.getArity() == 6;
+		Contract<BOOL> c = Contract.logical(alg);
+
+		// the order matters for performance
+		c.add(rel.getTensor(), "abcdef");
+		c.add(tensor, "xag");
+		c.add(tensor, "ybh");
+		c.add(tensor, "zci");
+		c.add(rel.getTensor(), "ghijkl");
+		c.add(tensor, "udj");
+		c.add(tensor, "vek");
+		c.add(tensor, "wfl");
+		Tensor<BOOL> t = c.get("xyzuvw");
+
+		return new Relation<BOOL>(alg, t);
+	}
+
 	private Relation<BOOL> evaluate_op3_rel3(Relation<BOOL> rel) {
 		assert getArity() == 3 && rel.getArity() == 3;
 		Contract<BOOL> c = Contract.logical(alg);
@@ -553,6 +616,24 @@ public final class Operation<BOOL> {
 		c.add(rel.getTensor(), "ijkl");
 		c.add(tensor, "udhl");
 		Tensor<BOOL> t = c.get("xyzu");
+
+		return new Relation<BOOL>(alg, t);
+	}
+
+	private Relation<BOOL> evaluate_op3_rel5(Relation<BOOL> rel) {
+		assert getArity() == 3 && rel.getArity() == 5;
+		Contract<BOOL> c = Contract.logical(alg);
+
+		// the order matters for performance
+		c.add(rel.getTensor(), "abcde");
+		c.add(rel.getTensor(), "fghij");
+		c.add(tensor, "xafk");
+		c.add(tensor, "ybgl");
+		c.add(tensor, "zchm");
+		c.add(tensor, "udin");
+		c.add(rel.getTensor(), "klmno");
+		c.add(tensor, "vejo");
+		Tensor<BOOL> t = c.get("xyzuv");
 
 		return new Relation<BOOL>(alg, t);
 	}
