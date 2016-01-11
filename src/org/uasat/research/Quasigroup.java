@@ -20,7 +20,6 @@ package org.uasat.research;
 
 import java.text.*;
 import java.util.*;
-
 import org.uasat.core.*;
 import org.uasat.math.*;
 import org.uasat.solvers.*;
