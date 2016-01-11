@@ -317,6 +317,50 @@ public final class Operation<BOOL> {
 		return b;
 	}
 
+	/**
+	 * Testing Taylor property (omitting type 1):
+	 * 
+	 * p(x,x,x) = x. p(x,x,y) = p(y,x,x) = q(x,y,y). p(x,y,x) = q(x,y,x).
+	 */
+	public static <BOOL> BOOL areSiggersTerms(Operation<BOOL> p,
+			Operation<BOOL> q) {
+		assert p.alg == q.alg && p.getArity() == 3 && q.getArity() == 3;
+
+		BOOL b = p.isIdempotent();
+
+		Operation<BOOL> r = p.polymer(0, 0, 1);
+		b = p.alg.and(b, r.isEqualTo(p.polymer(1, 0, 0)));
+		b = p.alg.and(b, r.isEqualTo(q.polymer(0, 1, 1)));
+
+		r = p.polymer(0, 1, 0);
+		b = p.alg.and(b, r.isEqualTo(q.polymer(0, 1, 0)));
+
+		return b;
+	}
+
+	/**
+	 * Testing meet semi-distributivity (omitting types 1 and 2):
+	 * 
+	 * p(x,x,x) = x. p(x,x,y) = p(x,y,x) = p(y,x,x) = q(x,y,x). q(x,x,y) =
+	 * q(x,y,y).
+	 */
+	public static <BOOL> BOOL areJovanovicTerms(Operation<BOOL> p,
+			Operation<BOOL> q) {
+		assert p.alg == q.alg && p.getArity() == 3 && q.getArity() == 3;
+
+		BOOL b = p.isIdempotent();
+
+		Operation<BOOL> r = p.polymer(0, 0, 1);
+		b = p.alg.and(b, r.isEqualTo(p.polymer(0, 1, 0)));
+		b = p.alg.and(b, r.isEqualTo(p.polymer(1, 0, 0)));
+		b = p.alg.and(b, r.isEqualTo(q.polymer(0, 1, 0)));
+
+		r = q.polymer(0, 0, 1);
+		b = p.alg.and(b, r.isEqualTo(q.polymer(0, 1, 1)));
+
+		return b;
+	}
+
 	@SuppressWarnings("unchecked")
 	public Operation<BOOL> compose(Operation<BOOL> op) {
 		return compose(new Operation[] { op });

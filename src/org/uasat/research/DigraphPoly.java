@@ -522,7 +522,7 @@ public class DigraphPoly {
 
 				BOOL b = op.isOperation();
 				b = alg.and(b, op.preserves(rel));
-				
+
 				b = alg.and(b, op.isIdempotent());
 				for (int[] tuple : t)
 					b = alg.and(b, op.hasValue(tuple));
@@ -541,39 +541,158 @@ public class DigraphPoly {
 		return tensor.getLastDim() > 0;
 	}
 
-	public boolean printSpecialOperation3(final int a, final int b,
-			final int c, final int d) {
-		int size = relation.getSize();
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size, size,
-				size, size, size }) {
+	public static List<Relation<Boolean>> findDigraphs(SatSolver<?> solver,
+			final int size, final String what) {
+		List<Tensor<Boolean>> masks = new ArrayList<Tensor<Boolean>>();
+		masks.add(Relation.full(size, 2).getTensor());
+
+		for (String token : what.split(" ")) {
+			if (token.equals("non-core"))
+				masks.add(Relation.empty(size, 2).getTensor());
+			else if (token.equals("two-semilattice"))
+				masks.add(Relation.empty(size, 3).getTensor());
+			else if (token.equals("maltsev"))
+				masks.add(Relation.empty(size, 4).getTensor());
+			else if (token.equals("majority"))
+				masks.add(Relation.empty(size, 4).getTensor());
+			else if (token.equals("sd-meet")) {
+				masks.add(Relation.empty(size, 4).getTensor());
+				masks.add(Relation.empty(size, 4).getTensor());
+			} else if (token.equals("taylor")) {
+				masks.add(Relation.empty(size, 4).getTensor());
+				masks.add(Relation.empty(size, 4).getTensor());
+			}
+		}
+
+		BoolProblem problem = new BoolProblem(masks) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
-				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
-				BOOL t = alg.and(op.isOperation(), op.isIdempotent());
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
+				int pos = 1;
 
-				t = alg.and(t, op.hasValue(a, a, a, a, d, d, d));
-				t = alg.and(t, op.hasValue(b, b, b, b, d, d, d));
-				t = alg.and(t, op.hasValue(c, d, c, c, d, a, b));
-				t = alg.and(t, op.hasValue(c, c, d, c, b, d, a));
-				t = alg.and(t, op.hasValue(c, c, c, d, a, b, d));
+				BOOL b = alg.TRUE;
+				for (String token : what.split(" ")) {
+					if (token.equals("reflexive"))
+						b = alg.and(b, rel.isReflexive());
+					else if (token.equals("non-reflexive"))
+						b = alg.and(b, alg.not(rel.isReflexive()));
+					else if (token.equals("antireflexive"))
+						b = alg.and(b, rel.isAntiReflexive());
+					else if (token.equals("non-antireflexive"))
+						b = alg.and(b, alg.not(rel.isAntiReflexive()));
+					else if (token.equals("symmetric"))
+						b = alg.and(b, rel.isSymmetric());
+					else if (token.equals("non-symmetric"))
+						b = alg.and(b, alg.not(rel.isSymmetric()));
+					else if (token.equals("antisymmetric"))
+						b = alg.and(b, rel.isAntiSymmetric());
+					else if (token.equals("non-antisymmetric"))
+						b = alg.and(b, alg.not(rel.isAntiSymmetric()));
+					else if (token.equals("transitive"))
+						b = alg.and(b, rel.isTransitive());
+					else if (token.equals("non-transitive"))
+						b = alg.and(b, alg.not(rel.isTransitive()));
+					else if (token.equals("trichotome"))
+						b = alg.and(b, rel.isTrichotome());
+					else if (token.equals("non-trichotome"))
+						b = alg.and(b, alg.not(rel.isTrichotome()));
+					else if (token.equals("non-isomorphic")) {
+						List<Permutation<Boolean>> perms = Permutation
+								.symmetricGroup(size);
+						for (Permutation<Boolean> p : perms) {
+							Permutation<BOOL> perm = Permutation.lift(alg, p);
+							b = alg.and(b, rel.isLexLeq(rel.conjugate(perm)));
+						}
+					} else if (token.equals("non-core")) {
+						Operation<BOOL> op = new Operation<BOOL>(alg,
+								tensors.get(pos++));
+						b = alg.and(b, op.isOperation());
+						b = alg.and(b, op.preserves(rel));
+						b = alg.and(b, op.compose(op).isEqualTo(op));
+						b = alg.and(b, alg.not(op.isIdempotent()));
+					} else if (token.equals("two-semilattice")) {
+						Operation<BOOL> op = new Operation<BOOL>(alg,
+								tensors.get(pos++));
+						b = alg.and(b, op.isOperation());
+						b = alg.and(b, op.preserves(rel));
+						b = alg.and(b, op.isTwoSemilattice());
+					} else if (token.equals("maltsev")) {
+						Operation<BOOL> op = new Operation<BOOL>(alg,
+								tensors.get(pos++));
+						b = alg.and(b, op.isOperation());
+						b = alg.and(b, op.preserves(rel));
+						b = alg.and(b, op.isMaltsev());
+					} else if (token.equals("majority")) {
+						Operation<BOOL> op = new Operation<BOOL>(alg,
+								tensors.get(pos++));
+						b = alg.and(b, op.isOperation());
+						b = alg.and(b, op.preserves(rel));
+						b = alg.and(b, op.isMajority());
+					} else if (token.equals("sd-meet")) {
+						Operation<BOOL> op1 = new Operation<BOOL>(alg,
+								tensors.get(pos++));
+						Operation<BOOL> op2 = new Operation<BOOL>(alg,
+								tensors.get(pos++));
+						b = alg.and(b, op1.isOperation());
+						b = alg.and(b, op1.preserves(rel));
+						b = alg.and(b, op2.isOperation());
+						b = alg.and(b, op2.preserves(rel));
+						b = alg.and(b, Operation.areJovanovicTerms(op1, op2));
+					} else if (token.equals("taylor")) {
+						Operation<BOOL> op1 = new Operation<BOOL>(alg,
+								tensors.get(pos++));
+						Operation<BOOL> op2 = new Operation<BOOL>(alg,
+								tensors.get(pos++));
+						b = alg.and(b, op1.isOperation());
+						b = alg.and(b, op1.preserves(rel));
+						b = alg.and(b, op2.isOperation());
+						b = alg.and(b, op2.preserves(rel));
+						b = alg.and(b, Operation.areSiggersTerms(op1, op2));
+					} else if (token.length() > 0)
+						throw new IllegalArgumentException("unknown option: "
+								+ token);
+				}
 
-				return t;
+				return b;
 			}
 		};
 
-		prob.verbose = false;
-		boolean solvable = prob.isSolvable(solver);
+		List<Relation<Boolean>> found = new ArrayList<Relation<Boolean>>();
+		List<Tensor<Boolean>> solution = Tensor.unstack(problem
+				.solveAll(solver).get(0));
 
-		System.out.println("6-ary special function: "
-				+ (solvable ? ">= 1" : "0"));
-		return solvable;
+		for (Tensor<Boolean> ten : solution) {
+			Relation<Boolean> rel = Relation.wrap(ten);
+
+			found.add(rel);
+		}
+
+		return found;
 	}
 
 	private SatSolver<?> solver = new Sat4J();
 
-	@SuppressWarnings("unused")
 	public static void main(String[] args) {
+		SatSolver<?> solver = new Sat4J();
+		int arity = 6;
+		String options;
+
+		options = "reflexive two-semilattice non-isomorphic";
+		System.out.println(findDigraphs(solver, arity, options).size());
+
+		options = "reflexive sd-meet non-isomorphic";
+		System.out.println(findDigraphs(solver, arity, options).size());
+
+		options = "reflexive majority non-isomorphic";
+		System.out.println(findDigraphs(solver, arity, options).size());
+
+		options = "reflexive taylor non-isomorphic";
+		System.out.println(findDigraphs(solver, arity, options).size());
+	}
+
+	@SuppressWarnings("unused")
+	public static void main1(String[] args) {
 		PartialOrder<Boolean> a1 = PartialOrder.antiChain(1);
 		PartialOrder<Boolean> a2 = PartialOrder.antiChain(2);
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
