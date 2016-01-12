@@ -511,6 +511,7 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		return tensor;
 	};
 
+	@Override
 	public String toString() {
 		StringBuilder str = new StringBuilder();
 

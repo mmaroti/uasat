@@ -41,6 +41,7 @@ public class MonoidalInt {
 		assert elems.size() % size == 0;
 		return Tensor.generate(new int[] { size, size, elems.size() / size },
 				new Func1<Boolean, int[]>() {
+					@Override
 					public Boolean call(int[] elem) {
 						int i = elem[1] + elem[2] * size;
 						return elems.get(i) == elem[0];

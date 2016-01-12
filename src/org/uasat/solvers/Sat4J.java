@@ -34,6 +34,7 @@ public class Sat4J extends SatSolver<Integer> {
 		clear();
 	}
 
+	@Override
 	public void clear() {
 		variables = 1;
 		solver.reset();

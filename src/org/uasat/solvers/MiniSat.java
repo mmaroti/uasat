@@ -39,6 +39,7 @@ public class MiniSat extends SatSolver<Integer> {
 		clear();
 	}
 
+	@Override
 	public void clear() {
 		variables = 1;
 		clauses.clear();
