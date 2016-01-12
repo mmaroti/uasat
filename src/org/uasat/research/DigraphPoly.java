@@ -19,6 +19,7 @@
 package org.uasat.research;
 
 import java.util.*;
+
 import org.uasat.core.*;
 import org.uasat.math.*;
 import org.uasat.solvers.*;
@@ -670,12 +671,68 @@ public class DigraphPoly {
 		return found;
 	}
 
+	public static boolean hasJovanovicTerms(SatSolver<?> solver,
+			final Relation<Boolean> rel) {
+		int[] shape = Util.createShape(rel.getSize(), 4);
+		BoolProblem problem = new BoolProblem(shape, shape) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> r = Relation.lift(alg, rel);
+				Operation<BOOL> op1 = new Operation<BOOL>(alg, tensors.get(0));
+				Operation<BOOL> op2 = new Operation<BOOL>(alg, tensors.get(1));
+
+				BOOL b = op1.isOperation();
+				b = alg.and(b, op1.preserves(r));
+				b = alg.and(b, op2.isOperation());
+				b = alg.and(b, op2.preserves(r));
+				b = alg.and(b, Operation.areJovanovicTerms(op1, op2));
+				return b;
+			}
+		};
+
+		return problem.solveAll(solver) != null;
+	}
+
+	public static boolean hasTwoSemilatTerm(SatSolver<?> solver,
+			final Relation<Boolean> rel) {
+		int[] shape = Util.createShape(rel.getSize(), 3);
+		BoolProblem problem = new BoolProblem(shape) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> r = Relation.lift(alg, rel);
+				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
+
+				BOOL b = op.isOperation();
+				b = alg.and(b, op.preserves(r));
+				b = alg.and(b, op.isTwoSemilattice());
+				return b;
+			}
+		};
+
+		return problem.solveAll(solver) != null;
+	}
+
 	private SatSolver<?> solver = new Sat4J();
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		SatSolver<?> solver = new Sat4J();
 		int arity = 6;
 		String options;
+
+		System.out.println("finding taylors");
+		List<Relation<Boolean>> list = findDigraphs(solver, arity,
+				"reflexive taylor non-isomorphic");
+
+		for (Relation<Boolean> rel : list) {
+			if (!hasJovanovicTerms(solver, rel))
+				System.out.println("no sdm: " + Relation.formatMembers(rel));
+
+			if (!hasTwoSemilatTerm(solver, rel))
+				System.out.println("no 2sl: " + Relation.formatMembers(rel));
+		}
 
 		// 377543
 		// System.out.println("two-semilat");
@@ -683,18 +740,18 @@ public class DigraphPoly {
 		// System.out.println(findDigraphs(solver, arity, options).size());
 
 		// 377559
-		System.out.println("sd-meet");
-		options = "reflexive sd-meet non-isomorphic";
-		System.out.println(findDigraphs(solver, arity, options).size());
+		// System.out.println("sd-meet");
+		// options = "reflexive sd-meet non-isomorphic";
+		// System.out.println(findDigraphs(solver, arity, options).size());
 
 		// 55853
-		System.out.println("majority");
-		options = "reflexive majority non-isomorphic";
-		System.out.println(findDigraphs(solver, arity, options).size());
+		// System.out.println("majority");
+		// options = "reflexive majority non-isomorphic";
+		// System.out.println(findDigraphs(solver, arity, options).size());
 
-		System.out.println("taylor");
-		options = "reflexive taylor non-isomorphic";
-		System.out.println(findDigraphs(solver, arity, options).size());
+		// System.out.println("taylor");
+		// options = "reflexive taylor non-isomorphic";
+		// System.out.println(findDigraphs(solver, arity, options).size());
 	}
 
 	@SuppressWarnings("unused")
