@@ -18,27 +18,30 @@
 
 package org.uapart.core;
 
-import java.text.*;
+public class Constant extends Term {
+	private final Domain domain;
+	private final int value;
 
-public class Validation {
-	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
+	public Constant(Domain domain, int value) {
+		if (domain == null || value < 0 || value >= domain.getSize())
+			throw new IllegalArgumentException();
 
-	public static void main(String[] args) {
-		Domain a = new Domain("a", 7);
-		UnaryTable f = new UnaryTable("f", a, a);
-		UnaryTable g = new UnaryTable("g", a, a);
-		Variables x = new Variables("x", a, 1);
+		this.domain = domain;
+		this.value = value;
+	}
 
-		Term e1 = x.get(0).by(g).by(f).equ(x.get(0));
-		Term e2 = x.get(0).by(f).by(g).equ(x.get(0));
-		Term t = e1.and(e2).forall(x).print(-1, f, g).exists(g).count(f);
+	@Override
+	public Domain getDomain() {
+		return domain;
+	}
 
-		long time = System.currentTimeMillis();
+	@Override
+	public int evaluate() {
+		return value;
+	}
 
-		System.out.println(t.evaluate());
-
-		time = System.currentTimeMillis() - time;
-		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
-				+ " seconds.");
+	@Override
+	public int getBound() {
+		return 0;
 	}
 }

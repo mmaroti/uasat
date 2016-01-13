@@ -39,4 +39,8 @@ public class UnaryTable extends Table {
 	public int evaluate(int arg) {
 		return table[arg];
 	}
+
+	public Term get(int index) {
+		return new UnaryTerm(this, new Constant(domain, index));
+	}
 }

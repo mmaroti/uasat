@@ -23,7 +23,7 @@ public class Domain {
 	private final int size;
 
 	public Domain(String name, int size) {
-		if (name == null || size <= 1)
+		if (name == null || size < 1)
 			throw new IllegalArgumentException();
 
 		this.name = name;
@@ -40,4 +40,9 @@ public class Domain {
 
 	public static final Domain BOOL = new Domain("BOOL", 2);
 	public static final Domain INT = new Domain("INT", Integer.MAX_VALUE);
+	
+	public static final Domain ONE = new Domain("INT1", 1);
+	public static final Domain TWO = new Domain("INT2", 2);
+	public static final Domain THREE = new Domain("INT3", 3);
+	public static final Domain FOUR = new Domain("INT4", 4);
 }
