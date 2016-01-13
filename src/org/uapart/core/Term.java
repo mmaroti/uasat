@@ -39,4 +39,52 @@ public abstract class Term {
 	 * @return the minimum rank of bound variables within this expression.
 	 */
 	public abstract int getBound();
+
+	public Term and(Term term) {
+		return new BoolAnd(this, term);
+	}
+
+	public Term equ(Term term) {
+		return new BoolEqu(this, term);
+	}
+
+	public Term leq(Term term) {
+		return new BoolLeq(this, term);
+	}
+
+	public Term neq(Term term) {
+		return new BoolNeq(this, term);
+	}
+
+	public Term or(Term term) {
+		return new BoolOr(this, term);
+	}
+
+	public Term not() {
+		return new BoolNot(this);
+	}
+
+	public Term by(UnaryTable table) {
+		return new UnaryTerm(table, this);
+	}
+
+	public Term by(BinaryTable table, Term term) {
+		return new BinaryTerm(table, this, term);
+	}
+
+	public Term forall(Table table) {
+		return new ForAllTerm(table, this);
+	}
+
+	public Term exists(Table table) {
+		return new ExistsTerm(table, this);
+	}
+
+	public Term count(Table table) {
+		return new CountTerm(table, this);
+	}
+
+	public Term print(int trigger, Table... tables) {
+		return new PrintTerm(this, trigger, tables);
+	}
 }

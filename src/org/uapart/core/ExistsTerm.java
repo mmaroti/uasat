@@ -69,7 +69,7 @@ public class ExistsTerm extends Term {
 			if (a == 1) {
 				m = 1;
 				break;
-			} else if (a < m)
+			} else if (m == 0)
 				m = a;
 		}
 		table[p] = bound + p;

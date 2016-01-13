@@ -727,10 +727,7 @@ public class DigraphPoly {
 				"reflexive taylor non-isomorphic");
 
 		for (Relation<Boolean> rel : list) {
-			if (!hasJovanovicTerms(solver, rel))
-				System.out.println("no sdm: " + Relation.formatMembers(rel));
-
-			if (!hasTwoSemilatTerm(solver, rel))
+ 			if (!hasTwoSemilatTerm(solver, rel))
 				System.out.println("no 2sl: " + Relation.formatMembers(rel));
 		}
 
@@ -749,6 +746,7 @@ public class DigraphPoly {
 		// options = "reflexive majority non-isomorphic";
 		// System.out.println(findDigraphs(solver, arity, options).size());
 
+		// 377559
 		// System.out.println("taylor");
 		// options = "reflexive taylor non-isomorphic";
 		// System.out.println(findDigraphs(solver, arity, options).size());

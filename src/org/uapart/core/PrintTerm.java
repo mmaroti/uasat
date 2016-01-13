@@ -18,26 +18,45 @@
 
 package org.uapart.core;
 
-public class Domain {
-	private final String name;
-	private final int size;
+public class PrintTerm extends Term {
+	private final Term subterm;
+	private final int trigger;
+	private final Table[] tables;
 
-	public Domain(String name, int size) {
-		if (name == null || size <= 1)
+	public PrintTerm(Term subterm, int trigger, Table... tables) {
+		if (subterm == null || tables == null || trigger < -2
+				|| trigger >= subterm.getDomain().getSize())
 			throw new IllegalArgumentException();
 
-		this.name = name;
-		this.size = size;
+		this.subterm = subterm;
+		this.trigger = trigger;
+		this.tables = tables;
 	}
 
-	public String getName() {
-		return name;
+	@Override
+	public Domain getDomain() {
+		return subterm.getDomain();
 	}
 
-	public int getSize() {
-		return size;
+	@Override
+	public int evaluate() {
+		int a = subterm.evaluate();
+
+		if ((trigger >= 0 && a == trigger) || trigger == -2) {
+			for (int i = 0; i < tables.length; i++)
+				System.out.println(tables[i].toString());
+
+			if (trigger < 0)
+				System.out.println("value: " + a);
+
+			System.out.println();
+		}
+
+		return a;
 	}
 
-	public static final Domain BOOL = new Domain("BOOL", 2);
-	public static final Domain INT = new Domain("INT", Integer.MAX_VALUE);
+	@Override
+	public int getBound() {
+		return subterm.getBound();
+	}
 }

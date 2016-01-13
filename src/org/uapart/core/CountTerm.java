@@ -18,45 +18,68 @@
 
 package org.uapart.core;
 
-public class Printer extends Term {
+public class CountTerm extends Term {
 	private final Term subterm;
-	private final int trigger;
-	private final Table[] tables;
+	private final int bound;
+	private final int[] table;
+	private final int size;
 
-	public Printer(Term subterm, int trigger, Table... tables) {
-		if (subterm == null || tables == null || trigger < -1
-				|| trigger >= subterm.getDomain().getSize())
+	public CountTerm(Table table, Term subterm) {
+		if (table == null || subterm == null
+				|| subterm.getDomain() != Domain.BOOL)
 			throw new IllegalArgumentException();
 
+		int[] t = table.getTable();
+
 		this.subterm = subterm;
-		this.trigger = trigger;
-		this.tables = tables;
+		this.bound = subterm.getBound() - t.length;
+		this.table = t;
+		this.size = table.getSize();
+
+		int s = table.getCodomain().getSize();
+		for (int i = 0; i < t.length; i++) {
+			if (t[i] == Integer.MIN_VALUE)
+				t[i] = bound + i;
+			else if (t[i] < 0)
+				throw new IllegalArgumentException("already bound");
+			else if (t[i] >= s)
+				throw new IllegalArgumentException("too large value");
+		}
 	}
 
 	@Override
 	public Domain getDomain() {
-		return subterm.getDomain();
+		return Domain.INT;
 	}
 
 	@Override
 	public int evaluate() {
 		int a = subterm.evaluate();
+		if (a >= 0 || a < bound)
+			return a;
 
-		if (a == trigger || trigger < 0) {
-			for (int i = 0; i < tables.length; i++)
-				System.out.println(tables[i].toString());
+		int p = a - bound;
+		assert p < table.length && table[p] == a;
 
-			if (trigger < 0)
-				System.out.println("value: " + a);
+		int c = 0;
+		for (table[p] = 0; table[p] < size; table[p]++) {
+			a = evaluate();
+			assert a < bound + table.length || a >= 0;
 
-			System.out.println();
+			if (a >= 0)
+				c += a;
+			else {
+				c = a;
+				break;
+			}
 		}
+		table[p] = bound + p;
 
-		return a;
+		return c;
 	}
 
 	@Override
 	public int getBound() {
-		return subterm.getBound();
+		return bound;
 	}
 }

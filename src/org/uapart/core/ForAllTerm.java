@@ -69,7 +69,7 @@ public class ForAllTerm extends Term {
 			if (a == 0) {
 				m = 0;
 				break;
-			} else if (a < m)
+			} else if (m == 1)
 				m = a;
 		}
 		table[p] = bound + p;

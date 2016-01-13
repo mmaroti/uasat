@@ -42,6 +42,6 @@ public class VarTerm extends Term {
 
 	@Override
 	public int getBound() {
-		return -1;
+		return 0;
 	}
 }

@@ -23,26 +23,15 @@ import java.text.*;
 public class Validation {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
-	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		Domain a = new Domain("a", 3);
 		UnaryTable f = new UnaryTable("f", a, a);
 		UnaryTable g = new UnaryTable("g", a, a);
 		Variables x = new Variables("x", a, 1);
 
-		/*
-		 * Term t = new ExistsTerm(g, new ExistsTerm(f, new Printer( new
-		 * ForAllTerm(x, new BoolEqu(new UnaryTerm(f, new UnaryTerm(g,
-		 * x.get(0))), x.get(0))), 1, f, g)));
-		 */
-
-		Term e1 = new BoolEqu(new UnaryTerm(f, new UnaryTerm(g, x.get(0))),
-				x.get(0));
-		Term e2 = new BoolEqu(new UnaryTerm(g, new UnaryTerm(f, x.get(0))),
-				x.get(0));
-
-		Term t = new ExistsTerm(f, new ExistsTerm(g, new ForAllTerm(x,
-				new Printer(e2, -1, f, g, x))));
+		Term e1 = x.get(0).by(g).by(f).equ(x.get(0));
+		Term e2 = x.get(0).by(f).by(g).equ(x.get(0));
+		Term t = e1.and(e2).forall(x).print(1, f,g).exists(g).count(f);
 
 		long time = System.currentTimeMillis();
 
