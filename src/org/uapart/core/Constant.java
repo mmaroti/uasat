@@ -36,7 +36,7 @@ public class Constant extends Term {
 	}
 
 	@Override
-	public int evaluate() {
+	public int $evaluate() {
 		return value;
 	}
 

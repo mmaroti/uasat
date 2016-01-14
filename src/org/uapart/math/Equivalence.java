@@ -21,10 +21,14 @@ package org.uapart.math;
 import org.uapart.core.*;
 
 public class Equivalence {
-	private final Table fun;
+	private final Function fun;
 
-	protected Equivalence(String name, Domain domain) {
-		fun = Table.create(name, domain, domain);
+	public Equivalence(Function fun) {
+		if (fun == null || fun.getArity() != 1
+				|| fun.getDomain(0) != fun.getCodomain())
+			throw new IllegalArgumentException();
+
+		this.fun = fun;
 	}
 
 	public Domain getDomain() {
@@ -32,16 +36,18 @@ public class Equivalence {
 	}
 
 	public Term isValid() {
-		Table t = Table.create("x", getDomain());
-		Term x = t.of();
-		Term fx = fun.of(x);
-		return new ForAll(t, fx.leq(x).and(fun.of(fx).equ(fx)));
+		Table x = Table.create("x", getDomain());
+
+		Term x0 = x.get();
+		Term fx = fun.of(x0);
+		return Term.forall(x, fx.leq(x0).and(fun.of(fx).equ(fx)));
 	}
 
 	public Term isIdentity() {
 		Table x = Table.create("x", getDomain());
-		Term v = x.of();
-		return new ForAll(x, fun.of(v).equ(v));
+
+		Term x0 = x.of();
+		return Term.forall(x, fun.of(x0).equ(x0));
 	}
 
 	public Term areEquivalent(Term a, Term b) {

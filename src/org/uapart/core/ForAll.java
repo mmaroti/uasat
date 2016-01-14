@@ -24,7 +24,7 @@ public class ForAll extends Term {
 	private final int[] table;
 	private final int size;
 
-	public ForAll(Table table, Term subterm) {
+	ForAll(Table table, Term subterm) {
 		if (table == null || subterm == null
 				|| subterm.getDomain() != Domain.BOOL)
 			throw new IllegalArgumentException();
@@ -34,15 +34,14 @@ public class ForAll extends Term {
 		this.subterm = subterm;
 		this.bound = subterm.getBound() - t.length;
 		this.table = t;
-		this.size = table.getSize();
+		this.size = table.getCodomain().getSize();
 
-		int s = table.getCodomain().getSize();
 		for (int i = 0; i < t.length; i++) {
 			if (t[i] == Integer.MIN_VALUE)
 				t[i] = bound + i;
 			else if (t[i] < 0)
 				throw new IllegalArgumentException("already bound");
-			else if (t[i] >= s)
+			else if (t[i] >= this.size)
 				throw new IllegalArgumentException("too large value");
 		}
 	}
@@ -53,8 +52,8 @@ public class ForAll extends Term {
 	}
 
 	@Override
-	public int evaluate() {
-		int a = subterm.evaluate();
+	public int $evaluate() {
+		int a = subterm.$evaluate();
 		if (a >= 0 || a < bound)
 			return a;
 
@@ -63,7 +62,7 @@ public class ForAll extends Term {
 
 		int m = 1;
 		for (table[p] = 0; table[p] < size; table[p]++) {
-			a = evaluate();
+			a = $evaluate();
 			assert a < bound + table.length || a >= 0;
 
 			if (a == 0) {

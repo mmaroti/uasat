@@ -39,12 +39,12 @@ public class BoolLeq extends Term {
 	}
 
 	@Override
-	public int evaluate() {
-		int a = subterm0.evaluate();
+	public int $evaluate() {
+		int a = subterm0.$evaluate();
 		if (a == 0)
 			return 1;
 
-		int b = subterm1.evaluate();
+		int b = subterm1.$evaluate();
 		if (b == maxval1)
 			return 1;
 

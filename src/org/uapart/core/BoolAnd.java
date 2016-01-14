@@ -38,12 +38,12 @@ public class BoolAnd extends Term {
 	}
 
 	@Override
-	public int evaluate() {
-		int a = subterm0.evaluate();
+	public int $evaluate() {
+		int a = subterm0.$evaluate();
 		if (a == 0)
 			return 0;
 
-		int b = subterm1.evaluate();
+		int b = subterm1.$evaluate();
 		if (b == 0)
 			return 0;
 

@@ -34,8 +34,8 @@ public class BoolNot extends Term {
 	}
 
 	@Override
-	public int evaluate() {
-		int m = subterm.evaluate();
+	public int $evaluate() {
+		int m = subterm.$evaluate();
 		return m < 0 ? m : 1 - m;
 	}
 

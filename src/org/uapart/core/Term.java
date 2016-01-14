@@ -31,7 +31,7 @@ public abstract class Term {
 	 * @return the evaluated result if positive, or the rank of an unset
 	 *         variable.
 	 */
-	public abstract int evaluate();
+	public abstract int $evaluate();
 
 	/**
 	 * Returns the minimum rank of bound variables within this expression.
@@ -64,16 +64,16 @@ public abstract class Term {
 		return new BoolNot(this);
 	}
 
-	public Term forall(Table table) {
-		return new ForAll(table, this);
+	public static Term forall(Table table, Term term) {
+		return new ForAll(table, term);
 	}
 
-	public Term exists(Table table) {
-		return new Exists(table, this);
+	public static Term exists(Table table, Term term) {
+		return new Exists(table, term);
 	}
 
-	public Term count(Table table) {
-		return new Counter(table, this);
+	public static Term count(Table table, Term term) {
+		return new Counter(table, term);
 	}
 
 	public Term print(int trigger, Table... tables) {

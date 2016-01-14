@@ -18,28 +18,33 @@
 
 package org.uapart.core;
 
-import java.text.*;
+public abstract class Function {
+	protected final Domain codomain;
+	protected final Domain domains[];
 
-public class Validation {
-	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
+	protected Function(Domain codomain, Domain... domains) {
+		if (codomain == null || domains == null)
+			throw new IllegalArgumentException();
 
-	public static void main(String[] args) {
-		Domain a = new Domain("a", 7);
-		Table f = Table.create("f", a, a);
-		Table g = Table.create("g", a, a);
-		Table x = Table.create("x", a);
+		for (int i = 0; i < domains.length; i++)
+			if (domains[i] == null)
+				throw new IllegalArgumentException();
 
-		Term e1 = f.of(g.of(x.get())).equ(x.get());
-		Term e2 = g.of(f.of(x.get())).equ(x.get());
-		Term t = Term.count(f,
-				Term.exists(g, Term.forall(x, e1.and(e2)).print(-1, f, g)));
-
-		long time = System.currentTimeMillis();
-
-		System.out.println(t.$evaluate());
-
-		time = System.currentTimeMillis() - time;
-		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
-				+ " seconds.");
+		this.codomain = codomain;
+		this.domains = domains;
 	}
+
+	public int getArity() {
+		return domains.length;
+	}
+
+	public Domain getDomain(int index) {
+		return domains[index];
+	}
+
+	public Domain getCodomain() {
+		return codomain;
+	}
+
+	abstract public Term of(Term... subterms);
 }

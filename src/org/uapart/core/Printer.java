@@ -39,8 +39,8 @@ public class Printer extends Term {
 	}
 
 	@Override
-	public int evaluate() {
-		int a = subterm.evaluate();
+	public int $evaluate() {
+		int a = subterm.$evaluate();
 
 		if ((trigger >= 0 && a == trigger) || trigger == -2) {
 			for (int i = 0; i < tables.length; i++)
