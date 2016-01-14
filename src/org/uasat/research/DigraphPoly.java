@@ -26,11 +26,31 @@ import org.uasat.solvers.*;
 
 public class DigraphPoly {
 	private Relation<Boolean> relation;
-	private int MAX_SOLUTIONS = 10;
+	private int MAX_SOLUTIONS = 100;
+	private int MAX_PRINTINGS = 1;
 
 	public DigraphPoly(Relation<Boolean> relation) {
 		assert relation.getArity() == 2;
 		this.relation = relation;
+	}
+
+	private void printCount(String options, String what, int count) {
+		String s = options.trim();
+		if (!s.isEmpty())
+			s += ' ';
+		s += what;
+		s += ": ";
+		if (count >= MAX_SOLUTIONS)
+			s += ">= ";
+		s += count;
+		System.out.println(s);
+	}
+
+	private void printOperations(List<Tensor<Boolean>> list) {
+		for (int i = 0; i < Math.min(list.size(), MAX_PRINTINGS); i++) {
+			Operation<Boolean> op = Operation.wrap(list.get(i));
+			System.out.println(" " + Operation.formatTable(op));
+		}
 	}
 
 	public void printMembers() {
@@ -55,18 +75,6 @@ public class DigraphPoly {
 			Relation<Boolean> covers = relation.asPartialOrder().covers();
 			System.out.println("covers: " + Relation.formatMembers(covers));
 		}
-	}
-
-	private void printCount(String options, String what, int count) {
-		String s = options.trim();
-		if (!s.isEmpty())
-			s += ' ';
-		s += what;
-		s += ": ";
-		if (count >= MAX_SOLUTIONS)
-			s += ">= ";
-		s += count;
-		System.out.println(s);
 	}
 
 	public boolean printUnaryOps(final String options) {
@@ -106,8 +114,7 @@ public class DigraphPoly {
 		Tensor<Boolean> tensor = prob.solveAll(solver, MAX_SOLUTIONS).get(0);
 
 		printCount(options, "unary ops", tensor.getLastDim());
-		for (Tensor<Boolean> t : Tensor.unstack(tensor))
-			System.out.println(" " + Operation.formatTable(Operation.wrap(t)));
+		printOperations(Tensor.unstack(tensor));
 
 		return 1 <= tensor.getLastDim();
 	}
@@ -165,24 +172,27 @@ public class DigraphPoly {
 		Tensor<Boolean> tensor = prob.solveAll(solver, MAX_SOLUTIONS).get(0);
 
 		printCount(options, "binary ops", tensor.getLastDim());
-		for (Tensor<Boolean> t : Tensor.unstack(tensor))
-			System.out.println(" " + Operation.formatTable(Operation.wrap(t)));
+		printOperations(Tensor.unstack(tensor));
 
 		return 1 <= tensor.getLastDim();
 	}
 
+	@SuppressWarnings("unused")
 	public void printBinaryOps() {
 		boolean semilattice = printBinaryOps("semilattice");
 		boolean two_semilat = semilattice || printBinaryOps("two-semilat");
+		boolean commutidemp = two_semilat
+				|| printBinaryOps("idempotent commutative");
+		boolean commutative = commutidemp
+				|| printBinaryOps("commutative essential");
 		boolean associative = semilattice
 				|| printBinaryOps("associative essential");
-		boolean idempotent = two_semilat
+		boolean idempotent = commutidemp
 				|| printBinaryOps("idempotent essential");
 		boolean surjective = idempotent
 				|| printBinaryOps("surjective essential");
-		@SuppressWarnings("unused")
 		boolean essential = associative || idempotent || surjective
-				|| printTernaryOps("essential");
+				|| commutative || printTernaryOps("essential");
 	}
 
 	public boolean printTernaryOps(final String options) {
@@ -225,8 +235,7 @@ public class DigraphPoly {
 		Tensor<Boolean> tensor = prob.solveAll(solver, MAX_SOLUTIONS).get(0);
 
 		printCount(options, "ternary ops", tensor.getLastDim());
-		for (Tensor<Boolean> t : Tensor.unstack(tensor))
-			System.out.println(" " + Operation.formatTable(Operation.wrap(t)));
+		printOperations(Tensor.unstack(tensor));
 
 		return 1 <= tensor.getLastDim();
 	}
@@ -717,7 +726,7 @@ public class DigraphPoly {
 	private SatSolver<?> solver = new Sat4J();
 
 	@SuppressWarnings("unused")
-	public static void main(String[] args) {
+	public static void main2(String[] args) {
 		SatSolver<?> solver = new Sat4J();
 		int size = 6;
 		String options;
@@ -734,52 +743,64 @@ public class DigraphPoly {
 		}
 		System.out.println("done");
 
-		// 377543
-		// System.out.println("two-semilat");
-		// options = "reflexive two-semilattice non-isomorphic";
-		// System.out.println(findDigraphs(solver, arity, options).size());
-
-		// 377559
-		// System.out.println("sd-meet");
-		// options = "reflexive sd-meet non-isomorphic";
-		// System.out.println(findDigraphs(solver, arity, options).size());
-
-		// 55853
-		// System.out.println("majority");
-		// options = "reflexive majority non-isomorphic";
-		// System.out.println(findDigraphs(solver, arity, options).size());
-
-		// 377559
-		// System.out.println("taylor");
-		// options = "reflexive taylor non-isomorphic";
-		// System.out.println(findDigraphs(solver, arity, options).size());
+		// 377543 two-semilat
+		// 377559 sd-meet
+		// 55853 majority
+		// 377559 taylor
 	}
 
 	@SuppressWarnings("unused")
-	public static void main1(String[] args) {
+	public static void main(String[] args) {
 		PartialOrder<Boolean> a1 = PartialOrder.antiChain(1);
 		PartialOrder<Boolean> a2 = PartialOrder.antiChain(2);
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
 		PartialOrder<Boolean> c6 = PartialOrder.crown(6);
 
-		Relation<Boolean> rel1 = c4.plus(a1).asRelation();
-		DigraphPoly pol1 = new DigraphPoly(rel1);
-		pol1.printMembers();
-		pol1.printUnaryOps();
-		pol1.printBinaryOps();
+		// Relation<Boolean> rel1 = c4.plus(a1).asRelation();
+		// DigraphPoly pol1 = new DigraphPoly(rel1);
+		// pol1.printMembers();
+		// pol1.printUnaryOps();
+		// pol1.printBinaryOps();
 		// pol1.printTernaryOps();
 		// List<Relation<Boolean>> subs =
 		// pol1.printDefinableSubalgs("singletons convex nonempty", true);
-
-		pol1.printOperationExt(3, "0001 1101 2201 3301 4401");
+		// pol1.printOperationExt(3, "0001 1101 2201 3301 4401");
 
 		// Relation<Boolean> rel2 = pol1.makeSubdirectRel(subs);
 		// DigraphPoly pol2 = new DigraphPoly(rel2);
 		// pol2.printMembers();
-
 		// pol2.printHomomorphismExt(rel1, "00 11 22 33 44 60 91");
 		// pol2.printUnaryOps();
 		// pol2.printBinaryOps();
 		// pol2.printTernaryOps();
+
+		String[] benoit = new String[] {
+				"00 03 04 11 12 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",
+				"00 03 04 11 12 14 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",
+				"00 03 04 11 14 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",
+				"00 03 04 11 12 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",
+				"00 03 04 11 12 14 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",
+				"00 04 05 11 13 15 22 23 24 25 31 32 33 35 41 42 43 44 50 52 54 55",
+				"00 02 03 05 11 13 14 15 22 23 24 31 32 33 34 40 41 44 45 50 51 52 53 55",
+				"00 02 03 05 11 12 13 14 15 22 23 24 31 32 33 34 40 41 44 45 50 51 52 53 55",
+				"00 03 05 11 12 13 14 15 22 23 24 31 32 33 34 40 41 44 45 50 51 52 53 55",
+				"00 03 05 11 12 13 14 15 22 23 24 31 32 33 34 40 41 44 45 50 51 53 55",
+				"00 05 11 13 14 22 23 24 25 31 32 33 34 40 42 44 45 50 51 52 53 55",
+				"00 01 02 03 05 11 13 14 22 23 24 25 31 32 33 34 40 42 44 45 50 51 52 53 55",
+				"00 11 13 14 22 23 24 25 31 32 33 34 40 42 44 45 50 51 52 53 55",
+				"00 03 04 11 13 15 22 23 24 25 32 33 34 41 42 44 45 51 52 53 55",
+				"00 02 03 11 12 15 22 23 24 31 33 34 35 40 42 43 44 45 50 51 52 54 55",
+				"00 02 03 11 12 14 22 23 25 31 33 34 35 41 42 44 45 50 52 53 54 55" };
+
+		for (int i = 0; i < benoit.length; i++) {
+			System.out.println("digraph #" + i);
+			DigraphPoly pol3 = new DigraphPoly(Relation.parseMembers(6, 2,
+					benoit[i]));
+			pol3.printMembers();
+			pol3.printUnaryOps();
+			pol3.printBinaryOps();
+			pol3.printTernaryOps();
+			System.out.println();
+		}
 	}
 }
