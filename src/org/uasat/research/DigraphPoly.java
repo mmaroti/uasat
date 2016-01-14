@@ -691,7 +691,7 @@ public class DigraphPoly {
 			}
 		};
 
-		return problem.solveAll(solver) != null;
+		return problem.solveOne(solver) != null;
 	}
 
 	public static boolean hasTwoSemilatTerm(SatSolver<?> solver,
@@ -711,7 +711,7 @@ public class DigraphPoly {
 			}
 		};
 
-		return problem.solveAll(solver) != null;
+		return problem.solveOne(solver) != null;
 	}
 
 	private SatSolver<?> solver = new Sat4J();
@@ -719,17 +719,20 @@ public class DigraphPoly {
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		SatSolver<?> solver = new Sat4J();
-		int arity = 6;
+		int size = 6;
 		String options;
 
 		System.out.println("finding taylors");
-		List<Relation<Boolean>> list = findDigraphs(solver, arity,
+		List<Relation<Boolean>> list = findDigraphs(solver, size,
 				"reflexive taylor non-isomorphic");
+		System.out.println("count: " + list.size());
 
+		System.out.println("filtering for no 2sl");
 		for (Relation<Boolean> rel : list) {
- 			if (!hasTwoSemilatTerm(solver, rel))
+			if (!hasTwoSemilatTerm(solver, rel))
 				System.out.println("no 2sl: " + Relation.formatMembers(rel));
 		}
+		System.out.println("done");
 
 		// 377543
 		// System.out.println("two-semilat");
