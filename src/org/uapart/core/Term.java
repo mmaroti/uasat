@@ -64,27 +64,19 @@ public abstract class Term {
 		return new BoolNot(this);
 	}
 
-	public Term by(UnaryTable table) {
-		return new UnaryTerm(table, this);
-	}
-
-	public Term by(BinaryTable table, Term term) {
-		return new BinaryTerm(table, this, term);
-	}
-
 	public Term forall(Table table) {
-		return new ForAllTerm(table, this);
+		return new ForAll(table, this);
 	}
 
 	public Term exists(Table table) {
-		return new ExistsTerm(table, this);
+		return new Exists(table, this);
 	}
 
 	public Term count(Table table) {
-		return new CountTerm(table, this);
+		return new Counter(table, this);
 	}
 
 	public Term print(int trigger, Table... tables) {
-		return new PrintTerm(this, trigger, tables);
+		return new Printer(this, trigger, tables);
 	}
 }

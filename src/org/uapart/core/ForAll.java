@@ -18,13 +18,13 @@
 
 package org.uapart.core;
 
-public class CountTerm extends Term {
+public class ForAll extends Term {
 	private final Term subterm;
 	private final int bound;
 	private final int[] table;
 	private final int size;
 
-	public CountTerm(Table table, Term subterm) {
+	public ForAll(Table table, Term subterm) {
 		if (table == null || subterm == null
 				|| subterm.getDomain() != Domain.BOOL)
 			throw new IllegalArgumentException();
@@ -49,7 +49,7 @@ public class CountTerm extends Term {
 
 	@Override
 	public Domain getDomain() {
-		return Domain.INT;
+		return Domain.BOOL;
 	}
 
 	@Override
@@ -61,21 +61,20 @@ public class CountTerm extends Term {
 		int p = a - bound;
 		assert p < table.length && table[p] == a;
 
-		int c = 0;
+		int m = 1;
 		for (table[p] = 0; table[p] < size; table[p]++) {
 			a = evaluate();
 			assert a < bound + table.length || a >= 0;
 
-			if (a >= 0)
-				c += a;
-			else {
-				c = a;
+			if (a == 0) {
+				m = 0;
 				break;
-			}
+			} else if (m == 1)
+				m = a;
 		}
 		table[p] = bound + p;
 
-		return c;
+		return m;
 	}
 
 	@Override

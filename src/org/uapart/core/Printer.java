@@ -18,56 +18,45 @@
 
 package org.uapart.core;
 
-public class FuncTerm extends Term {
-	private final FuncTable table;
-	private final Term[] subterms;
-	private final int[] args;
+public class Printer extends Term {
+	private final Term subterm;
+	private final int trigger;
+	private final Table[] tables;
 
-	public FuncTerm(FuncTable table, Term[] subterms) {
-		if (table == null || subterms == null
-				|| table.getArity() != subterms.length)
+	public Printer(Term subterm, int trigger, Table... tables) {
+		if (subterm == null || tables == null || trigger < -2
+				|| trigger >= subterm.getDomain().getSize())
 			throw new IllegalArgumentException();
 
-		for (int i = 0; i < subterms.length; i++)
-			if (subterms[i] == null
-					|| table.getDomain(i) != subterms[i].getDomain())
-				throw new IllegalArgumentException();
-
-		this.table = table;
-		this.subterms = subterms;
-		this.args = new int[subterms.length];
+		this.subterm = subterm;
+		this.trigger = trigger;
+		this.tables = tables;
 	}
 
 	@Override
 	public Domain getDomain() {
-		return table.getCodomain();
+		return subterm.getDomain();
 	}
 
 	@Override
 	public int evaluate() {
-		int m = Integer.MAX_VALUE;
+		int a = subterm.evaluate();
 
-		for (int i = 0; i < args.length; i++) {
-			int a = subterms[i].evaluate();
-			args[i] = a;
+		if ((trigger >= 0 && a == trigger) || trigger == -2) {
+			for (int i = 0; i < tables.length; i++)
+				System.out.println(tables[i].toString());
 
-			if (a < m)
-				m = a;
+			if (trigger < 0)
+				System.out.println("value: " + a);
+
+			System.out.println();
 		}
 
-		return m < 0 ? m : table.evaluate(args);
+		return a;
 	}
 
 	@Override
 	public int getBound() {
-		int b = -1;
-
-		for (int i = 0; i < subterms.length; i++) {
-			int a = subterms[i].getBound();
-			if (a < b)
-				b = a;
-		}
-
-		return b;
+		return subterm.getBound();
 	}
 }

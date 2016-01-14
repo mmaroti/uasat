@@ -25,12 +25,12 @@ public class Validation {
 
 	public static void main(String[] args) {
 		Domain a = new Domain("a", 7);
-		UnaryTable f = new UnaryTable("f", a, a);
-		UnaryTable g = new UnaryTable("g", a, a);
-		Variables x = new Variables("x", a, 1);
+		Table f = Table.create("f", a, a);
+		Table g = Table.create("g", a, a);
+		Table x = Table.create("x", a);
 
-		Term e1 = x.get(0).by(g).by(f).equ(x.get(0));
-		Term e2 = x.get(0).by(f).by(g).equ(x.get(0));
+		Term e1 = f.of(g.of(x.of())).equ(x.of());
+		Term e2 = g.of(f.of(x.of())).equ(x.of());
 		Term t = e1.and(e2).forall(x).print(-1, f, g).exists(g).count(f);
 
 		long time = System.currentTimeMillis();

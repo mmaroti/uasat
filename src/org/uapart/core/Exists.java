@@ -18,32 +18,67 @@
 
 package org.uapart.core;
 
-public class UnaryTerm extends Term {
-	private final UnaryTable table;
+public class Exists extends Term {
 	private final Term subterm;
+	private final int bound;
+	private final int[] table;
+	private final int size;
 
-	public UnaryTerm(UnaryTable table, Term subterm) {
+	public Exists(Table table, Term subterm) {
 		if (table == null || subterm == null
-				|| table.getDomain() != subterm.getDomain())
+				|| subterm.getDomain() != Domain.BOOL)
 			throw new IllegalArgumentException();
 
-		this.table = table;
+		int[] t = table.getTable();
+
 		this.subterm = subterm;
+		this.bound = subterm.getBound() - t.length;
+		this.table = t;
+		this.size = table.getSize();
+
+		int s = table.getCodomain().getSize();
+		for (int i = 0; i < t.length; i++) {
+			if (t[i] == Integer.MIN_VALUE)
+				t[i] = bound + i;
+			else if (t[i] < 0)
+				throw new IllegalArgumentException("already bound");
+			else if (t[i] >= s)
+				throw new IllegalArgumentException("too large value");
+		}
 	}
 
 	@Override
 	public Domain getDomain() {
-		return table.getCodomain();
+		return Domain.BOOL;
 	}
 
 	@Override
 	public int evaluate() {
-		int m = subterm.evaluate();
-		return m < 0 ? m : table.evaluate(m);
+		int a = subterm.evaluate();
+		if (a >= 0 || a < bound)
+			return a;
+
+		int p = a - bound;
+		assert p < table.length && table[p] == a;
+
+		int m = 0;
+		for (table[p] = 0; table[p] < size; table[p]++) {
+			a = evaluate();
+			assert a < bound + table.length || a >= 0;
+
+			if (a == 1) {
+				m = 1;
+				break;
+			} else if (m == 0)
+				m = a;
+		}
+		table[p] = bound + p;
+
+		return m;
 	}
 
 	@Override
 	public int getBound() {
-		return subterm.getBound();
+		return bound;
 	}
 }
