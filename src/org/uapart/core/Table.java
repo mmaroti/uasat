@@ -46,7 +46,7 @@ public abstract class Table {
 		return Apply.create(this, terms);
 	}
 
-	private Table(String name, Domain codomain, Domain[] domains) {
+	protected Table(String name, Domain codomain, Domain[] domains) {
 		if (name == null || codomain == null)
 			throw new IllegalArgumentException();
 		assert domains != null;
