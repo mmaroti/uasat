@@ -730,12 +730,12 @@ public class DigraphPoly {
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		SatSolver<?> solver = new Sat4J();
-		int size = 7;
+		int size = 8;
 		String options;
 
 		long time = System.currentTimeMillis();
 		
-		System.out.println("finding taylors");
+		System.out.println("finding taylors for size " + size);
 		List<Relation<Boolean>> list = findDigraphs(solver, size,
 				"reflexive symmetric taylor non-isomorphic");
 		System.out.println("count: " + list.size());
