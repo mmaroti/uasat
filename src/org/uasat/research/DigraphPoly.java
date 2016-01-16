@@ -18,6 +18,7 @@
 
 package org.uasat.research;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 import org.uasat.core.*;
@@ -724,16 +725,19 @@ public class DigraphPoly {
 	}
 
 	private SatSolver<?> solver = new Sat4J();
+	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
 	@SuppressWarnings("unused")
-	public static void main2(String[] args) {
+	public static void main(String[] args) {
 		SatSolver<?> solver = new Sat4J();
-		int size = 6;
+		int size = 7;
 		String options;
 
+		long time = System.currentTimeMillis();
+		
 		System.out.println("finding taylors");
 		List<Relation<Boolean>> list = findDigraphs(solver, size,
-				"reflexive taylor non-isomorphic");
+				"reflexive symmetric taylor non-isomorphic");
 		System.out.println("count: " + list.size());
 
 		System.out.println("filtering for no 2sl");
@@ -741,7 +745,10 @@ public class DigraphPoly {
 			if (!hasTwoSemilatTerm(solver, rel))
 				System.out.println("no 2sl: " + Relation.formatMembers(rel));
 		}
-		System.out.println("done");
+
+		time = System.currentTimeMillis() - time;
+		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
+				+ " seconds.");
 
 		// 377543 two-semilat
 		// 377559 sd-meet
@@ -750,7 +757,7 @@ public class DigraphPoly {
 	}
 
 	@SuppressWarnings("unused")
-	public static void main(String[] args) {
+	public static void main2(String[] args) {
 		PartialOrder<Boolean> a1 = PartialOrder.antiChain(1);
 		PartialOrder<Boolean> a2 = PartialOrder.antiChain(2);
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
