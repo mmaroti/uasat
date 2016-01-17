@@ -730,7 +730,7 @@ public class DigraphPoly {
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		SatSolver<?> solver = new Sat4J();
-		int size = 7;
+		int size = 8;
 		String options;
 
 		long time = System.currentTimeMillis();
