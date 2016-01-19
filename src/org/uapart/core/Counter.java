@@ -57,31 +57,37 @@ public class Counter extends Term {
 		if (a < bound || a == 0)
 			return a;
 		else if (a == 1) {
+			long c = 1;
 			for (int i = 0; i < table.length; i++)
-				if (table[i] < 0)
-					a *= size;
+				if (table[i] < 0) {
+					c *= size;
+					if (c > Integer.MAX_VALUE)
+						throw new ArithmeticException();
+				}
+			return (int) c;
+		} else {
+			int p = a - bound;
+			assert p < table.length && table[p] == a;
 
-			return a;
-		}
+			long c = 0;
+			for (table[p] = 0; table[p] < size; table[p]++) {
+				a = $evaluate();
+				assert a < bound + table.length || a >= 0;
 
-		int p = a - bound;
-		assert p < table.length && table[p] == a;
-
-		int c = 0;
-		for (table[p] = 0; table[p] < size; table[p]++) {
-			a = $evaluate();
-			assert a < bound + table.length || a >= 0;
-
-			if (a >= 0)
-				c += a;
-			else {
-				c = a;
-				break;
+				if (a >= 0)
+					c += a;
+				else {
+					c = a;
+					break;
+				}
 			}
-		}
-		table[p] = bound + p;
+			table[p] = bound + p;
 
-		return c;
+			if (c > Integer.MAX_VALUE)
+				throw new ArithmeticException();
+
+			return (int) c;
+		}
 	}
 
 	@Override

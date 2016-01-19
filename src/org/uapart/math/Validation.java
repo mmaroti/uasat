@@ -28,11 +28,15 @@ public class Validation {
 	public static void main(String[] args) {
 		Domain dom = new Domain(5);
 		Relation rel = new Relation(dom, 2);
+		Equivalence equ = new Equivalence(dom);
 
 		long time = System.currentTimeMillis();
 
-		System.out.println(Term.count(rel.getTable(), rel.isPartialOrder())
-				.$evaluate());
+		Term t1 = Term.count(rel.getTable(), rel.isEquivalence());
+		System.out.println(t1.$evaluate());
+
+		Term t2 = Term.count(equ.getTable(), equ.isValid());
+		System.out.println(t2.$evaluate());
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

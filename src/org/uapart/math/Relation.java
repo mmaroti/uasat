@@ -23,41 +23,40 @@ import java.util.*;
 import org.uapart.core.*;
 
 public class Relation {
-	private final Function rel;
+	private final Table table;
 
 	public Relation(Domain domain, int arity) {
-		if (arity < 0)
+		if (domain == null || arity < 0)
 			throw new IllegalArgumentException();
 
 		Domain[] ds = new Domain[arity];
 		Arrays.fill(ds, domain);
 
-		this.rel = Table.create(Domain.BOOL, ds);
+		this.table = Table.create(Domain.BOOL, ds);
 	}
 
-	protected Relation(Function fun) {
-		if (fun == null || fun.getCodomain() != Domain.BOOL
-				|| fun.getArity() <= 0)
+	protected Relation(Table table) {
+		if (table == null || table.getCodomain() != Domain.BOOL)
 			throw new IllegalArgumentException();
 
-		Domain d = fun.getDomain(0);
-		for (int i = 1; i < fun.getArity(); i++)
-			if (fun.getDomain(i) != d)
+		Domain d = table.getDomain(0);
+		for (int i = 1; i < table.getArity(); i++)
+			if (table.getDomain(i) != d)
 				throw new IllegalArgumentException();
 
-		this.rel = fun;
+		this.table = table;
 	}
 
 	public int getArity() {
-		return rel.getArity();
+		return table.getArity();
 	}
 
 	public Domain getDomain() {
-		return rel.getDomain(0);
+		return table.getDomain(0);
 	}
 
 	public Table getTable() {
-		return (Table) rel;
+		return table;
 	}
 
 	public Term isFull() {
@@ -68,7 +67,7 @@ public class Relation {
 		for (int i = 0; i < xs.length; i++)
 			xs[i] = x.get(i);
 
-		return Term.forall(x, rel.of(xs));
+		return Term.forall(x, table.of(xs));
 	}
 
 	public Term isEmpty() {
@@ -79,7 +78,7 @@ public class Relation {
 		for (int i = 0; i < xs.length; i++)
 			xs[i] = x.get(i);
 
-		return Term.exists(x, rel.of(xs)).not();
+		return Term.exists(x, table.of(xs)).not();
 	}
 
 	public Term isReflexive() {
@@ -88,7 +87,7 @@ public class Relation {
 		Term[] xs = new Term[getArity()];
 		Arrays.fill(xs, x.get());
 
-		return Term.forall(x, rel.of(xs));
+		return Term.forall(x, table.of(xs));
 	}
 
 	public Term isSymmetric() {
@@ -97,7 +96,7 @@ public class Relation {
 		Term x0 = x.get(0);
 		Term x1 = x.get(1);
 
-		return Term.forall(x, rel.of(x0, x1).leq(rel.of(x1, x0)));
+		return Term.forall(x, table.of(x0, x1).leq(table.of(x1, x0)));
 	}
 
 	public Term isAntiSymmetric() {
@@ -106,8 +105,8 @@ public class Relation {
 		Term x0 = x.get(0);
 		Term x1 = x.get(1);
 
-		return Term.forall(x, rel.of(x0, x1).and(rel.of(x1, x0))
-				.leq(x0.equ(x1)));
+		return Term.forall(x,
+				table.of(x0, x1).and(table.of(x1, x0)).leq(x0.equ(x1)));
 	}
 
 	public Term isTransitive() {
@@ -118,7 +117,7 @@ public class Relation {
 		Term x2 = x.get(2);
 
 		return Term.forall(x,
-				rel.of(x0, x1).and(rel.of(x1, x2)).leq(rel.of(x0, x2)));
+				table.of(x0, x1).and(table.of(x1, x2)).leq(table.of(x0, x2)));
 	}
 
 	public Term isEquivalence() {

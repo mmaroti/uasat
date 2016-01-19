@@ -41,14 +41,18 @@ public class BoolLeq extends Term {
 	@Override
 	public int $evaluate() {
 		int a = subterm0.$evaluate();
+		if (a < 0)
+			return a;
 		if (a == 0)
 			return 1;
 
 		int b = subterm1.$evaluate();
-		if (b == maxval1)
+		if (b < 0)
+			return b;
+		else if (b == maxval1)
 			return 1;
 
-		return a <= b ? a : b;
+		return a <= b ? 1 : 0;
 	}
 
 	@Override

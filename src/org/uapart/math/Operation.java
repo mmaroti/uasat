@@ -18,64 +18,65 @@
 
 package org.uapart.math;
 
+import java.util.*;
+
 import org.uapart.core.*;
 
-public class Equivalence {
+public class Operation {
 	private final Table table;
 
-	public Equivalence(Domain domain) {
-		if (domain == null)
+	public Operation(Domain domain, int arity) {
+		if (domain == null || arity < 0)
 			throw new IllegalArgumentException();
 
-		this.table = Table.create(domain, domain);
+		Domain[] ds = new Domain[arity];
+		Arrays.fill(ds, domain);
+
+		this.table = Table.create(domain, ds);
 	}
 
-	public Equivalence(Table table) {
-		if (table == null || table.getArity() != 1
-				|| table.getDomain(0) != table.getCodomain())
+	protected Operation(Table table) {
+		if (table == null)
 			throw new IllegalArgumentException();
 
+		Domain d = table.getCodomain();
+		for (int i = 1; i < table.getArity(); i++)
+			if (table.getDomain(i) != d)
+				throw new IllegalArgumentException();
+
 		this.table = table;
+	}
+
+	public int getArity() {
+		return table.getArity();
 	}
 
 	public Domain getDomain() {
 		return table.getCodomain();
 	}
 
-	public Term isValid() {
-		Table x = Table.create(getDomain());
-
-		Term x0 = x.get();
-		Term fx = table.of(x0);
-		return Term.forall(x, fx.leq(x0).and(table.of(fx).equ(fx)));
-	}
-
 	public Table getTable() {
 		return table;
 	}
 
-	public Term isIdentity() {
+	public Term isIdempotent() {
 		Table x = Table.create(getDomain());
 
-		Term x0 = x.of();
-		return Term.forall(x, table.of(x0).equ(x0));
+		Term x0 = x.get();
+		Term[] xs = new Term[getArity()];
+		Arrays.fill(xs, x0);
+
+		return Term.forall(x, table.of(xs).equ(x0));
 	}
 
-	public Term isUniversal() {
-		Table x = Table.create(getDomain());
-
-		Term z = new Constant(getDomain(), 0);
-		return Term.forall(x, table.of(x.get()).equ(z));
-	}
-
-	public Term areEquivalent(Term a, Term b) {
-		if (a == null || b == null)
+	public Term isCommutative() {
+		if (getArity() != 2)
 			throw new IllegalArgumentException();
 
-		if (a.getDomain() != table.getCodomain()
-				|| b.getDomain() != table.getCodomain())
-			throw new IllegalArgumentException();
+		Table x = Table.create(getDomain(), Domain.TWO);
+		Term x0 = x.get(0);
+		Term x1 = x.get(1);
 
-		return table.of(a).equ(table.of(b));
+		return Term.forall(x, table.of(x0, x1).equ(table.of(x1, x0)));
 	}
 }

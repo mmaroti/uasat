@@ -52,24 +52,12 @@ public abstract class Term {
 		return new BoolLeq(this, term);
 	}
 
-	public Term neq(Term term) {
-		return new BoolNeq(this, term);
-	}
-
 	public Term or(Term term) {
 		return new BoolOr(this, term);
 	}
 
 	public Term not() {
 		return new BoolNot(this);
-	}
-
-	public static Term and(Term term0, Term term1) {
-		return new BoolAnd(term0, term1);
-	}
-
-	public static Term leq(Term term0, Term term1) {
-		return new BoolAnd(term0, term1);
 	}
 
 	public static Term forall(Table table, Term term) {

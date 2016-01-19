@@ -39,12 +39,14 @@ public class BoolEqu extends Term {
 	@Override
 	public int $evaluate() {
 		int a = subterm0.$evaluate();
-		int b = subterm1.$evaluate();
+		if (a < 0)
+			return a;
 
-		if (a >= 0 && b >= 0)
-			return a == b ? 1 : 0;
-		else
-			return a <= b ? a : b;
+		int b = subterm1.$evaluate();
+		if (b < 0)
+			return b;
+
+		return a == b ? 1 : 0;
 	}
 
 	@Override
