@@ -59,6 +59,22 @@ public class Permutation {
 		return table;
 	}
 
+	public Term of(Term term) {
+		if (term == null || term.getDomain() != getDomain())
+			throw new IllegalArgumentException();
+
+		Term c0 = new Constant(getDomain(), 0);
+		return table.of(term, c0);
+	}
+
+	public Term inverseOf(Term term) {
+		if (term == null || term.getDomain() != getDomain())
+			throw new IllegalArgumentException();
+
+		Term c1 = new Constant(getDomain(), 1);
+		return table.of(term, c1);
+	}
+
 	public Term isIdentity() {
 		Table x = Table.create(getDomain());
 

@@ -68,7 +68,7 @@ public class Equivalence {
 		return Term.forall(x, table.of(x.get()).equ(z));
 	}
 
-	public Term areEquivalent(Term a, Term b) {
+	public Term of(Term a, Term b) {
 		if (a == null || b == null)
 			throw new IllegalArgumentException();
 

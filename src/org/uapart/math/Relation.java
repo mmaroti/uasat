@@ -59,6 +59,10 @@ public class Relation {
 		return table;
 	}
 
+	public Term of(Term... subterms) {
+		return table.of(subterms);
+	}
+
 	public Term isFull() {
 		Domain d = new Domain(getArity());
 		Table x = Table.create(getDomain(), d);
@@ -121,6 +125,9 @@ public class Relation {
 	}
 
 	public Term isSymmetric() {
+		if (getArity() != 2)
+			throw new IllegalArgumentException();
+
 		Table x = Table.create(getDomain(), Domain.TWO);
 
 		Term x0 = x.get(0);
@@ -130,6 +137,9 @@ public class Relation {
 	}
 
 	public Term isAntiSymmetric() {
+		if (getArity() != 2)
+			throw new IllegalArgumentException();
+
 		Table x = Table.create(getDomain(), Domain.TWO);
 
 		Term x0 = x.get(0);
@@ -140,6 +150,9 @@ public class Relation {
 	}
 
 	public Term isTransitive() {
+		if (getArity() != 2)
+			throw new IllegalArgumentException();
+
 		Table x = Table.create(getDomain(), Domain.THREE);
 
 		Term x0 = x.get(0);

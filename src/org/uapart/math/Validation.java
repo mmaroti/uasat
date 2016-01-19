@@ -23,27 +23,79 @@ import java.text.*;
 import org.uapart.core.*;
 
 public class Validation {
+	boolean failed = false;
+
+	void verify(String msg, int count, int expected) {
+		System.out.println(msg + " is " + count + ".");
+		if (count != expected) {
+			System.out
+					.println("FAILED, the correct value is " + expected + ".");
+			failed = true;
+		}
+	}
+
+	void checkEquivalences() {
+		Domain dom = new Domain(10);
+
+		Equivalence equ = new Equivalence(dom);
+		Term term = Term.count(equ.getTable(), equ.isValid());
+
+		int count = term.$evaluate();
+		verify("A000110 the number of equivalences on 10", count, 115975);
+	}
+
+	void checkPermutations() {
+		Domain dom = new Domain(8);
+
+		Permutation perm = new Permutation(dom);
+		Term term = Term.count(perm.getTable(), perm.isValid());
+
+		int count = term.$evaluate();
+		verify("A000142 the number of permutations on 8", count, 40320);
+	}
+
+	void checkPartialOrders() {
+		Domain dom = new Domain(5);
+
+		Relation rel = new Relation(dom, 2);
+		Term term = Term.count(rel.getTable(), rel.isPartialOrder());
+
+		int count = term.$evaluate();
+		verify("A001035 the number of labelled partial orders on 5", count,
+				4231);
+	}
+
+	void checkAssociativity() {
+		Domain dom = new Domain(4);
+
+		Operation op = new Operation(dom, 2);
+		Term term = Term.count(op.getTable(), op.isAssociative());
+
+		int count = term.$evaluate();
+		verify("A023814 the number of labelled semigroups on 4", count, 3492);
+	}
+
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
-	public static void main(String[] args) {
-		Domain dom = new Domain(5);
-		Relation rel = new Relation(dom, 2);
-		Equivalence equ = new Equivalence(dom);
-		Permutation perm = new Permutation(dom);
-
+	void validate() {
+		failed = false;
 		long time = System.currentTimeMillis();
+		System.out.println("Validating UAPART:");
 
-		Term t1 = Term.count(rel.getTable(), rel.isEquivalence());
-		System.out.println(t1.$evaluate());
-
-		Term t2 = Term.count(equ.getTable(), equ.isValid());
-		System.out.println(t2.$evaluate());
-
-		Term t3 = Term.count(perm.getTable(), perm.isValid());
-		System.out.println(t3.$evaluate());
+		checkEquivalences();
+		checkPermutations();
+		checkPartialOrders();
+		checkAssociativity();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
 				+ " seconds.");
+
+		if (failed)
+			System.out.println("*** SOME TESTS HAVE FAILED ***");
+	}
+
+	public static void main(String[] arg) {
+		new Validation().validate();
 	}
 }

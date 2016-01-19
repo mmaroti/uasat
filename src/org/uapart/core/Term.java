@@ -60,6 +60,21 @@ public abstract class Term {
 		return new BoolNot(this);
 	}
 
+	public static Term and(Term[] subterms) {
+		if (subterms == null)
+			throw new IllegalArgumentException();
+
+		if (subterms.length == 0)
+			return new Constant(Domain.BOOL, 1);
+		else {
+			Term t = subterms[subterms.length - 1];
+			for (int i = subterms.length - 2; i >= 0; i--)
+				t = new BoolAnd(subterms[i], t);
+
+			return t;
+		}
+	}
+
 	public static Term forall(Table table, Term term) {
 		return new ForAll(table, term);
 	}

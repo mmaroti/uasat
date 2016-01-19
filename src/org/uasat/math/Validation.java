@@ -281,8 +281,9 @@ public class Validation {
 
 	void check() {
 		failed = false;
-
 		long time = System.currentTimeMillis();
+		System.out.println("Validating UASAT:");
+
 		checkFiniteGroups();
 		checkEquivalences();
 		checkNonIsomorphicDigraphs();
@@ -296,8 +297,8 @@ public class Validation {
 		checkCommutativeSemigroups();
 		checkThreeColorableGraphs();
 		checkLinearExtensions();
-		time = System.currentTimeMillis() - time;
 
+		time = System.currentTimeMillis() - time;
 		System.out.println("Total literals: " + solver.totalLiterals
 				+ ", clauses: " + solver.totalClauses + ".");
 
