@@ -18,37 +18,37 @@
 
 package org.uapart.math;
 
-import java.util.*;
-
 import org.uapart.core.*;
 
-public class Operation {
+public class Permutation {
 	private final Table table;
 
-	public Operation(Domain domain, int arity) {
-		if (domain == null || arity < 0)
+	public Permutation(Domain domain) {
+		if (domain == null)
 			throw new IllegalArgumentException();
 
-		Domain[] ds = new Domain[arity];
-		Arrays.fill(ds, domain);
-
-		this.table = Table.create(domain, ds);
+		this.table = Table.create(domain, domain, Domain.TWO);
 	}
 
-	public Operation(Table table) {
-		if (table == null)
+	public Permutation(Table table) {
+		if (table == null || table.getArity() != 2)
 			throw new IllegalArgumentException();
 
-		Domain d = table.getCodomain();
-		for (int i = 1; i < table.getArity(); i++)
-			if (table.getDomain(i) != d)
-				throw new IllegalArgumentException();
+		if (table.getCodomain() != table.getDomain(0)
+				|| table.getDomain(1) != Domain.TWO)
+			throw new IllegalArgumentException();
 
 		this.table = table;
 	}
 
-	public int getArity() {
-		return table.getArity();
+	public Term isValid() {
+		Table x = Table.create(getDomain());
+
+		Term x0 = x.get();
+		Term c0 = new Constant(getDomain(), 0);
+		Term c1 = new Constant(getDomain(), 1);
+
+		return Term.forall(x, table.of(table.of(x0, c0), c1).equ(x0));
 	}
 
 	public Domain getDomain() {
@@ -59,24 +59,12 @@ public class Operation {
 		return table;
 	}
 
-	public Term isIdempotent() {
+	public Term isIdentity() {
 		Table x = Table.create(getDomain());
 
 		Term x0 = x.get();
-		Term[] xs = new Term[getArity()];
-		Arrays.fill(xs, x0);
+		Term c0 = new Constant(getDomain(), 0);
 
-		return Term.forall(x, table.of(xs).equ(x0));
-	}
-
-	public Term isCommutative() {
-		if (getArity() != 2)
-			throw new IllegalArgumentException();
-
-		Table x = Table.create(getDomain(), Domain.TWO);
-		Term x0 = x.get(0);
-		Term x1 = x.get(1);
-
-		return Term.forall(x, table.of(x0, x1).equ(table.of(x1, x0)));
+		return Term.forall(x, table.of(x0, c0).equ(x0));
 	}
 }

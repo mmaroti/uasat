@@ -35,7 +35,7 @@ public class Relation {
 		this.table = Table.create(Domain.BOOL, ds);
 	}
 
-	protected Relation(Table table) {
+	public Relation(Table table) {
 		if (table == null || table.getCodomain() != Domain.BOOL)
 			throw new IllegalArgumentException();
 
@@ -68,6 +68,36 @@ public class Relation {
 			xs[i] = x.get(i);
 
 		return Term.forall(x, table.of(xs));
+	}
+
+	public Term isEqualTo(Relation rel) {
+		if (rel == null || rel.getDomain() != getDomain()
+				|| rel.getArity() != getArity())
+			throw new IllegalArgumentException();
+
+		Domain d = new Domain(getArity());
+		Table x = Table.create(getDomain(), d);
+
+		Term[] xs = new Term[getArity()];
+		for (int i = 0; i < xs.length; i++)
+			xs[i] = x.get(i);
+
+		return Term.forall(x, table.of(xs).equ(rel.table.of(xs)));
+	}
+
+	public Term isSubsetOf(Relation rel) {
+		if (rel == null || rel.getDomain() != getDomain()
+				|| rel.getArity() != getArity())
+			throw new IllegalArgumentException();
+
+		Domain d = new Domain(getArity());
+		Table x = Table.create(getDomain(), d);
+
+		Term[] xs = new Term[getArity()];
+		for (int i = 0; i < xs.length; i++)
+			xs[i] = x.get(i);
+
+		return Term.forall(x, table.of(xs).leq(rel.table.of(xs)));
 	}
 
 	public Term isEmpty() {

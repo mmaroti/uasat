@@ -29,6 +29,7 @@ public class Validation {
 		Domain dom = new Domain(5);
 		Relation rel = new Relation(dom, 2);
 		Equivalence equ = new Equivalence(dom);
+		Permutation perm = new Permutation(dom);
 
 		long time = System.currentTimeMillis();
 
@@ -37,6 +38,9 @@ public class Validation {
 
 		Term t2 = Term.count(equ.getTable(), equ.isValid());
 		System.out.println(t2.$evaluate());
+
+		Term t3 = Term.count(perm.getTable(), perm.isValid());
+		System.out.println(t3.$evaluate());
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

@@ -47,7 +47,14 @@ public class BoolOr extends Term {
 		if (b == 1)
 			return 1;
 
-		return a <= b ? a : b;
+		if (a < 0)
+			return a;
+		else if (b < 0)
+			return b;
+		else {
+			assert a == 0 && b == 0;
+			return 0;
+		}
 	}
 
 	@Override

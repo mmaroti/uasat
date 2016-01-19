@@ -38,16 +38,16 @@ public class Equivalence {
 		this.table = table;
 	}
 
-	public Domain getDomain() {
-		return table.getCodomain();
-	}
-
 	public Term isValid() {
 		Table x = Table.create(getDomain());
 
 		Term x0 = x.get();
 		Term fx = table.of(x0);
 		return Term.forall(x, fx.leq(x0).and(table.of(fx).equ(fx)));
+	}
+
+	public Domain getDomain() {
+		return table.getCodomain();
 	}
 
 	public Table getTable() {
