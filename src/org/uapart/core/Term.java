@@ -64,6 +64,14 @@ public abstract class Term {
 		return new BoolNot(this);
 	}
 
+	public static Term and(Term term0, Term term1) {
+		return new BoolAnd(term0, term1);
+	}
+
+	public static Term leq(Term term0, Term term1) {
+		return new BoolAnd(term0, term1);
+	}
+
 	public static Term forall(Table table, Term term) {
 		return new ForAll(table, term);
 	}

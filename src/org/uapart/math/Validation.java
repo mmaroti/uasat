@@ -16,27 +16,26 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package org.uapart.core;
+package org.uapart.math;
 
-public class Domain {
-	private final int size;
+import java.text.*;
 
-	public Domain(int size) {
-		if (size < 0)
-			throw new IllegalArgumentException();
+import org.uapart.core.*;
 
-		this.size = size;
+public class Validation {
+	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
+
+	public static void main(String[] args) {
+		Domain dom = new Domain(5);
+		Relation rel = new Relation(dom, 2);
+
+		long time = System.currentTimeMillis();
+
+		System.out.println(Term.count(rel.getTable(), rel.isPartialOrder())
+				.$evaluate());
+
+		time = System.currentTimeMillis() - time;
+		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
+				+ " seconds.");
 	}
-
-	public int getSize() {
-		return size;
-	}
-
-	public static final Domain BOOL = new Domain(2);
-	public static final Domain INT = new Domain(Integer.MAX_VALUE);
-	
-	public static final Domain ZERO = new Domain(0);
-	public static final Domain ONE = new Domain(1);
-	public static final Domain TWO = new Domain(2);
-	public static final Domain THREE = new Domain(3);
 }

@@ -22,29 +22,25 @@ import java.util.*;
 
 public abstract class Table extends Function {
 	protected final int[] table;
-	private final String name;
 
-	public static Table create(String name, Domain codomain, Domain... domains) {
+	public static Table create(Domain codomain, Domain... domains) {
 		if (domains == null)
 			throw new IllegalArgumentException();
 
 		if (domains.length == 0)
-			return new Table0(name, codomain);
+			return new Table0(codomain);
 		else if (domains.length == 1)
-			return new Table1(name, codomain, domains);
+			return new Table1(codomain, domains);
 		else if (domains.length == 2)
-			return new Table2(name, codomain, domains);
+			return new Table2(codomain, domains);
 		else if (domains.length == 3)
-			return new Table3(name, codomain, domains);
+			return new Table3(codomain, domains);
 		else
-			return new TableN(name, codomain, domains);
+			return new TableN(codomain, domains);
 	}
 
-	protected Table(String name, Domain codomain, Domain[] domains) {
+	protected Table(Domain codomain, Domain[] domains) {
 		super(codomain, domains);
-
-		if (name == null)
-			throw new IllegalArgumentException();
 
 		long length = 1;
 		for (int i = 0; i < domains.length; i++) {
@@ -55,12 +51,6 @@ public abstract class Table extends Function {
 
 		this.table = new int[(int) length];
 		Arrays.fill(table, Integer.MIN_VALUE);
-
-		this.name = name;
-	}
-
-	public String getName() {
-		return name;
 	}
 
 	public int[] getTable() {
@@ -92,7 +82,7 @@ public abstract class Table extends Function {
 
 	@Override
 	public String toString() {
-		String s = name + ":";
+		String s = "";
 
 		for (int i = 0; i < table.length; i++)
 			s += " " + table[i];
@@ -128,8 +118,8 @@ public abstract class Table extends Function {
 	static class Table0 extends Table {
 		private static Domain[] DOMAINS = new Domain[0];
 
-		private Table0(String name, Domain codomain) {
-			super(name, codomain, DOMAINS);
+		private Table0(Domain codomain) {
+			super(codomain, DOMAINS);
 		}
 
 		public int $evaluate() {
@@ -169,8 +159,8 @@ public abstract class Table extends Function {
 	}
 
 	static class Table1 extends Table {
-		private Table1(String name, Domain codomain, Domain[] domains) {
-			super(name, codomain, domains);
+		private Table1(Domain codomain, Domain[] domains) {
+			super(codomain, domains);
 			assert domains.length == 1;
 		}
 
@@ -222,8 +212,8 @@ public abstract class Table extends Function {
 	static class Table2 extends Table {
 		private int step1;
 
-		private Table2(String name, Domain codomain, Domain[] domains) {
-			super(name, codomain, domains);
+		private Table2(Domain codomain, Domain[] domains) {
+			super(codomain, domains);
 			assert domains.length == 2;
 
 			step1 = domains[0].getSize();
@@ -286,8 +276,8 @@ public abstract class Table extends Function {
 		private int step1;
 		private int step2;
 
-		private Table3(String name, Domain codomain, Domain[] domains) {
-			super(name, codomain, domains);
+		private Table3(Domain codomain, Domain[] domains) {
+			super(codomain, domains);
 			assert domains.length == 3;
 
 			step1 = domains[0].getSize();
@@ -364,8 +354,8 @@ public abstract class Table extends Function {
 	static class TableN extends Table {
 		private final int[] steps;
 
-		private TableN(String name, Domain codomain, Domain[] domains) {
-			super(name, codomain, domains);
+		private TableN(Domain codomain, Domain[] domains) {
+			super(codomain, domains);
 			assert domains.length >= 4;
 
 			steps = new int[domains.length];

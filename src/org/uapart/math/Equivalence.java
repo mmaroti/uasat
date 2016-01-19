@@ -36,7 +36,7 @@ public class Equivalence {
 	}
 
 	public Term isValid() {
-		Table x = Table.create("x", getDomain());
+		Table x = Table.create(getDomain());
 
 		Term x0 = x.get();
 		Term fx = fun.of(x0);
@@ -44,7 +44,7 @@ public class Equivalence {
 	}
 
 	public Term isIdentity() {
-		Table x = Table.create("x", getDomain());
+		Table x = Table.create(getDomain());
 
 		Term x0 = x.of();
 		return Term.forall(x, fun.of(x0).equ(x0));

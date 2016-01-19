@@ -54,8 +54,15 @@ public class Counter extends Term {
 	@Override
 	public int $evaluate() {
 		int a = subterm.$evaluate();
-		if (a >= 0 || a < bound)
+		if (a < bound || a == 0)
 			return a;
+		else if (a == 1) {
+			for (int i = 0; i < table.length; i++)
+				if (table[i] < 0)
+					a *= size;
+
+			return a;
+		}
 
 		int p = a - bound;
 		assert p < table.length && table[p] == a;

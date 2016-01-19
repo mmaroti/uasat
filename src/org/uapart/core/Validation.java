@@ -24,10 +24,10 @@ public class Validation {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
 	public static void main(String[] args) {
-		Domain a = new Domain("a", 7);
-		Table f = Table.create("f", a, a);
-		Table g = Table.create("g", a, a);
-		Table x = Table.create("x", a);
+		Domain a = new Domain(7);
+		Table f = Table.create(a, a);
+		Table g = Table.create(a, a);
+		Table x = Table.create(a);
 
 		Term e1 = f.of(g.of(x.get())).equ(x.get());
 		Term e2 = g.of(f.of(x.get())).equ(x.get());
