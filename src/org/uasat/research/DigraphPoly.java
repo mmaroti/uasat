@@ -614,6 +614,20 @@ public class DigraphPoly {
 							Permutation<BOOL> perm = Permutation.lift(alg, p);
 							b = alg.and(b, rel.isLexLeq(rel.conjugate(perm)));
 						}
+					} else if (token.equals("non-isomorphic2")) {
+						List<Permutation<Boolean>> perms = Permutation
+								.transpositions(size);
+						for (Permutation<Boolean> p : perms) {
+							Permutation<BOOL> perm = Permutation.lift(alg, p);
+							b = alg.and(b, rel.isLexLeq(rel.conjugate(perm)));
+						}
+					} else if (token.equals("non-isomorphic3")) {
+						List<Permutation<Boolean>> perms = Permutation
+								.threeCycles(size);
+						for (Permutation<Boolean> p : perms) {
+							Permutation<BOOL> perm = Permutation.lift(alg, p);
+							b = alg.and(b, rel.isLexLeq(rel.conjugate(perm)));
+						}
 					} else if (token.equals("non-core")) {
 						Operation<BOOL> op = new Operation<BOOL>(alg,
 								tensors.get(pos++));
@@ -674,7 +688,6 @@ public class DigraphPoly {
 
 		for (Tensor<Boolean> ten : solution) {
 			Relation<Boolean> rel = Relation.wrap(ten);
-
 			found.add(rel);
 		}
 
@@ -730,11 +743,11 @@ public class DigraphPoly {
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		SatSolver<?> solver = new Sat4J();
-		int size = 8;
+		int size = 6;
 		String options;
 
 		long time = System.currentTimeMillis();
-		
+
 		System.out.println("finding taylors for size " + size);
 		List<Relation<Boolean>> list = findDigraphs(solver, size,
 				"reflexive antisymmetric transitive taylor non-isomorphic");

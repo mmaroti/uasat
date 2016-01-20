@@ -395,6 +395,9 @@ public final class Relation<BOOL> {
 				&& getArity() == rel.getArity();
 
 		return alg.lexLeq(getTensor(), rel.getTensor());
+
+		// return alg.lexLeq(Tensor.getLexOrder(getTensor()),
+		// Tensor.getLexOrder(rel.getTensor()));
 	}
 
 	public BOOL isFull() {

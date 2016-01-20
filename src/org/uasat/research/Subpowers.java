@@ -21,14 +21,11 @@ package org.uasat.research;
 import java.text.*;
 import java.util.*;
 
-import org.uasat.core.BoolAlgebra;
-import org.uasat.core.BoolProblem;
-import org.uasat.core.Tensor;
+import org.uasat.core.*;
 import org.uasat.math.*;
-import org.uasat.solvers.*;
 
 public class Subpowers {
-	private SatSolver<?> solver = new Sat4J();
+	private Algorithms algo = new Algorithms();
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
 	public static Operation<Boolean> ZERO = Operation.parseTable(2, 0, "0");
@@ -45,8 +42,7 @@ public class Subpowers {
 			"01 10 10 01");
 
 	public void printAllSubpowers(Algebra<Boolean> ua, int arity) {
-		List<Relation<Boolean>> list = Algebra.findAllSubpowers(solver, ua,
-				arity);
+		List<Relation<Boolean>> list = algo.findAllSubpowers(ua, arity);
 
 		System.out.println("Subpowers of arity " + arity + ":");
 		for (int i = 0; i < list.size(); i++)
@@ -56,8 +52,7 @@ public class Subpowers {
 	}
 
 	public void printMaximalSubpowers(Algebra<Boolean> ua, int arity) {
-		List<Relation<Boolean>> list = Algebra.findMaximalSubpowers(solver, ua,
-				arity);
+		List<Relation<Boolean>> list = algo.findMaximalSubpowers(ua, arity);
 
 		System.out.println("Maximal subpowers of arity " + arity + ":");
 		for (int i = 0; i < list.size(); i++)
@@ -67,8 +62,7 @@ public class Subpowers {
 	}
 
 	public void printMinimalSubpowers(Algebra<Boolean> ua, int arity) {
-		List<Relation<Boolean>> list = Algebra.findMinimalSubpowers(solver, ua,
-				arity);
+		List<Relation<Boolean>> list = algo.findMinimalSubpowers(ua, arity);
 
 		System.out.println("Minimal subpowers of arity " + arity + ":");
 		for (int i = 0; i < list.size(); i++)
@@ -78,7 +72,7 @@ public class Subpowers {
 	}
 
 	public void printSmallestSubpower(Algebra<Boolean> ua, int arity) {
-		Relation<Boolean> rel = Algebra.findSmallestSubpower(solver, ua, arity);
+		Relation<Boolean> rel = algo.findSmallestSubpower(ua, arity);
 
 		System.out.println("Smallest subpower of arity " + arity + ":");
 		System.out.println(Relation.formatMembers(rel));
@@ -86,8 +80,7 @@ public class Subpowers {
 	}
 
 	public void printMeetIrredSubpowers(Algebra<Boolean> ua, int arity) {
-		List<Relation<Boolean>> list = Algebra.findMeetIrredSubpowers(solver,
-				ua, arity);
+		List<Relation<Boolean>> list = algo.findMeetIrredSubpowers(ua, arity);
 
 		System.out
 				.println("Meet irreducible subpowers of arity " + arity + ":");
@@ -98,8 +91,7 @@ public class Subpowers {
 	}
 
 	public void printCriticalSubpowers(Algebra<Boolean> ua, int arity) {
-		List<Relation<Boolean>> list = Algebra.findCriticalSubpowers(solver,
-				ua, arity);
+		List<Relation<Boolean>> list = algo.findCriticalSubpowers(ua, arity);
 
 		System.out.println("Critical subpowers of arity " + arity + ":");
 		for (int i = 0; i < list.size(); i++)
@@ -162,7 +154,7 @@ public class Subpowers {
 			}
 		};
 
-		List<Tensor<Boolean>> tensors = prob.solveOne(solver);
+		List<Tensor<Boolean>> tensors = prob.solveOne(algo.getSolver());
 		if (tensors == null) {
 			System.out.println("no solution");
 			return;

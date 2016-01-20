@@ -397,6 +397,68 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		return list;
 	}
 
+	public static <ELEM> List<ELEM> getLexOrder(Tensor<ELEM> tensor) {
+		List<ELEM> list = new ArrayList<ELEM>();
+
+		int[] shape = tensor.getShape();
+		int[] index = new int[shape.length];
+
+		int limit = 0;
+		int coord = 0;
+
+		outer: for (;;) {
+			assert index[coord] == limit;
+
+			list.add(tensor.getElem(index));
+
+			for (int i = 0; i < coord; i++) {
+				int a = index[i] + 1;
+				assert a <= limit;
+
+				if (a >= limit || a >= shape[i])
+					index[i] = 0;
+				else {
+					index[i] = a;
+					continue outer;
+				}
+			}
+
+			for (int i = coord + 1; i < index.length; i++) {
+				int a = index[i] + 1;
+				assert a <= limit + 1;
+
+				if (a > limit || a >= shape[i])
+					index[i] = 0;
+				else {
+					index[i] = a;
+					continue outer;
+				}
+			}
+
+			index[coord] = 0;
+			while (--coord >= 0) {
+				if (limit < shape[coord]) {
+					index[coord] = limit;
+					continue outer;
+				}
+			}
+
+			limit += 1;
+			coord = shape.length;
+			while (--coord >= 0) {
+				if (limit < shape[coord]) {
+					index[coord] = limit;
+					continue outer;
+				}
+			}
+
+			break;
+		}
+
+		assert list.size() == tensor.elems.length;
+		return list;
+	}
+
 	public static <ELEM> Tensor<ELEM> concat(Tensor<ELEM> arg1,
 			Tensor<ELEM> arg2) {
 		assert arg1.getOrder() == arg2.getOrder();

@@ -269,11 +269,13 @@ public class Validation {
 	}
 
 	void checkSubspaces() {
-		final Algebra<Boolean> z3 = Algebra.wrap(
+		Algebra<Boolean> z3 = Algebra.wrap(
 				Operation.parseTable(3, 2, "012 120 201"),
 				Operation.parseTable(3, 0, "0"));
 
-		int count = Algebra.findAllSubpowers(solver, z3, 4).size();
+		Algorithms algo = new Algorithms();
+
+		int count = algo.findAllSubpowers(z3, 4).size();
 		verify("A006117 the number of subspaces of Z_3^4", count, 212);
 	}
 
