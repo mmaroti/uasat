@@ -73,11 +73,11 @@ public class Validation {
 				rel.isLexMinimal().and(rel.isPartialOrder()));
 
 		int count = term.$evaluate();
-		verify("A001035 the number of non-isomorphic partial orders on 6",
+		verify("A000112 the number of non-isomorphic partial orders on 6",
 				count, 318);
 	}
 
-	void checkAssociativity() {
+	void checkSemigroups1() {
 		Domain dom = new Domain(4);
 
 		Operation op = new Operation(dom, 2);
@@ -87,6 +87,45 @@ public class Validation {
 		verify("A023814 the number of labelled semigroups on 4", count, 3492);
 	}
 
+	void checkSemigroups2() {
+		Domain dom = new Domain(5);
+
+		Operation op = new Operation(dom, 2);
+		Term term = Term.count(op.getTable(),
+				op.isLexMinimal().and(op.isAssociative()));
+
+		int count = term.$evaluate();
+		verify("A027851 the number of non-isomorphic semigroups on 5", count,
+				1915);
+	}
+
+	void checkSimpleGraphs() {
+		Domain dom = new Domain(6);
+
+		Relation rel = new Relation(dom, 2);
+		Term term = rel.isReflexive().and(rel.isSymmetric());
+		term = Term.count(rel.getTable(), rel.isLexMinimal().and(term));
+
+		int count = term.$evaluate();
+		verify("A000088 the number of non-isomorphic graphs on 6", count, 156);
+	}
+
+	void checkGroups() {
+		Domain dom = new Domain(6);
+
+		Operation inv = new Operation(dom, 1);
+		Operation mul = new Operation(dom, 2);
+		Term term = mul.isUnitElemen(0);
+		term = term.and(mul.isInverse(inv, 0));
+		term = Term.exists(inv.getTable(), term);
+		term = term.and(mul.isAssociative());
+		term = mul.isLexMinimal().and(term);
+		term = Term.count(mul.getTable(), term);
+
+		int count = term.$evaluate();
+		verify("A000001 the number of non-isomorphic groups on 6", count, 2);
+	}
+
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
 	void validate() {
@@ -94,11 +133,14 @@ public class Validation {
 		long time = System.currentTimeMillis();
 		System.out.println("Validating UAPART:");
 
-		checkPartialOrders2();
+		checkGroups();
+		checkSimpleGraphs();
 		checkEquivalences();
+		checkPartialOrders2();
 		checkPermutations();
 		checkPartialOrders1();
-		checkAssociativity();
+		checkSemigroups1();
+		checkSemigroups2();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

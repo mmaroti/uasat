@@ -344,7 +344,7 @@ public abstract class Table extends Function {
 				a = b;
 
 			b = subterm2.getBound();
-			if (b < 0)
+			if (b < a)
 				a = b;
 
 			return a;

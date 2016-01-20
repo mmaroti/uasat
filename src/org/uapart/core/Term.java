@@ -44,6 +44,10 @@ public abstract class Term {
 		return new BoolAnd(this, term);
 	}
 
+	public Term andThen(Term term) {
+		return new AndThen(this, term);
+	}
+
 	public Term equ(Term term) {
 		return new BoolEqu(this, term);
 	}

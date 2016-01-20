@@ -16,30 +16,48 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package org.uapart.math;
+package org.uapart.research;
 
 import java.text.*;
 
 import org.uapart.core.*;
+import org.uapart.math.*;
 
-public class Test {
+public class DigraphPoly {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
-		Domain dom = new Domain(2);
+		Domain dom = new Domain(6);
 
 		Relation rel = new Relation(dom, 2);
-		Permutation perm = new Permutation(dom);
+		Operation op1 = new Operation(dom, 3);
+		Operation op2 = new Operation(dom, 3);
 
-		Term term = rel.isPartialOrder().and(perm.isValid());
-		term = term.and(rel.isEqualTo(rel.conjugate(perm)));
-		term = Term.count(perm.getTable(), term).equ(
-				new Constant(Domain.INT, 1));
-		term = Term.count(rel.getTable(), term);
+		// Term t = op1.preserves(rel);
+		// t = t.and(op2.preserves(rel));
+		// t = Operation.areSiggersTerms(op1, op2).and(t);
+		// t = Term.exists(op1.getTable(), t);
+		// t = Term.exists(op2.getTable(), t);
+		// t = rel.isPartialOrder().and(t);
+		// t = rel.isLexMinimal().and(t);
+		// t = Term.count(rel.getTable(), t);
+
+		Term s = op1.preserves(rel);
+		// s = op2.preserves(rel).and(s);
+		// s = Operation.areSiggersTerms(op1, op2).and(s);
+		// s = op1.isMajority().and(s);
+		s = Term.exists(op1.getTable(), s);
+		// s = Term.exists(op2.getTable(), s);
+
+		Term t = rel.isPartialOrder();
+		t = rel.isLexMinimal().and(t);
+		t = t.andThen(s);
+		t = Term.count(rel.getTable(), t);
 
 		long time = System.currentTimeMillis();
 
-		System.out.println(term.$evaluate());
+		System.out.println(t.$evaluate());
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

@@ -46,11 +46,13 @@ public class OrdLex extends Term {
 		return Domain.ORD;
 	}
 
+	@SuppressWarnings("unused")
 	private void reset() {
 		for (int i = 0; i < vars.length; i++)
 			vars[i].$set(0);
 	}
 
+	@SuppressWarnings("unused")
 	private boolean next() {
 		for (int i = 0; i < vars.length; i++) {
 			int a = vars[i].$evaluate() + 1;
@@ -64,9 +66,67 @@ public class OrdLex extends Term {
 		return false;
 	}
 
+	int limit;
+	int coord; // the first coordinate with limit value
+
+	private void reset2() {
+		for (int i = 0; i < vars.length; i++)
+			vars[i].$set(0);
+
+		limit = 0;
+		coord = 0;
+	}
+
+	private boolean next2() {
+		assert vars[coord].$evaluate() == limit;
+
+		for (int i = 0; i < coord; i++) {
+			int a = vars[i].$evaluate() + 1;
+			assert a <= limit;
+
+			if (a >= limit || a >= vars[i].getSize())
+				vars[i].$set(0);
+			else {
+				vars[i].$set(a);
+				return true;
+			}
+		}
+
+		for (int i = coord + 1; i < vars.length; i++) {
+			int a = vars[i].$evaluate() + 1;
+			assert a <= limit + 1;
+
+			if (a > limit || a >= vars[i].getSize())
+				vars[i].$set(0);
+			else {
+				vars[i].$set(a);
+				return true;
+			}
+		}
+
+		vars[coord].$set(0);
+		while (--coord >= 0) {
+			if (limit < vars[coord].getSize()) {
+				vars[coord].$set(limit);
+				return true;
+			}
+		}
+
+		limit += 1;
+		coord = vars.length;
+		while (--coord >= 0) {
+			if (limit < vars[coord].getSize()) {
+				vars[coord].$set(limit);
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	@Override
 	public int $evaluate() {
-		reset();
+		reset2();
 		do {
 			int a = term0.$evaluate();
 			if (a < 0)
@@ -78,7 +138,7 @@ public class OrdLex extends Term {
 
 			if (a != b)
 				return a < b ? 0 : 2;
-		} while (next());
+		} while (next2());
 		return 1;
 	}
 

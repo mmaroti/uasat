@@ -23,7 +23,7 @@ import java.util.*;
 import org.uapart.core.*;
 
 public class Operation {
-	private final Table table;
+	private final Function fun;
 
 	public Operation(Domain domain, int arity) {
 		if (domain == null || arity < 0)
@@ -32,35 +32,38 @@ public class Operation {
 		Domain[] ds = new Domain[arity];
 		Arrays.fill(ds, domain);
 
-		this.table = Table.create(domain, ds);
+		this.fun = Table.create(domain, ds);
 	}
 
-	public Operation(Table table) {
-		if (table == null)
+	public Operation(Function fun) {
+		if (fun == null)
 			throw new IllegalArgumentException();
 
-		Domain d = table.getCodomain();
-		for (int i = 1; i < table.getArity(); i++)
-			if (table.getDomain(i) != d)
+		Domain d = fun.getCodomain();
+		for (int i = 1; i < fun.getArity(); i++)
+			if (fun.getDomain(i) != d)
 				throw new IllegalArgumentException();
 
-		this.table = table;
+		this.fun = fun;
 	}
 
 	public int getArity() {
-		return table.getArity();
+		return fun.getArity();
 	}
 
 	public Domain getDomain() {
-		return table.getCodomain();
+		return fun.getCodomain();
 	}
 
 	public Table getTable() {
-		return table;
+		if (fun instanceof Table)
+			return (Table) fun;
+		else
+			throw new IllegalStateException();
 	}
 
 	public Term of(Term... subterms) {
-		return table.of(subterms);
+		return fun.of(subterms);
 	}
 
 	public Term isIdempotent() {
@@ -70,7 +73,7 @@ public class Operation {
 		Term[] xs = new Term[getArity()];
 		Arrays.fill(xs, x0);
 
-		return Term.forall(x, table.of(xs).equ(x0));
+		return Term.forall(x, fun.of(xs).equ(x0));
 	}
 
 	public Term isCommutative() {
@@ -81,7 +84,7 @@ public class Operation {
 		Term x0 = x.get(0);
 		Term x1 = x.get(1);
 
-		return Term.forall(x, table.of(x0, x1).equ(table.of(x1, x0)));
+		return Term.forall(x, fun.of(x0, x1).equ(fun.of(x1, x0)));
 	}
 
 	public Term isSurjective() {
@@ -94,7 +97,7 @@ public class Operation {
 		for (int i = 0; i < ys.length; i++)
 			ys[i] = y.get(i);
 
-		return Term.forall(x, Term.exists(y, table.of(ys).equ(x0)));
+		return Term.forall(x, Term.exists(y, fun.of(ys).equ(x0)));
 	}
 
 	public Term isUnitElemen(int elem) {
@@ -105,8 +108,8 @@ public class Operation {
 		Term x0 = x.get();
 		Term c0 = new Constant(getDomain(), elem);
 
-		return Term.forall(x,
-				table.of(x0, c0).equ(x0).and(table.of(c0, x0).equ(x0)));
+		return Term.forall(x, fun.of(x0, c0).equ(x0)
+				.and(fun.of(c0, x0).equ(x0)));
 	}
 
 	public Term isZeroElemen(int elem) {
@@ -117,8 +120,23 @@ public class Operation {
 		Term x0 = x.get();
 		Term c0 = new Constant(getDomain(), elem);
 
-		return Term.forall(x,
-				table.of(x0, c0).equ(c0).and(table.of(c0, x0).equ(c0)));
+		return Term.forall(x, fun.of(x0, c0).equ(c0)
+				.and(fun.of(c0, x0).equ(c0)));
+	}
+
+	public Term isInverse(Operation inv, int unit) {
+		if (getArity() != 2 || inv == null || inv.getArity() != 1
+				|| getDomain() != inv.getDomain() || unit < 0
+				|| unit > getDomain().getSize())
+			throw new IllegalArgumentException();
+
+		Table x = Table.create(getDomain());
+		Term x0 = x.get();
+		Term c0 = new Constant(getDomain(), unit);
+
+		Term t = fun.of(x0, inv.of(x0)).equ(c0);
+		t = t.and(fun.of(inv.of(x0), x0).equ(c0));
+		return Term.forall(x, t);
 	}
 
 	public Term isAssociative() {
@@ -131,13 +149,87 @@ public class Operation {
 		Term x1 = x.get(1);
 		Term x2 = x.get(2);
 
-		Term t1 = table.of(x0, table.of(x1, x2));
-		Term t2 = table.of(table.of(x0, x1), x2);
+		Term t1 = fun.of(x0, fun.of(x1, x2));
+		Term t2 = fun.of(fun.of(x0, x1), x2);
 		return Term.forall(x, t1.equ(t2));
 	}
 
 	public Term isSemilattice() {
 		return isIdempotent().and(isCommutative()).and(isAssociative());
+	}
+
+	public Term isMajority() {
+		if (getArity() != 3)
+			throw new IllegalArgumentException();
+
+		Table x = Table.create(getDomain(), Domain.TWO);
+		Term x0 = x.get(0);
+		Term x1 = x.get(1);
+
+		Term t = fun.of(x1, x0, x0).equ(x0);
+		t = t.and(fun.of(x0, x1, x0).equ(x0));
+		t = t.and(fun.of(x0, x0, x1).equ(x0));
+		return Term.forall(x, t);
+	}
+
+	public Term isMinority() {
+		if (getArity() != 3)
+			throw new IllegalArgumentException();
+
+		Table x = Table.create(getDomain(), Domain.TWO);
+		Term x0 = x.get(0);
+		Term x1 = x.get(1);
+
+		Term t = fun.of(x1, x0, x0).equ(x1);
+		t = t.and(fun.of(x0, x1, x0).equ(x1));
+		t = t.and(fun.of(x0, x0, x1).equ(x1));
+		return Term.forall(x, t);
+	}
+
+	public Term isMaltsev() {
+		if (getArity() != 3)
+			throw new IllegalArgumentException();
+
+		Table x = Table.create(getDomain(), Domain.TWO);
+		Term x0 = x.get(0);
+		Term x1 = x.get(1);
+
+		Term t = fun.of(x1, x0, x0).equ(x1);
+		t = t.and(fun.of(x0, x0, x1).equ(x1));
+		return Term.forall(x, t);
+	}
+
+	public static Term areSiggersTerms(Operation p, Operation q) {
+		if (p.getArity() != 3 || q.getArity() != 3
+				|| p.getDomain() != q.getDomain())
+			throw new IllegalArgumentException();
+
+		Table x = Table.create(p.getDomain(), Domain.TWO);
+		Term x0 = x.get(0);
+		Term x1 = x.get(1);
+
+		Term t = p.of(x0, x0, x0).equ(x0);
+		t.and(p.of(x0, x0, x1).equ(p.of(x1, x0, x0)));
+		t.and(p.of(x0, x0, x1).equ(q.of(x0, x1, x1)));
+		t.and(p.of(x0, x1, x0).equ(q.of(x0, x1, x0)));
+		return Term.forall(x, t);
+	}
+
+	public static Term areJovanovicTerms(Operation p, Operation q) {
+		if (p.getArity() != 3 || q.getArity() != 3
+				|| p.getDomain() != q.getDomain())
+			throw new IllegalArgumentException();
+
+		Table x = Table.create(p.getDomain(), Domain.TWO);
+		Term x0 = x.get(0);
+		Term x1 = x.get(1);
+
+		Term t = p.of(x0, x0, x0).equ(x0);
+		t.and(p.of(x0, x0, x1).equ(p.of(x0, x1, x0)));
+		t.and(p.of(x0, x0, x1).equ(p.of(x1, x0, x0)));
+		t.and(p.of(x0, x0, x1).equ(q.of(x0, x1, x0)));
+		t.and(q.of(x0, x0, x1).equ(q.of(x0, x1, x1)));
+		return Term.forall(x, t);
 	}
 
 	public Term preserves(Relation rel) {
@@ -166,11 +258,40 @@ public class Operation {
 		Term[] zs = new Term[a2];
 		for (int i = 0; i < a2; i++) {
 			for (int j = 0; j < a1; j++)
-				ys[j] = xs[i][j];
-			zs[i] = table.of(ys);
+				ys[j] = xs[j][i];
+			zs[i] = fun.of(ys);
 		}
 		Term t2 = rel.of(zs);
 
 		return Term.forall(x, t1.leq(t2));
+	}
+
+	public Operation conjugate(Permutation perm) {
+		if (perm == null || getDomain() != perm.getDomain())
+			throw new IllegalArgumentException();
+
+		Variable[] xs = new Variable[getArity()];
+		Term[] ys = new Term[xs.length];
+		for (int i = 0; i < xs.length; i++) {
+			xs[i] = new Variable(getDomain());
+			ys[i] = perm.of(xs[i]);
+		}
+
+		Lambda lam = new Lambda(xs, perm.inverseOf(fun.of(ys)));
+		return new Operation(lam);
+	}
+
+	public Term getLexicalOrder(Operation op) {
+		if (op == null || getDomain() != op.getDomain()
+				|| getArity() != op.getArity())
+			throw new IllegalArgumentException();
+
+		return new OrdLex(fun, op.fun);
+	}
+
+	public Term isLexMinimal() {
+		Permutation perm = new Permutation(getDomain());
+		Term t = getLexicalOrder(conjugate(perm)).neq(Constant.GT);
+		return Term.forall(perm.getTable(), perm.isPartial().leq(t));
 	}
 }
