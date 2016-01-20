@@ -18,16 +18,14 @@
 
 package org.uapart.core;
 
-import java.util.Arrays;
-
 public class Lambda extends Function {
-	private final Term subterm;
-	private final Table vars;
+	private final Variable[] vars;
+	private final Term term;
 
-	public Lambda(Term term, Table vars) {
+	public Lambda(Variable[] vars, Term term) {
 		super(calculateCodomain(term), calculateDomains(vars));
 
-		this.subterm = term;
+		this.term = term;
 		this.vars = vars;
 	}
 
@@ -38,42 +36,71 @@ public class Lambda extends Function {
 		return term.getDomain();
 	}
 
-	private static Domain[] calculateDomains(Table vars) {
-		if (vars == null || vars.getArity() >= 2)
+	private static Domain[] calculateDomains(Variable[] vars) {
+		if (vars == null)
 			throw new IllegalArgumentException();
 
-		int size = vars.getTable().length;
-		Domain[] domains = new Domain[size];
-		Arrays.fill(domains, vars.getCodomain());
+		Domain[] domains = new Domain[vars.length];
+		for (int i = 0; i < vars.length; i++) {
+			if (vars[i].$evaluate() != Integer.MIN_VALUE)
+				throw new IllegalArgumentException();
+
+			domains[i] = vars[i].getDomain();
+		}
+
+		for (int i = 0; i < vars.length; i++)
+			vars[i].$set(Integer.MAX_VALUE);
 
 		return domains;
 	}
 
 	@Override
 	public Term of(Term... subterms) {
-		if (subterms == null || subterms.length != vars.getTable().length)
-			throw new IllegalArgumentException();
+		return new Eval(this, subterms);
 	}
 
 	static class Eval extends Term {
+		private final Variable[] vars;
+		private final Term[] args;
+		private final Term term;
+
+		Eval(Lambda lambda, Term[] subterms) {
+			assert lambda != null;
+			vars = lambda.vars;
+			term = lambda.term;
+
+			if (subterms == null || subterms.length != vars.length)
+				throw new IllegalArgumentException();
+
+			for (int i = 0; i < subterms.length; i++)
+				if (subterms[i].getDomain() != vars[i].getDomain())
+					throw new IllegalArgumentException();
+
+			this.args = subterms;
+		}
 
 		@Override
 		public Domain getDomain() {
-			// TODO Auto-generated method stub
-			return null;
+			return term.getDomain();
 		}
 
 		@Override
 		public int $evaluate() {
-			// TODO Auto-generated method stub
-			return 0;
+			for (int i = 0; i < vars.length; i++)
+				vars[i].$set(args[i].$evaluate());
+
+			return term.$evaluate();
 		}
 
 		@Override
 		public int getBound() {
-			// TODO Auto-generated method stub
-			return 0;
+			int a = term.getBound();
+			for (int i = 0; i < args.length; i++) {
+				int b = args[i].getBound();
+				if (b < a)
+					a = b;
+			}
+			return a;
 		}
-
 	}
 }

@@ -48,6 +48,10 @@ public abstract class Term {
 		return new BoolEqu(this, term);
 	}
 
+	public Term neq(Term term) {
+		return new BoolNeq(this, term);
+	}
+
 	public Term leq(Term term) {
 		return new BoolLeq(this, term);
 	}

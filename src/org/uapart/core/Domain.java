@@ -33,7 +33,7 @@ public class Domain {
 	}
 
 	public static final Domain BOOL = new Domain(2);
-	public static final Domain COMP = new Domain(3);
+	public static final Domain ORD = new Domain(3);
 	public static final Domain INT = new Domain(Integer.MAX_VALUE);
 
 	public static final Domain ZERO = new Domain(0);

@@ -23,7 +23,7 @@ import java.util.*;
 import org.uapart.core.*;
 
 public class Relation {
-	private final Table table;
+	private final Function fun;
 
 	public Relation(Domain domain, int arity) {
 		if (domain == null || arity < 0)
@@ -32,35 +32,38 @@ public class Relation {
 		Domain[] ds = new Domain[arity];
 		Arrays.fill(ds, domain);
 
-		this.table = Table.create(Domain.BOOL, ds);
+		this.fun = Table.create(Domain.BOOL, ds);
 	}
 
-	public Relation(Table table) {
-		if (table == null || table.getCodomain() != Domain.BOOL)
+	public Relation(Function fun) {
+		if (fun == null || fun.getCodomain() != Domain.BOOL)
 			throw new IllegalArgumentException();
 
-		Domain d = table.getDomain(0);
-		for (int i = 1; i < table.getArity(); i++)
-			if (table.getDomain(i) != d)
+		Domain d = fun.getDomain(0);
+		for (int i = 1; i < fun.getArity(); i++)
+			if (fun.getDomain(i) != d)
 				throw new IllegalArgumentException();
 
-		this.table = table;
+		this.fun = fun;
 	}
 
 	public int getArity() {
-		return table.getArity();
+		return fun.getArity();
 	}
 
 	public Domain getDomain() {
-		return table.getDomain(0);
+		return fun.getDomain(0);
 	}
 
 	public Table getTable() {
-		return table;
+		if (fun instanceof Table)
+			return (Table) fun;
+		else
+			throw new IllegalStateException();
 	}
 
 	public Term of(Term... subterms) {
-		return table.of(subterms);
+		return fun.of(subterms);
 	}
 
 	public Term isFull() {
@@ -71,7 +74,7 @@ public class Relation {
 		for (int i = 0; i < xs.length; i++)
 			xs[i] = x.get(i);
 
-		return Term.forall(x, table.of(xs));
+		return Term.forall(x, fun.of(xs));
 	}
 
 	public Term isEqualTo(Relation rel) {
@@ -86,7 +89,7 @@ public class Relation {
 		for (int i = 0; i < xs.length; i++)
 			xs[i] = x.get(i);
 
-		return Term.forall(x, table.of(xs).equ(rel.table.of(xs)));
+		return Term.forall(x, fun.of(xs).equ(rel.of(xs)));
 	}
 
 	public Term isSubsetOf(Relation rel) {
@@ -101,7 +104,7 @@ public class Relation {
 		for (int i = 0; i < xs.length; i++)
 			xs[i] = x.get(i);
 
-		return Term.forall(x, table.of(xs).leq(rel.table.of(xs)));
+		return Term.forall(x, fun.of(xs).leq(rel.of(xs)));
 	}
 
 	public Term isEmpty() {
@@ -112,7 +115,7 @@ public class Relation {
 		for (int i = 0; i < xs.length; i++)
 			xs[i] = x.get(i);
 
-		return Term.exists(x, table.of(xs)).not();
+		return Term.exists(x, fun.of(xs)).not();
 	}
 
 	public Term isReflexive() {
@@ -121,7 +124,7 @@ public class Relation {
 		Term[] xs = new Term[getArity()];
 		Arrays.fill(xs, x.get());
 
-		return Term.forall(x, table.of(xs));
+		return Term.forall(x, fun.of(xs));
 	}
 
 	public Term isSymmetric() {
@@ -133,7 +136,7 @@ public class Relation {
 		Term x0 = x.get(0);
 		Term x1 = x.get(1);
 
-		return Term.forall(x, table.of(x0, x1).leq(table.of(x1, x0)));
+		return Term.forall(x, fun.of(x0, x1).leq(fun.of(x1, x0)));
 	}
 
 	public Term isAntiSymmetric() {
@@ -145,8 +148,8 @@ public class Relation {
 		Term x0 = x.get(0);
 		Term x1 = x.get(1);
 
-		return Term.forall(x,
-				table.of(x0, x1).and(table.of(x1, x0)).leq(x0.equ(x1)));
+		return Term.forall(x, fun.of(x0, x1).and(fun.of(x1, x0))
+				.leq(x0.equ(x1)));
 	}
 
 	public Term isTransitive() {
@@ -160,7 +163,7 @@ public class Relation {
 		Term x2 = x.get(2);
 
 		return Term.forall(x,
-				table.of(x0, x1).and(table.of(x1, x2)).leq(table.of(x0, x2)));
+				fun.of(x0, x1).and(fun.of(x1, x2)).leq(fun.of(x0, x2)));
 	}
 
 	public Term isEquivalence() {
@@ -169,5 +172,47 @@ public class Relation {
 
 	public Term isPartialOrder() {
 		return isReflexive().and(isAntiSymmetric()).and(isTransitive());
+	}
+
+	public Relation intersection(Relation rel) {
+		if (rel == null || getDomain() != rel.getDomain()
+				|| getArity() != rel.getArity())
+			throw new IllegalArgumentException();
+
+		Variable[] xs = new Variable[getArity()];
+		for (int i = 0; i < xs.length; i++)
+			xs[i] = new Variable(getDomain());
+
+		Lambda lam = new Lambda(xs, fun.of(xs).and(rel.of(xs)));
+		return new Relation(lam);
+	}
+
+	public Relation conjugate(Permutation perm) {
+		if (perm == null || getDomain() != perm.getDomain())
+			throw new IllegalArgumentException();
+
+		Variable[] xs = new Variable[getArity()];
+		Term[] ys = new Term[xs.length];
+		for (int i = 0; i < xs.length; i++) {
+			xs[i] = new Variable(getDomain());
+			ys[i] = perm.of(xs[i]);
+		}
+
+		Lambda lam = new Lambda(xs, fun.of(ys));
+		return new Relation(lam);
+	}
+
+	public Term getLexicalOrder(Relation rel) {
+		if (rel == null || getDomain() != rel.getDomain()
+				|| getArity() != rel.getArity())
+			throw new IllegalArgumentException();
+
+		return new OrdLex(fun, rel.fun);
+	}
+
+	public Term isLexMinimal() {
+		Permutation perm = new Permutation(getDomain());
+		Term t = getLexicalOrder(conjugate(perm)).neq(Constant.GT);
+		return Term.forall(perm.getTable(), perm.isPartial().leq(t));
 	}
 }

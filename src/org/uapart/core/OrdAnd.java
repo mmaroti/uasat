@@ -18,37 +18,38 @@
 
 package org.uapart.core;
 
-public class Constant extends Term {
-	private final Domain domain;
-	private final int value;
+public class OrdAnd extends Term {
+	private final Term subterm0;
+	private final Term subterm1;
 
-	public Constant(Domain domain, int value) {
-		if (domain == null || value < 0 || value >= domain.getSize())
+	public OrdAnd(Term subterm0, Term subterm1) {
+		if (subterm0 == null || subterm1 == null
+				|| subterm0.getDomain() != Domain.ORD
+				|| subterm1.getDomain() != Domain.ORD)
 			throw new IllegalArgumentException();
 
-		this.domain = domain;
-		this.value = value;
+		this.subterm0 = subterm0;
+		this.subterm1 = subterm1;
 	}
 
 	@Override
 	public Domain getDomain() {
-		return domain;
+		return Domain.ORD;
 	}
 
 	@Override
 	public int $evaluate() {
-		return value;
+		int a = subterm0.$evaluate();
+		if (a < 0 || a != 1)
+			return a;
+
+		return subterm1.$evaluate();
 	}
 
 	@Override
 	public int getBound() {
-		return 0;
+		int a = subterm0.getBound();
+		int b = subterm1.getBound();
+		return a <= b ? a : b;
 	}
-
-	public static final Constant FALSE = new Constant(Domain.BOOL, 0);
-	public static final Constant TRUE = new Constant(Domain.BOOL, 1);
-
-	public static final Constant LT = new Constant(Domain.ORD, 0);
-	public static final Constant EQ = new Constant(Domain.ORD, 1);
-	public static final Constant GT = new Constant(Domain.ORD, 2);
 }

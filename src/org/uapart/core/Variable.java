@@ -18,21 +18,25 @@
 
 package org.uapart.core;
 
-public class Constant extends Term {
+public class Variable extends Term {
 	private final Domain domain;
-	private final int value;
+	private int value;
 
-	public Constant(Domain domain, int value) {
-		if (domain == null || value < 0 || value >= domain.getSize())
+	public Variable(Domain domain) {
+		if (domain == null)
 			throw new IllegalArgumentException();
 
 		this.domain = domain;
-		this.value = value;
+		this.value = Integer.MIN_VALUE;
 	}
 
 	@Override
 	public Domain getDomain() {
 		return domain;
+	}
+
+	void $set(int value) {
+		this.value = value;
 	}
 
 	@Override
@@ -44,11 +48,4 @@ public class Constant extends Term {
 	public int getBound() {
 		return 0;
 	}
-
-	public static final Constant FALSE = new Constant(Domain.BOOL, 0);
-	public static final Constant TRUE = new Constant(Domain.BOOL, 1);
-
-	public static final Constant LT = new Constant(Domain.ORD, 0);
-	public static final Constant EQ = new Constant(Domain.ORD, 1);
-	public static final Constant GT = new Constant(Domain.ORD, 2);
 }

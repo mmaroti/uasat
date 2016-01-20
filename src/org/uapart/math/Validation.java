@@ -54,7 +54,7 @@ public class Validation {
 		verify("A000142 the number of permutations on 8", count, 40320);
 	}
 
-	void checkPartialOrders() {
+	void checkPartialOrders1() {
 		Domain dom = new Domain(5);
 
 		Relation rel = new Relation(dom, 2);
@@ -63,6 +63,18 @@ public class Validation {
 		int count = term.$evaluate();
 		verify("A001035 the number of labelled partial orders on 5", count,
 				4231);
+	}
+
+	void checkPartialOrders2() {
+		Domain dom = new Domain(6);
+
+		Relation rel = new Relation(dom, 2);
+		Term term = Term.count(rel.getTable(),
+				rel.isPartialOrder().and(rel.isLexMinimal()));
+
+		int count = term.$evaluate();
+		verify("A001035 the number of non-isomorphic partial orders on 6",
+				count, 318);
 	}
 
 	void checkAssociativity() {
@@ -82,9 +94,10 @@ public class Validation {
 		long time = System.currentTimeMillis();
 		System.out.println("Validating UAPART:");
 
+		checkPartialOrders2();
 		checkEquivalences();
 		checkPermutations();
-		checkPartialOrders();
+		checkPartialOrders1();
 		checkAssociativity();
 
 		time = System.currentTimeMillis() - time;

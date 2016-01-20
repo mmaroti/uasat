@@ -45,10 +45,59 @@ public class Permutation {
 		Table x = Table.create(getDomain());
 
 		Term x0 = x.get();
-		Term c0 = new Constant(getDomain(), 0);
-		Term c1 = new Constant(getDomain(), 1);
+		Term c0 = new Constant(Domain.TWO, 0);
+		Term c1 = new Constant(Domain.TWO, 1);
 
 		return Term.forall(x, table.of(table.of(x0, c0), c1).equ(x0));
+	}
+
+	public Term isPartial() {
+		return new Partial(table.getTable());
+	}
+
+	private static class Partial extends Term {
+		private final int[] table;
+
+		Partial(int[] table) {
+			this.table = table;
+		}
+
+		@Override
+		public Domain getDomain() {
+			return Domain.BOOL;
+		}
+
+		@Override
+		public int $evaluate() {
+			int size = table.length / 2;
+
+			int m = 1;
+			for (int i = 0; i < size; i++) {
+				int a = table[i];
+				if (a >= 0) {
+					int b = table[size + a];
+					if (b < 0)
+						m = b;
+					else if (b != i)
+						return 0;
+				}
+
+				a = table[size + i];
+				if (a >= 0) {
+					int b = table[a];
+					if (b < 0)
+						m = b;
+					else if (b != i)
+						return 0;
+				}
+			}
+			return m;
+		}
+
+		@Override
+		public int getBound() {
+			return 0;
+		}
 	}
 
 	public Domain getDomain() {
@@ -63,7 +112,7 @@ public class Permutation {
 		if (term == null || term.getDomain() != getDomain())
 			throw new IllegalArgumentException();
 
-		Term c0 = new Constant(getDomain(), 0);
+		Term c0 = new Constant(Domain.TWO, 0);
 		return table.of(term, c0);
 	}
 
@@ -71,7 +120,7 @@ public class Permutation {
 		if (term == null || term.getDomain() != getDomain())
 			throw new IllegalArgumentException();
 
-		Term c1 = new Constant(getDomain(), 1);
+		Term c1 = new Constant(Domain.TWO, 1);
 		return table.of(term, c1);
 	}
 
@@ -79,7 +128,7 @@ public class Permutation {
 		Table x = Table.create(getDomain());
 
 		Term x0 = x.get();
-		Term c0 = new Constant(getDomain(), 0);
+		Term c0 = new Constant(Domain.TWO, 0);
 
 		return Term.forall(x, table.of(x0, c0).equ(x0));
 	}
