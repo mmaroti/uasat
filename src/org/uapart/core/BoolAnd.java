@@ -46,7 +46,7 @@ public class BoolAnd extends Term {
 		int b = subterm1.$evaluate();
 		if (b == 0)
 			return 0;
-		
+
 		if (a < 0)
 			return a;
 		else if (b < 0)

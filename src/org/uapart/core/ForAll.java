@@ -22,6 +22,7 @@ public class ForAll extends Term {
 	private final Term subterm;
 	private final int bound;
 	private final int[] table;
+	private final int[] guess;
 	private final int size;
 
 	ForAll(Table table, Term subterm) {
@@ -34,6 +35,7 @@ public class ForAll extends Term {
 		this.subterm = subterm;
 		this.bound = subterm.getBound() - t.length;
 		this.table = t;
+		this.guess = new int[t.length];
 		this.size = table.getCodomain().getSize();
 
 		for (int i = 0; i < t.length; i++) {
@@ -61,11 +63,16 @@ public class ForAll extends Term {
 		assert p < table.length && table[p] == a;
 
 		int m = 1;
-		for (table[p] = 0; table[p] < size; table[p]++) {
+		int g = guess[p];
+		for (int i = 0; i < size; i++) {
+			a = i + g;
+			table[p] = a < size ? a : a - size;
+
 			a = $evaluate();
 			assert a < bound + table.length || a >= 0;
 
 			if (a == 0) {
+				guess[p] = table[p];
 				m = 0;
 				break;
 			} else if (m == 1)

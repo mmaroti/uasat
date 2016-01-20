@@ -88,7 +88,8 @@ public abstract class Term {
 	}
 
 	public static Term exists(Table table, Term term) {
-		return new Exists(table, term);
+		// return new Exists(table, term);
+		return new BoolNot(new ForAll(table, new BoolNot(term)));
 	}
 
 	public static Term count(Table table, Term term) {
