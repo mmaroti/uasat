@@ -277,7 +277,7 @@ public final class Relation<BOOL> {
 		return new Relation<BOOL>(alg, tmp);
 	}
 
-	public Relation<BOOL> diagExtend(int arity) {
+	public Relation<BOOL> makeDiagonal(int arity) {
 		assert getArity() == 1;
 
 		Tensor<BOOL> tmp = Tensor.constant(Util.createShape(getSize(), arity),
@@ -554,12 +554,12 @@ public final class Relation<BOOL> {
 			v[i] = i;
 
 		Contract<BOOL> c = Contract.logical(alg);
+		c.add(Tensor.map(alg.NOT, tensor), v);
 		for (int i = 0; i < getArity(); i++) {
 			v[i] = i + getArity();
 			c.add(tensor, v);
 			v[i] = i;
 		}
-		c.add(Tensor.map(alg.NOT, tensor), v);
 		return c.get(new int[0]).get();
 	}
 

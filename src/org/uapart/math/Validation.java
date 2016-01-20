@@ -70,7 +70,7 @@ public class Validation {
 
 		Relation rel = new Relation(dom, 2);
 		Term term = Term.count(rel.getTable(),
-				rel.isPartialOrder().and(rel.isLexMinimal()));
+				rel.isLexMinimal().and(rel.isPartialOrder()));
 
 		int count = term.$evaluate();
 		verify("A001035 the number of non-isomorphic partial orders on 6",

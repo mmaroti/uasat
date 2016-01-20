@@ -48,4 +48,8 @@ public class Variable extends Term {
 	public int getBound() {
 		return 0;
 	}
+	
+	public int getSize() {
+		return domain.getSize();
+	}
 }

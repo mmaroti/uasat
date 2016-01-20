@@ -20,6 +20,10 @@ package org.uasat.research;
 
 import java.text.*;
 import java.util.*;
+
+import org.uasat.core.BoolAlgebra;
+import org.uasat.core.BoolProblem;
+import org.uasat.core.Tensor;
 import org.uasat.math.*;
 import org.uasat.solvers.*;
 
@@ -104,7 +108,7 @@ public class Subpowers {
 		System.out.println();
 	}
 
-	public static void main(String[] args) {
+	public static void main1(String[] args) {
 		long time = System.currentTimeMillis();
 		Subpowers test = new Subpowers();
 
@@ -115,7 +119,6 @@ public class Subpowers {
 		test.printCriticalSubpowers(alg, 3);
 		test.printCriticalSubpowers(alg, 4);
 		test.printCriticalSubpowers(alg, 5);
-		// test.printCriticalSubpowers(alg, 6);
 
 		// int arity = 1;
 		// test.printAllSubpowers(alg, arity);
@@ -123,6 +126,62 @@ public class Subpowers {
 		// test.printMaximalSubpowers(alg, arity);
 		// test.printMinimalSubpowers(alg, arity);
 		// test.printSmallestSubpower(alg, arity);
+
+		time = System.currentTimeMillis() - time;
+		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
+				+ " seconds.");
+	}
+
+	public void findStrangeRelation(int size, int arity) {
+		final Relation<Boolean> res = Relation.singleton(size, 0).cartesian(
+				Relation.full(size, arity - 1));
+
+		System.out.println(Relation.formatMembers(res));
+
+		BoolProblem prob = new BoolProblem(
+				new int[] { size, size, size, size }, new int[] { size, size,
+						size, size }, Util.createShape(size, arity)) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+
+				Operation<BOOL> op1 = new Operation<BOOL>(alg, tensors.get(0));
+				Operation<BOOL> op2 = new Operation<BOOL>(alg, tensors.get(1));
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(2));
+
+				BOOL b = op1.isOperation();
+				b = alg.and(b, op2.isOperation());
+				b = alg.and(b, op1.preserves(rel));
+				b = alg.and(b, op2.preserves(rel));
+				b = alg.and(b, alg.not(rel.isEssential()));
+
+				Relation<BOOL> rel2 = rel.intersect(Relation.lift(alg, res));
+				b = alg.and(b, rel2.isEssential());
+
+				return b;
+			}
+		};
+
+		List<Tensor<Boolean>> tensors = prob.solveOne(solver);
+		if (tensors == null) {
+			System.out.println("no solution");
+			return;
+		}
+
+		Operation<Boolean> op1 = Operation.wrap(tensors.get(0));
+		Operation<Boolean> op2 = Operation.wrap(tensors.get(1));
+		Relation<Boolean> rel = Relation.wrap(tensors.get(2));
+
+		System.out.println(Operation.formatTable(op1));
+		System.out.println(Operation.formatTable(op2));
+		System.out.println(Relation.formatMembers(rel));
+	}
+
+	public static void main(String[] args) {
+		long time = System.currentTimeMillis();
+		Subpowers test = new Subpowers();
+
+		test.findStrangeRelation(2, 3);
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

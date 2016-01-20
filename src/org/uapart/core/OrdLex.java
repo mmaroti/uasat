@@ -54,7 +54,7 @@ public class OrdLex extends Term {
 	private boolean next() {
 		for (int i = 0; i < vars.length; i++) {
 			int a = vars[i].$evaluate() + 1;
-			if (a >= vars[i].getDomain().getSize())
+			if (a >= vars[i].getSize())
 				vars[i].$set(0);
 			else {
 				vars[i].$set(a);

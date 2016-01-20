@@ -136,7 +136,7 @@ public final class Algebra<BOOL> {
 		if (list.size() != 1)
 			throw new IllegalStateException("this cannot happen");
 
-		return list.get(0).diagExtend(arity);
+		return list.get(0).makeDiagonal(arity);
 	}
 
 	public static Relation<Boolean> findOneSubpower(SatSolver<?> solver,
