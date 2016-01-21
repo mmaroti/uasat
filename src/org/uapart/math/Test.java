@@ -16,14 +16,13 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package org.uapart.research;
+package org.uapart.math;
 
 import java.text.*;
 
 import org.uapart.core.*;
-import org.uapart.math.*;
 
-public class DigraphPoly {
+public class Test {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
 	public static void main(String[] args) {
