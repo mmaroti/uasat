@@ -574,6 +574,16 @@ public final class Relation<BOOL> {
 		return b;
 	}
 
+	public BOOL isSubdirect(List<Relation<BOOL>> coords) {
+		assert getArity() == coords.size();
+
+		BOOL b = alg.TRUE;
+		for (int i = 0; i < getArity(); i++)
+			b = alg.and(b, project(i).isEqualTo(coords.get(i)));
+
+		return b;
+	}
+
 	public BOOL isMemberOf(Collection<Relation<Boolean>> coll) {
 		BOOL b = alg.FALSE;
 		for (Relation<Boolean> rel : coll)
@@ -669,4 +679,47 @@ public final class Relation<BOOL> {
 			return comp.compare(o2.getTensor(), o1.getTensor());
 		}
 	};
+
+	public static void print(Relation<Boolean> rel) {
+		System.out.println("relation size " + rel.getSize() + " arity "
+				+ rel.getArity() + " cardinality " + Relation.cardinality(rel));
+
+		int a = rel.getArity();
+		boolean poset = false;
+		boolean equiv = false;
+
+		String s = "properties:";
+		if (a == 2 && rel.isPartialOrder()) {
+			poset = true;
+			s += " partial order";
+		}
+		if (a == 2 && rel.isEquivalence()) {
+			equiv = true;
+			s += " equivalence";
+		}
+		if (!poset && !equiv && rel.isReflexive())
+			s += " reflexive";
+		if (rel.isAntiReflexive())
+			s += " antireflexive";
+		if (!equiv && rel.isSymmetric())
+			s += " symmetric";
+		if (a == 2 && !poset && rel.isAntiSymmetric())
+			s += " antisymmetric";
+		if (a == 2 && !poset && !equiv && rel.isTransitive())
+			s += " transitive";
+		if (a == 2 && rel.isTrichotome())
+			s += " trichotome";
+		if (rel.isEssential())
+			s += " essential";
+		if (rel.isEssential())
+			s += " subdirect";
+		System.out.println(s);
+
+		if (poset) {
+			Relation<Boolean> covers = rel.asPartialOrder().covers();
+			System.out.println("covers: " + Relation.formatMembers(covers));
+		}
+
+		System.out.println("members: " + Relation.formatMembers(rel));
+	}
 }

@@ -23,15 +23,21 @@ import java.util.*;
 import org.uasat.core.*;
 import org.uasat.solvers.*;
 
-public class Algorithms {
+public class Subpowers {
+	private final Algebra<Boolean> ua;
 	private final SatSolver<?> solver;
 
-	public Algorithms() {
+	public Subpowers(Algebra<Boolean> ua) {
+		assert ua != null;
+
+		this.ua = ua;
 		solver = new Sat4J();
 	}
 
-	public Algorithms(SatSolver<?> solver) {
-		assert solver != null;
+	public Subpowers(Algebra<Boolean> ua, SatSolver<?> solver) {
+		assert ua != null && solver != null;
+
+		this.ua = ua;
 		this.solver = solver;
 	}
 
@@ -39,8 +45,7 @@ public class Algorithms {
 		return solver;
 	}
 
-	public List<Relation<Boolean>> findAllSubpowers(final Algebra<Boolean> ua,
-			int arity) {
+	public List<Relation<Boolean>> findAll(int arity) {
 		BoolProblem problem = new BoolProblem(Util.createShape(ua.getSize(),
 				arity)) {
 			@Override
@@ -62,12 +67,12 @@ public class Algorithms {
 		return list;
 	}
 
-	public Relation<Boolean> findSmallestSubpower(Algebra<Boolean> ua, int arity) {
+	public Relation<Boolean> findSmallest(int arity) {
 		if (!ua.hasConstants())
 			return Relation.empty(ua.getSize(), arity);
 
-		List<Relation<Boolean>> list = findMinimalSubpowers(ua,
-				Relation.empty(ua.getSize(), 1));
+		List<Relation<Boolean>> list = findMinimals(Relation.empty(
+				ua.getSize(), 1));
 
 		if (list.size() != 1)
 			throw new IllegalStateException("this cannot happen");
@@ -75,8 +80,8 @@ public class Algorithms {
 		return list.get(0).makeDiagonal(arity);
 	}
 
-	public Relation<Boolean> findOneSubpower(final Algebra<Boolean> ua,
-			final Relation<Boolean> above, final Relation<Boolean> below,
+	public Relation<Boolean> findOne(final Relation<Boolean> above,
+			final Relation<Boolean> below,
 			final List<Relation<Boolean>> notabove,
 			final List<Relation<Boolean>> notbelow) {
 		final int arity = (above != null ? above : below).getArity();
@@ -136,19 +141,17 @@ public class Algorithms {
 		return Relation.wrap(sol.get(0));
 	}
 
-	public List<Relation<Boolean>> findMaximalSubpowers(
-			final Algebra<Boolean> ua, final Relation<Boolean> below) {
+	public List<Relation<Boolean>> findMaximals(final Relation<Boolean> below) {
 		assert ua.getSize() == below.getSize();
 
 		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
 		for (;;) {
-			Relation<Boolean> rel = findOneSubpower(ua, null, below, null, list);
+			Relation<Boolean> rel = findOne(null, below, null, list);
 			if (rel == null)
 				break;
 
 			for (;;) {
-				Relation<Boolean> r = findOneSubpower(ua, rel, below, null,
-						list);
+				Relation<Boolean> r = findOne(rel, below, null, list);
 				if (r == null)
 					break;
 				else
@@ -160,24 +163,21 @@ public class Algorithms {
 		return list;
 	}
 
-	public List<Relation<Boolean>> findMaximalSubpowers(Algebra<Boolean> ua,
-			int arity) {
-		return findMaximalSubpowers(ua, Relation.full(ua.getSize(), arity));
+	public List<Relation<Boolean>> findMaximals(int arity) {
+		return findMaximals(Relation.full(ua.getSize(), arity));
 	}
 
-	public List<Relation<Boolean>> findMinimalSubpowers(
-			final Algebra<Boolean> ua, final Relation<Boolean> above) {
+	public List<Relation<Boolean>> findMinimals(final Relation<Boolean> above) {
 		assert ua.getSize() == above.getSize();
 
 		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
 		for (;;) {
-			Relation<Boolean> rel = findOneSubpower(ua, above, null, list, null);
+			Relation<Boolean> rel = findOne(above, null, list, null);
 			if (rel == null)
 				break;
 
 			for (;;) {
-				Relation<Boolean> r = findOneSubpower(ua, above, rel, list,
-						null);
+				Relation<Boolean> r = findOne(above, rel, list, null);
 				if (r == null)
 					break;
 				else
@@ -189,14 +189,12 @@ public class Algorithms {
 		return list;
 	}
 
-	public List<Relation<Boolean>> findMinimalSubpowers(Algebra<Boolean> ua,
-			int arity) {
-		Relation<Boolean> rel = findSmallestSubpower(ua, arity);
-		return findMinimalSubpowers(ua, rel);
+	public List<Relation<Boolean>> findMinimals(int arity) {
+		Relation<Boolean> rel = findSmallest(arity);
+		return findMinimals(rel);
 	}
 
-	public List<Relation<Boolean>> findMeetIrredSubpowers(
-			final Algebra<Boolean> ua, int arity) {
+	public List<Relation<Boolean>> findMeetIrreds(int arity) {
 		assert arity >= 1;
 
 		final List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
@@ -239,8 +237,7 @@ public class Algorithms {
 			notabove.add(cover);
 
 			for (;;) {
-				Relation<Boolean> r = findOneSubpower(ua, above, null,
-						notabove, null);
+				Relation<Boolean> r = findOne(above, null, notabove, null);
 
 				if (r == null)
 					break;
@@ -254,9 +251,8 @@ public class Algorithms {
 		return list;
 	}
 
-	public List<Relation<Boolean>> findCriticalSubpowers(
-			final Algebra<Boolean> ua, int arity) {
-		List<Relation<Boolean>> list = findMeetIrredSubpowers(ua, arity);
+	public List<Relation<Boolean>> findCriticals(int arity) {
+		List<Relation<Boolean>> list = findMeetIrreds(arity);
 		List<Relation<Boolean>> crit = new ArrayList<Relation<Boolean>>();
 
 		for (Relation<Boolean> r : list)
@@ -266,10 +262,34 @@ public class Algorithms {
 		return crit;
 	}
 
-	public static void printRelations(String what, List<Relation<Boolean>> list) {
-		System.out.println("Number of " + what + " is " + list.size());
-		for (int i = 0; i < list.size(); i++)
-			System.out.println(i + ":\t" + Relation.formatMembers(list.get(i)));
+	private static void printRelations(String what, int arity,
+			List<Relation<Boolean>> list) {
+		System.out.println(what + " subpowers of arity " + arity + ": "
+				+ list.size());
 
+		for (int i = 0; i < list.size(); i++) {
+			System.out.println(" " + i + ":\t"
+					+ Relation.formatMembers(list.get(i)));
+		}
+	}
+
+	public void printAll(int arity) {
+		printRelations("All", arity, findAll(arity));
+	}
+
+	public void printMaximals(int arity) {
+		printRelations("Maximal", arity, findMaximals(arity));
+	}
+
+	public void printMinimals(int arity) {
+		printRelations("Minimal", arity, findMinimals(arity));
+	}
+
+	public void printMeetIrreds(int arity) {
+		printRelations("Meet irred", arity, findMeetIrreds(arity));
+	}
+
+	public void printCriticals(int arity) {
+		printRelations("Critical", arity, findCriticals(arity));
 	}
 }

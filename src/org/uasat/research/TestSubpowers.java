@@ -23,9 +23,9 @@ import java.util.*;
 
 import org.uasat.core.*;
 import org.uasat.math.*;
+import org.uasat.solvers.*;
 
-public class Subpowers {
-	private Algorithms algo = new Algorithms();
+public class TestSubpowers {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
 	public static Operation<Boolean> ZERO = Operation.parseTable(2, 0, "0");
@@ -41,83 +41,17 @@ public class Subpowers {
 	public static Operation<Boolean> MINOR = Operation.parseTable(2, 3,
 			"01 10 10 01");
 
-	public void printAllSubpowers(Algebra<Boolean> ua, int arity) {
-		List<Relation<Boolean>> list = algo.findAllSubpowers(ua, arity);
-
-		System.out.println("Subpowers of arity " + arity + ":");
-		for (int i = 0; i < list.size(); i++)
-			System.out.println("" + i + ": "
-					+ Relation.formatMembers(list.get(i)));
-		System.out.println();
-	}
-
-	public void printMaximalSubpowers(Algebra<Boolean> ua, int arity) {
-		List<Relation<Boolean>> list = algo.findMaximalSubpowers(ua, arity);
-
-		System.out.println("Maximal subpowers of arity " + arity + ":");
-		for (int i = 0; i < list.size(); i++)
-			System.out.println("" + i + ": "
-					+ Relation.formatMembers(list.get(i)));
-		System.out.println();
-	}
-
-	public void printMinimalSubpowers(Algebra<Boolean> ua, int arity) {
-		List<Relation<Boolean>> list = algo.findMinimalSubpowers(ua, arity);
-
-		System.out.println("Minimal subpowers of arity " + arity + ":");
-		for (int i = 0; i < list.size(); i++)
-			System.out.println("" + i + ": "
-					+ Relation.formatMembers(list.get(i)));
-		System.out.println();
-	}
-
-	public void printSmallestSubpower(Algebra<Boolean> ua, int arity) {
-		Relation<Boolean> rel = algo.findSmallestSubpower(ua, arity);
-
-		System.out.println("Smallest subpower of arity " + arity + ":");
-		System.out.println(Relation.formatMembers(rel));
-		System.out.println();
-	}
-
-	public void printMeetIrredSubpowers(Algebra<Boolean> ua, int arity) {
-		List<Relation<Boolean>> list = algo.findMeetIrredSubpowers(ua, arity);
-
-		System.out
-				.println("Meet irreducible subpowers of arity " + arity + ":");
-		for (int i = 0; i < list.size(); i++)
-			System.out.println("" + i + ": "
-					+ Relation.formatMembers(list.get(i)));
-		System.out.println();
-	}
-
-	public void printCriticalSubpowers(Algebra<Boolean> ua, int arity) {
-		List<Relation<Boolean>> list = algo.findCriticalSubpowers(ua, arity);
-
-		System.out.println("Critical subpowers of arity " + arity + ":");
-		for (int i = 0; i < list.size(); i++)
-			System.out.println("" + i + ": "
-					+ Relation.formatMembers(list.get(i)));
-		System.out.println();
-	}
-
-	public static void main1(String[] args) {
+	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
-		Subpowers test = new Subpowers();
 
 		Algebra<Boolean> alg = Algebra.wrap(IMPL, JOIN);
+		Subpowers subs = new Subpowers(alg);
 
-		test.printCriticalSubpowers(alg, 1);
-		test.printCriticalSubpowers(alg, 2);
-		test.printCriticalSubpowers(alg, 3);
-		test.printCriticalSubpowers(alg, 4);
-		test.printCriticalSubpowers(alg, 5);
-
-		// int arity = 1;
-		// test.printAllSubpowers(alg, arity);
-		// test.printMeetIrredSubpowers(alg, arity);
-		// test.printMaximalSubpowers(alg, arity);
-		// test.printMinimalSubpowers(alg, arity);
-		// test.printSmallestSubpower(alg, arity);
+		subs.printCriticals(1);
+		subs.printCriticals(2);
+		subs.printCriticals(3);
+		subs.printCriticals(4);
+		subs.printCriticals(5);
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
@@ -154,7 +88,7 @@ public class Subpowers {
 			}
 		};
 
-		List<Tensor<Boolean>> tensors = prob.solveOne(algo.getSolver());
+		List<Tensor<Boolean>> tensors = prob.solveOne(new Sat4J());
 		if (tensors == null) {
 			System.out.println("no solution");
 			return;
@@ -169,9 +103,9 @@ public class Subpowers {
 		System.out.println(Relation.formatMembers(rel));
 	}
 
-	public static void main(String[] args) {
+	public static void main2(String[] args) {
 		long time = System.currentTimeMillis();
-		Subpowers test = new Subpowers();
+		TestSubpowers test = new TestSubpowers();
 
 		test.findStrangeRelation(2, 3);
 

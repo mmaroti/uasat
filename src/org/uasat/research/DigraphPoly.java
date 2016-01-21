@@ -54,30 +54,6 @@ public class DigraphPoly {
 		}
 	}
 
-	public void printMembers() {
-		System.out.println("relation: " + Relation.formatMembers(relation));
-
-		String s = "properties:";
-		if (relation.isReflexive())
-			s += " reflexive";
-		if (relation.isAntiReflexive())
-			s += " antireflexive";
-		if (relation.isSymmetric())
-			s += " symmetric";
-		if (relation.isAntiSymmetric())
-			s += " antisymmetric";
-		if (relation.isTransitive())
-			s += " transitive";
-		if (relation.isTrichotome())
-			s += " trichotome";
-		System.out.println(s);
-
-		if (relation.isPartialOrder()) {
-			Relation<Boolean> covers = relation.asPartialOrder().covers();
-			System.out.println("covers: " + Relation.formatMembers(covers));
-		}
-	}
-
 	public boolean printUnaryOps(final String options) {
 		int size = relation.getSize();
 		BoolProblem prob = new BoolProblem(new int[] { size, size }) {
@@ -741,7 +717,7 @@ public class DigraphPoly {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
 	@SuppressWarnings("unused")
-	public static void main(String[] args) {
+	public static void main2(String[] args) {
 		SatSolver<?> solver = new Sat4J();
 		int size = 6;
 		String options;
@@ -770,7 +746,7 @@ public class DigraphPoly {
 	}
 
 	@SuppressWarnings("unused")
-	public static void main2(String[] args) {
+	public static void main(String[] args) {
 		PartialOrder<Boolean> a1 = PartialOrder.antiChain(1);
 		PartialOrder<Boolean> a2 = PartialOrder.antiChain(2);
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
@@ -812,11 +788,11 @@ public class DigraphPoly {
 				"00 02 03 11 12 15 22 23 24 31 33 34 35 40 42 43 44 45 50 51 52 54 55",
 				"00 02 03 11 12 14 22 23 25 31 33 34 35 41 42 44 45 50 52 53 54 55" };
 
-		for (int i = 0; i < benoit.length; i++) {
+		for (int i = 0; i < 1; i++) {
 			System.out.println("digraph #" + i);
 			DigraphPoly pol3 = new DigraphPoly(Relation.parseMembers(6, 2,
 					benoit[i]));
-			pol3.printMembers();
+			Relation.print(pol3.relation);
 			pol3.printUnaryOps();
 			pol3.printBinaryOps();
 			pol3.printTernaryOps();
