@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015
+ *	Copyright (C) Miklos Maroti, 2015-2016
  *
  * This program is free software; you can redistribute it and/or modify it 
  * under the terms of the GNU General Public License as published by the 
@@ -19,6 +19,7 @@
 package org.uasat.math;
 
 import java.util.*;
+
 import org.uasat.core.*;
 
 public final class Algebra<BOOL> {
@@ -32,6 +33,10 @@ public final class Algebra<BOOL> {
 
 	public int getSize() {
 		return size;
+	}
+
+	public List<Operation<BOOL>> getOperations() {
+		return ops;
 	}
 
 	public Algebra(BoolAlgebra<BOOL> alg, int size, List<Operation<BOOL>> ops) {
@@ -79,6 +84,16 @@ public final class Algebra<BOOL> {
 		return b;
 	}
 
+	public BOOL isCompatibleWith(Structure<BOOL> str) {
+		assert alg == str.getAlg() && size == str.getSize();
+
+		BOOL b = alg.TRUE;
+		for (Relation<BOOL> rel : str.getRelations())
+			b = alg.and(b, isSubuniverse(rel));
+
+		return b;
+	}
+
 	public boolean hasConstants() {
 		for (Operation<BOOL> op : ops)
 			if (op.getArity() == 0)
@@ -99,5 +114,14 @@ public final class Algebra<BOOL> {
 	@SafeVarargs
 	public static Algebra<Boolean> wrap(Operation<Boolean>... ops) {
 		return new Algebra<Boolean>(BoolAlgebra.INSTANCE, ops);
+	}
+
+	public static void print(Algebra<Boolean> ua) {
+		List<Operation<Boolean>> ops = ua.getOperations();
+		System.out.println("algebra of size " + ua.getSize() + " with "
+				+ ops.size() + " ops");
+		for (int i = 0; i < ops.size(); i++)
+			Operation.print(ops.get(i));
+		System.out.println();
 	}
 }

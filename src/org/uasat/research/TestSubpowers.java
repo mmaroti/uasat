@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015
+ *	Copyright (C) Miklos Maroti, 2015-2016
  *
  * This program is free software; you can redistribute it and/or modify it 
  * under the terms of the GNU General Public License as published by the 
@@ -45,13 +45,13 @@ public class TestSubpowers {
 		long time = System.currentTimeMillis();
 
 		Algebra<Boolean> alg = Algebra.wrap(IMPL, JOIN);
-		Subpowers subs = new Subpowers(alg);
+		CompatibleRels subs = new CompatibleRels(alg);
 
-		subs.printCriticals(1);
-		subs.printCriticals(2);
-		subs.printCriticals(3);
-		subs.printCriticals(4);
-		subs.printCriticals(5);
+		subs.printCriticalRels(1);
+		subs.printCriticalRels(2);
+		subs.printCriticalRels(3);
+		subs.printCriticalRels(4);
+		subs.printCriticalRels(5);
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015
+ *	Copyright (C) Miklos Maroti, 2015-2016
  *
  * This program is free software; you can redistribute it and/or modify it 
  * under the terms of the GNU General Public License as published by the 
@@ -55,6 +55,13 @@ public final class Relation<BOOL> {
 
 	public static Relation<Boolean> wrap(Tensor<Boolean> tensor) {
 		return new Relation<Boolean>(BoolAlgebra.INSTANCE, tensor);
+	}
+
+	public static List<Relation<Boolean>> wrap(List<Tensor<Boolean>> tensors) {
+		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
+		for (Tensor<Boolean> t : tensors)
+			list.add(wrap(t));
+		return list;
 	}
 
 	public static <BOOL> Relation<BOOL> lift(BoolAlgebra<BOOL> alg,
@@ -681,7 +688,7 @@ public final class Relation<BOOL> {
 	};
 
 	public static void print(Relation<Boolean> rel) {
-		System.out.println("relation size " + rel.getSize() + " arity "
+		System.out.println("relation of size " + rel.getSize() + " arity "
 				+ rel.getArity() + " cardinality " + Relation.cardinality(rel));
 
 		int a = rel.getArity();
@@ -713,8 +720,8 @@ public final class Relation<BOOL> {
 			s += " essential";
 		if (rel.isEssential())
 			s += " subdirect";
-		System.out.println(s);
 
+		System.out.println(s);
 		if (poset) {
 			Relation<Boolean> covers = rel.asPartialOrder().covers();
 			System.out.println("covers: " + Relation.formatMembers(covers));

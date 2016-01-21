@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015
+ *	Copyright (C) Miklos Maroti, 2015-2016
  *
  * This program is free software; you can redistribute it and/or modify it 
  * under the terms of the GNU General Public License as published by the 
@@ -23,36 +23,40 @@ import java.util.*;
 import org.uasat.core.*;
 import org.uasat.solvers.*;
 
-public class Subpowers {
-	private final Algebra<Boolean> ua;
+public class CompatibleRels {
+	private final Algebra<Boolean> algebra;
 	private final SatSolver<?> solver;
 
-	public Subpowers(Algebra<Boolean> ua) {
-		assert ua != null;
+	public CompatibleRels(Algebra<Boolean> algebra) {
+		assert algebra != null;
 
-		this.ua = ua;
+		this.algebra = algebra;
 		solver = new Sat4J();
 	}
 
-	public Subpowers(Algebra<Boolean> ua, SatSolver<?> solver) {
-		assert ua != null && solver != null;
+	public CompatibleRels(Algebra<Boolean> algebra, SatSolver<?> solver) {
+		assert algebra != null && solver != null;
 
-		this.ua = ua;
+		this.algebra = algebra;
 		this.solver = solver;
+	}
+
+	public Algebra<Boolean> getAlgebra() {
+		return algebra;
 	}
 
 	public SatSolver<?> getSolver() {
 		return solver;
 	}
 
-	public List<Relation<Boolean>> findAll(int arity) {
-		BoolProblem problem = new BoolProblem(Util.createShape(ua.getSize(),
-				arity)) {
+	public List<Relation<Boolean>> findAllRels(int arity) {
+		BoolProblem problem = new BoolProblem(Util.createShape(
+				algebra.getSize(), arity)) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
 				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
-				Algebra<BOOL> ualg = Algebra.lift(alg, ua);
+				Algebra<BOOL> ualg = Algebra.lift(alg, algebra);
 
 				return ualg.isSubuniverse(rel);
 			}
@@ -67,12 +71,12 @@ public class Subpowers {
 		return list;
 	}
 
-	public Relation<Boolean> findSmallest(int arity) {
-		if (!ua.hasConstants())
-			return Relation.empty(ua.getSize(), arity);
+	public Relation<Boolean> findSmallestRel(int arity) {
+		if (!algebra.hasConstants())
+			return Relation.empty(algebra.getSize(), arity);
 
-		List<Relation<Boolean>> list = findMinimals(Relation.empty(
-				ua.getSize(), 1));
+		List<Relation<Boolean>> list = findMinimalRels(Relation.empty(
+				algebra.getSize(), 1));
 
 		if (list.size() != 1)
 			throw new IllegalStateException("this cannot happen");
@@ -80,26 +84,26 @@ public class Subpowers {
 		return list.get(0).makeDiagonal(arity);
 	}
 
-	public Relation<Boolean> findOne(final Relation<Boolean> above,
+	public Relation<Boolean> findOneRel(final Relation<Boolean> above,
 			final Relation<Boolean> below,
 			final List<Relation<Boolean>> notabove,
 			final List<Relation<Boolean>> notbelow) {
 		final int arity = (above != null ? above : below).getArity();
 
-		assert above == null || above.getSize() == ua.getSize();
+		assert above == null || above.getSize() == algebra.getSize();
 		assert above == null || above.getArity() == arity;
-		assert below == null || below.getSize() == ua.getSize();
+		assert below == null || below.getSize() == algebra.getSize();
 		assert below == null || below.getArity() == arity;
 
-		BoolProblem problem = new BoolProblem(Util.createShape(ua.getSize(),
-				arity)) {
+		BoolProblem problem = new BoolProblem(Util.createShape(
+				algebra.getSize(), arity)) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
 				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
-				Algebra<BOOL> ualg = Algebra.lift(alg, ua);
+				Algebra<BOOL> ua = Algebra.lift(alg, algebra);
 
-				BOOL b = ualg.isSubuniverse(rel);
+				BOOL b = ua.isSubuniverse(rel);
 
 				Relation<BOOL> rel2;
 				if (above != null) {
@@ -116,7 +120,7 @@ public class Subpowers {
 
 				if (notabove != null)
 					for (Relation<Boolean> r : notabove) {
-						assert ua.getSize() == r.getSize()
+						assert algebra.getSize() == r.getSize()
 								&& arity == r.getArity();
 						rel2 = Relation.lift(alg, r);
 						b = alg.and(b, alg.not(rel2.isSubsetOf(rel)));
@@ -124,7 +128,7 @@ public class Subpowers {
 
 				if (notbelow != null)
 					for (Relation<Boolean> r : notbelow) {
-						assert ua.getSize() == r.getSize()
+						assert algebra.getSize() == r.getSize()
 								&& arity == r.getArity();
 						rel2 = Relation.lift(alg, r);
 						b = alg.and(b, alg.not(rel.isSubsetOf(rel2)));
@@ -141,17 +145,17 @@ public class Subpowers {
 		return Relation.wrap(sol.get(0));
 	}
 
-	public List<Relation<Boolean>> findMaximals(final Relation<Boolean> below) {
-		assert ua.getSize() == below.getSize();
+	public List<Relation<Boolean>> findMaximalRels(final Relation<Boolean> below) {
+		assert algebra.getSize() == below.getSize();
 
 		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
 		for (;;) {
-			Relation<Boolean> rel = findOne(null, below, null, list);
+			Relation<Boolean> rel = findOneRel(null, below, null, list);
 			if (rel == null)
 				break;
 
 			for (;;) {
-				Relation<Boolean> r = findOne(rel, below, null, list);
+				Relation<Boolean> r = findOneRel(rel, below, null, list);
 				if (r == null)
 					break;
 				else
@@ -163,21 +167,21 @@ public class Subpowers {
 		return list;
 	}
 
-	public List<Relation<Boolean>> findMaximals(int arity) {
-		return findMaximals(Relation.full(ua.getSize(), arity));
+	public List<Relation<Boolean>> findMaximalRels(int arity) {
+		return findMaximalRels(Relation.full(algebra.getSize(), arity));
 	}
 
-	public List<Relation<Boolean>> findMinimals(final Relation<Boolean> above) {
-		assert ua.getSize() == above.getSize();
+	public List<Relation<Boolean>> findMinimalRels(final Relation<Boolean> above) {
+		assert algebra.getSize() == above.getSize();
 
 		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
 		for (;;) {
-			Relation<Boolean> rel = findOne(above, null, list, null);
+			Relation<Boolean> rel = findOneRel(above, null, list, null);
 			if (rel == null)
 				break;
 
 			for (;;) {
-				Relation<Boolean> r = findOne(above, rel, list, null);
+				Relation<Boolean> r = findOneRel(above, rel, list, null);
 				if (r == null)
 					break;
 				else
@@ -189,27 +193,27 @@ public class Subpowers {
 		return list;
 	}
 
-	public List<Relation<Boolean>> findMinimals(int arity) {
-		Relation<Boolean> rel = findSmallest(arity);
-		return findMinimals(rel);
+	public List<Relation<Boolean>> findMinimalRels(int arity) {
+		Relation<Boolean> rel = findSmallestRel(arity);
+		return findMinimalRels(rel);
 	}
 
-	public List<Relation<Boolean>> findMeetIrreds(int arity) {
+	public List<Relation<Boolean>> findMeetIrredRels(int arity) {
 		assert arity >= 1;
 
 		final List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
 
-		int[] shape = Util.createShape(ua.getSize(), arity);
+		int[] shape = Util.createShape(algebra.getSize(), arity);
 		BoolProblem problem = new BoolProblem(shape, shape) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
 				Relation<BOOL> rel1 = new Relation<BOOL>(alg, tensors.get(0));
 				Relation<BOOL> rel2 = new Relation<BOOL>(alg, tensors.get(1));
-				Algebra<BOOL> ualg = Algebra.lift(alg, ua);
+				Algebra<BOOL> ua = Algebra.lift(alg, algebra);
 
-				BOOL b = ualg.isSubuniverse(rel1);
-				b = alg.and(b, ualg.isSubuniverse(rel2));
+				BOOL b = ua.isSubuniverse(rel1);
+				b = alg.and(b, ua.isSubuniverse(rel2));
 				b = alg.and(b, rel1.isSubsetOf(rel2));
 				b = alg.and(b, alg.not(rel2.isSubsetOf(rel1)));
 
@@ -237,7 +241,7 @@ public class Subpowers {
 			notabove.add(cover);
 
 			for (;;) {
-				Relation<Boolean> r = findOne(above, null, notabove, null);
+				Relation<Boolean> r = findOneRel(above, null, notabove, null);
 
 				if (r == null)
 					break;
@@ -251,8 +255,8 @@ public class Subpowers {
 		return list;
 	}
 
-	public List<Relation<Boolean>> findCriticals(int arity) {
-		List<Relation<Boolean>> list = findMeetIrreds(arity);
+	public List<Relation<Boolean>> findCriticalRels(int arity) {
+		List<Relation<Boolean>> list = findMeetIrredRels(arity);
 		List<Relation<Boolean>> crit = new ArrayList<Relation<Boolean>>();
 
 		for (Relation<Boolean> r : list)
@@ -262,34 +266,32 @@ public class Subpowers {
 		return crit;
 	}
 
-	private static void printRelations(String what, int arity,
+	private static void printRels(String what, int arity,
 			List<Relation<Boolean>> list) {
 		System.out.println(what + " subpowers of arity " + arity + ": "
 				+ list.size());
 
-		for (int i = 0; i < list.size(); i++) {
-			System.out.println(" " + i + ":\t"
-					+ Relation.formatMembers(list.get(i)));
-		}
+		for (int i = 0; i < list.size(); i++)
+			System.out.println(Relation.formatMembers(list.get(i)));
 	}
 
-	public void printAll(int arity) {
-		printRelations("All", arity, findAll(arity));
+	public void printAllRels(int arity) {
+		printRels("all", arity, findAllRels(arity));
 	}
 
-	public void printMaximals(int arity) {
-		printRelations("Maximal", arity, findMaximals(arity));
+	public void printMaximalRels(int arity) {
+		printRels("maximal", arity, findMaximalRels(arity));
 	}
 
-	public void printMinimals(int arity) {
-		printRelations("Minimal", arity, findMinimals(arity));
+	public void printMinimalRels(int arity) {
+		printRels("minimal", arity, findMinimalRels(arity));
 	}
 
-	public void printMeetIrreds(int arity) {
-		printRelations("Meet irred", arity, findMeetIrreds(arity));
+	public void printMeetIrredRels(int arity) {
+		printRels("meet irred", arity, findMeetIrredRels(arity));
 	}
 
-	public void printCriticals(int arity) {
-		printRelations("Critical", arity, findCriticals(arity));
+	public void printCriticalRels(int arity) {
+		printRels("critical", arity, findCriticalRels(arity));
 	}
 }

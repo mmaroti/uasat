@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015
+ *	Copyright (C) Miklos Maroti, 2015-2016
  *
  * This program is free software; you can redistribute it and/or modify it 
  * under the terms of the GNU General Public License as published by the 
@@ -28,7 +28,6 @@ import org.uasat.solvers.*;
 public class DigraphPoly {
 	private Relation<Boolean> relation;
 	private int MAX_SOLUTIONS = 100;
-	private int MAX_PRINTINGS = 1;
 
 	public DigraphPoly(Relation<Boolean> relation) {
 		assert relation.getArity() == 2;
@@ -45,190 +44,6 @@ public class DigraphPoly {
 			s += ">= ";
 		s += count;
 		System.out.println(s);
-	}
-
-	private void printOperations(List<Tensor<Boolean>> list) {
-		for (int i = 0; i < Math.min(list.size(), MAX_PRINTINGS); i++) {
-			Operation<Boolean> op = Operation.wrap(list.get(i));
-			System.out.println(" " + Operation.formatTable(op));
-		}
-	}
-
-	public boolean printUnaryOps(final String options) {
-		int size = relation.getSize();
-		BoolProblem prob = new BoolProblem(new int[] { size, size }) {
-			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
-
-				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
-				Relation<BOOL> rel = Relation.lift(alg, relation);
-
-				BOOL res = op.isOperation();
-				res = alg.and(res, op.preserves(rel));
-
-				for (String token : options.split(" ")) {
-					if (token.equals("automorphism"))
-						res = alg.and(res, op.isSurjective());
-					else if (token.equals("endomorphism"))
-						res = alg.and(res, alg.not(op.isSurjective()));
-					else if (token.equals("decreasing"))
-						res = alg.and(res, op.asRelation().isSubsetOf(rel));
-					else if (token.equals("increasing"))
-						res = alg.and(res,
-								op.asRelation().isSubsetOf(rel.rotate(1)));
-					else if (token.equals("retraction"))
-						res = alg.and(res, op.compose(op).isEqualTo(op));
-					else if (!token.isEmpty())
-						throw new IllegalArgumentException("invalid option");
-				}
-
-				return res;
-			}
-		};
-
-		prob.verbose = false;
-		Tensor<Boolean> tensor = prob.solveAll(solver, MAX_SOLUTIONS).get(0);
-
-		printCount(options, "unary ops", tensor.getLastDim());
-		printOperations(Tensor.unstack(tensor));
-
-		return 1 <= tensor.getLastDim();
-	}
-
-	@SuppressWarnings("unused")
-	public void printUnaryOps() {
-		boolean automorphism = printUnaryOps("automorphism");
-		boolean dec_retraction = printUnaryOps("decreasing retraction endomorphism");
-		boolean inc_retraction = printUnaryOps("increasing retraction endomorphism");
-		boolean retraction = dec_retraction || inc_retraction
-				|| printUnaryOps("retraction endomorphism");
-		boolean decreasing = dec_retraction
-				|| printUnaryOps("decreasing endomorphism");
-		boolean increasing = inc_retraction
-				|| printUnaryOps("increasing endomorphism");
-	}
-
-	public boolean printBinaryOps(final String options) {
-		int size = relation.getSize();
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size }) {
-			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
-
-				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
-				Relation<BOOL> rel = Relation.lift(alg, relation);
-
-				BOOL res = op.isOperation();
-				res = alg.and(res, op.preserves(rel));
-
-				for (String token : options.split(" ")) {
-					if (token.equals("idempotent"))
-						res = alg.and(res, op.isIdempotent());
-					else if (token.equals("commutative"))
-						res = alg.and(res, op.isCommutative());
-					else if (token.equals("associative"))
-						res = alg.and(res, op.isAssociative());
-					else if (token.equals("surjective"))
-						res = alg.and(res, op.isSurjective());
-					else if (token.equals("essential"))
-						res = alg.and(res, op.isEssential());
-					else if (token.equals("semilattice"))
-						res = alg.and(res, op.isSemilattice());
-					else if (token.equals("two-semilat"))
-						res = alg.and(res, op.isTwoSemilattice());
-					else if (!token.isEmpty())
-						throw new IllegalArgumentException("invalid option");
-				}
-
-				return res;
-			}
-		};
-
-		prob.verbose = false;
-		Tensor<Boolean> tensor = prob.solveAll(solver, MAX_SOLUTIONS).get(0);
-
-		printCount(options, "binary ops", tensor.getLastDim());
-		printOperations(Tensor.unstack(tensor));
-
-		return 1 <= tensor.getLastDim();
-	}
-
-	@SuppressWarnings("unused")
-	public void printBinaryOps() {
-		boolean semilattice = printBinaryOps("semilattice");
-		boolean two_semilat = semilattice || printBinaryOps("two-semilat");
-		boolean commutidemp = two_semilat
-				|| printBinaryOps("idempotent commutative");
-		boolean commutative = commutidemp
-				|| printBinaryOps("commutative essential");
-		boolean associative = semilattice
-				|| printBinaryOps("associative essential");
-		boolean idempotent = commutidemp
-				|| printBinaryOps("idempotent essential");
-		boolean surjective = idempotent
-				|| printBinaryOps("surjective essential");
-		boolean essential = associative || idempotent || surjective
-				|| commutative || printTernaryOps("essential");
-	}
-
-	public boolean printTernaryOps(final String options) {
-		int size = relation.getSize();
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size, size }) {
-			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
-
-				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
-				Relation<BOOL> rel = Relation.lift(alg, relation);
-
-				BOOL res = op.isOperation();
-				res = alg.and(res, op.preserves(rel));
-
-				for (String token : options.split(" ")) {
-					if (token.equals("idempotent"))
-						res = alg.and(res, op.isIdempotent());
-					else if (token.equals("essential"))
-						res = alg.and(res, op.isEssential());
-					else if (token.equals("surjective"))
-						res = alg.and(res, op.isSurjective());
-					else if (token.equals("majority"))
-						res = alg.and(res, op.isMajority());
-					else if (token.equals("minority"))
-						res = alg.and(res, op.isMinority());
-					else if (token.equals("maltsev"))
-						res = alg.and(res, op.isMaltsev());
-					else if (token.equals("weak-nu"))
-						res = alg.and(res, op.isWeakNearUnanimity());
-					else if (!token.isEmpty())
-						throw new IllegalArgumentException("invalid option");
-				}
-
-				return res;
-			}
-		};
-
-		prob.verbose = false;
-		Tensor<Boolean> tensor = prob.solveAll(solver, MAX_SOLUTIONS).get(0);
-
-		printCount(options, "ternary ops", tensor.getLastDim());
-		printOperations(Tensor.unstack(tensor));
-
-		return 1 <= tensor.getLastDim();
-	}
-
-	public void printTernaryOps() {
-		boolean majority = printTernaryOps("majority");
-		boolean minority = printTernaryOps("minority");
-		@SuppressWarnings("unused")
-		boolean maltsev = minority || printTernaryOps("maltsev");
-		boolean weaknu = majority || minority || printTernaryOps("weak-nu");
-		boolean idempotent = weaknu || printTernaryOps("idempotent essential");
-		boolean surjective = idempotent
-				|| printTernaryOps("surjective essential");
-		@SuppressWarnings("unused")
-		boolean essential = idempotent || surjective
-				|| printTernaryOps("essential");
 	}
 
 	public List<Relation<Boolean>> printDefinableSubalgs(String options,
@@ -790,13 +605,15 @@ public class DigraphPoly {
 
 		for (int i = 0; i < 1; i++) {
 			System.out.println("digraph #" + i);
-			DigraphPoly pol3 = new DigraphPoly(Relation.parseMembers(6, 2,
-					benoit[i]));
-			Relation.print(pol3.relation);
-			pol3.printUnaryOps();
-			pol3.printBinaryOps();
-			pol3.printTernaryOps();
-			System.out.println();
+			Relation<Boolean> rel = Relation.parseMembers(6, 2, benoit[i]);
+
+			Structure<Boolean> str = Structure.wrap(rel);
+			Structure.print(str);
+
+			CompatibleOps ops = new CompatibleOps(str);
+			ops.printUnaryOps();
+			ops.printBinaryOps();
+			ops.printTernaryOps();
 		}
 	}
 }

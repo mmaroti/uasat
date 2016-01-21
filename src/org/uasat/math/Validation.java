@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015
+ *	Copyright (C) Miklos Maroti, 2015-2016
  *
  * This program is free software; you can redistribute it and/or modify it 
  * under the terms of the GNU General Public License as published by the 
@@ -273,9 +273,9 @@ public class Validation {
 				Operation.parseTable(3, 2, "012 120 201"),
 				Operation.parseTable(3, 0, "0"));
 
-		Subpowers subs = new Subpowers(z3);
+		CompatibleRels subs = new CompatibleRels(z3);
 
-		int count = subs.findAll(4).size();
+		int count = subs.findAllRels(4).size();
 		verify("A006117 the number of subspaces of Z_3^4", count, 212);
 	}
 

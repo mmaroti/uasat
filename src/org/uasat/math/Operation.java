@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015
+ *	Copyright (C) Miklos Maroti, 2015-2016
  *
  * This program is free software; you can redistribute it and/or modify it 
  * under the terms of the GNU General Public License as published by the 
@@ -57,6 +57,13 @@ public final class Operation<BOOL> {
 
 	public static Operation<Boolean> wrap(Tensor<Boolean> tensor) {
 		return new Operation<Boolean>(BoolAlgebra.INSTANCE, tensor);
+	}
+
+	public static List<Operation<Boolean>> wrap(List<Tensor<Boolean>> tensors) {
+		List<Operation<Boolean>> list = new ArrayList<Operation<Boolean>>();
+		for (Tensor<Boolean> t : tensors)
+			list.add(wrap(t));
+		return list;
 	}
 
 	public BOOL isOperation() {
@@ -144,6 +151,18 @@ public final class Operation<BOOL> {
 		Tensor<BOOL> tmp = Tensor.reshape(tensor,
 				createShape(getSize(), getArity()), map);
 		return Tensor.fold(alg.ALL, tmp.getOrder(), tmp).get();
+	}
+
+	public BOOL isProjection() {
+		BOOL b = alg.TRUE;
+		for (int i = 0; i < getArity(); i++)
+			b = alg.and(b, isProjection(i));
+
+		return b;
+	}
+
+	public BOOL isRetraction() {
+		return compose(this).isEqualTo(this);
 	}
 
 	public Operation<BOOL> polymer(int... variables) {
@@ -734,5 +753,60 @@ public final class Operation<BOOL> {
 			assert index[i] == 0;
 
 		return Operation.wrap(tensor);
+	}
+
+	public static void print(Operation<Boolean> op) {
+		System.out.println("operation of size " + op.getSize() + " arity "
+				+ op.getArity());
+
+		int a = op.getArity();
+		boolean proj = false;
+		boolean nu = false;
+		boolean minor = false;
+
+		String s = "properties:";
+		if (op.isSurjective())
+			s += " surjective";
+		if (op.isProjection()) {
+			proj = true;
+			s += " projection";
+		}
+		if (!proj && op.isEssential())
+			s += " essential";
+		if (a == 1 && !proj && op.isRetraction())
+			s += " retraction";
+		if (op.isIdempotent())
+			s += " idempotent";
+		if (a == 2 && op.isCommutative())
+			s += " commutative";
+		if (a == 2 && op.isAssociative())
+			s += " associative";
+		if (a == 3 && op.isMajority()) {
+			nu = true;
+			s += " majority";
+		}
+		if (a == 3 && op.isMinority()) {
+			minor = true;
+			s += " minority";
+		}
+		if (a == 3 && !minor && op.isMaltsev())
+			s += " maltsev";
+		if (a >= 4 && op.isNearUnanimity()) {
+			nu = true;
+			s += " nu";
+		}
+		if (a >= 2 && !nu && op.isWeakNearUnanimity())
+			s += " weak-nu";
+		if (a == 2) {
+			for (int i = 0; i < op.getSize(); i++)
+				if (op.isZeroElement(i))
+					s += "zero=" + i;
+			for (int i = 0; i < op.getSize(); i++)
+				if (op.isUnitElement(i))
+					s += "unit=" + i;
+		}
+
+		System.out.println(s);
+		System.out.println("table: " + Operation.formatTable(op));
 	}
 }
