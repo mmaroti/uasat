@@ -580,7 +580,7 @@ public class DigraphPoly {
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
 		PartialOrder<Boolean> c6 = PartialOrder.crown(6);
 
-		Structure<Boolean> str = Structure.wrap(c6.plus(a1).asRelation());
+		Structure<Boolean> str = Structure.wrap(c4.plus(a1).asRelation());
 		Structure.print(str);
 
 		// CompatibleOps ops = new CompatibleOps(str);
@@ -589,13 +589,12 @@ public class DigraphPoly {
 		// ops.printTernaryOps();
 
 		DigraphPoly poly = new DigraphPoly(str.getRelation(0));
-		poly.printOperationExt(
-				6,
-				"4444444 5555666 3333666",
-				""
-						+ "6633635 6634635 6635635 6643635 6644635 6645635 6653635 6654635 6655635 "
-						+ "6363563 6463563 6563563 6364563 6464563 6564563 6365563 6465563 6565563 "
-						+ "6336356 6346356 6356356 6436356 6446356 6456356 6536356 6546356 6556356 ");
+		poly.printOperationExt(7, "00100001 11001101 22232301 33322301 44442301 "
+				+ "00100000 10101111 20102322 30102333 40102344 "
+				+ "01010000 11011111 21012322 31012333 41012344 "
+				+ "02230000 12231111 22232322 32232333 42232344 "
+				+ "03320000 13321111 23322322 33322333 43322344 "
+				+ "04440000 14441111 24442322 34442333 44442344 ", "");
 	}
 
 	public static void main3(String[] args) {
