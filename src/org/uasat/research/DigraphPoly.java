@@ -27,7 +27,7 @@ import org.uasat.solvers.*;
 
 public class DigraphPoly {
 	private Relation<Boolean> relation;
-	private int MAX_SOLUTIONS = 100;
+	private int MAX_SOLUTIONS = 1;
 
 	public DigraphPoly(Relation<Boolean> relation) {
 		assert relation.getArity() == 2;
@@ -300,15 +300,26 @@ public class DigraphPoly {
 			System.out.println(" " + Function.format(Function.wrap(t)));
 	}
 
-	public boolean printOperationExt(int arity, String tuples) {
-		final List<int[]> t = new ArrayList<int[]>();
+	public boolean printOperationExt(int arity, String tuples, String notuples) {
+		final List<int[]> ts = new ArrayList<int[]>();
 		for (String tuple : tuples.split(" ")) {
 			if (tuple.length() == arity + 1) {
 				int[] index = new int[arity + 1];
 				for (int i = 0; i <= arity; i++)
 					index[i] = Util.parseIndex(relation.getSize(),
 							tuple.charAt(i));
-				t.add(index);
+				ts.add(index);
+			} else if (!tuple.isEmpty())
+				throw new IllegalArgumentException();
+		}
+		final List<int[]> nts = new ArrayList<int[]>();
+		for (String tuple : notuples.split(" ")) {
+			if (tuple.length() == arity + 1) {
+				int[] index = new int[arity + 1];
+				for (int i = 0; i <= arity; i++)
+					index[i] = Util.parseIndex(relation.getSize(),
+							tuple.charAt(i));
+				nts.add(index);
 			} else if (!tuple.isEmpty())
 				throw new IllegalArgumentException();
 		}
@@ -324,9 +335,11 @@ public class DigraphPoly {
 				BOOL b = op.isOperation();
 				b = alg.and(b, op.preserves(rel));
 
-				b = alg.and(b, op.isIdempotent());
-				for (int[] tuple : t)
+				// b = alg.and(b, op.isIdempotent());
+				for (int[] tuple : ts)
 					b = alg.and(b, op.hasValue(tuple));
+				for (int[] tuple : nts)
+					b = alg.and(b, alg.not(op.hasValue(tuple)));
 
 				return b;
 			}
@@ -567,24 +580,25 @@ public class DigraphPoly {
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
 		PartialOrder<Boolean> c6 = PartialOrder.crown(6);
 
-		// Relation<Boolean> rel1 = c4.plus(a1).asRelation();
-		// DigraphPoly pol1 = new DigraphPoly(rel1);
-		// pol1.printMembers();
-		// pol1.printUnaryOps();
-		// pol1.printBinaryOps();
-		// pol1.printTernaryOps();
-		// List<Relation<Boolean>> subs =
-		// pol1.printDefinableSubalgs("singletons convex nonempty", true);
-		// pol1.printOperationExt(3, "0001 1101 2201 3301 4401");
+		Structure<Boolean> str = Structure.wrap(c6.plus(a1).asRelation());
+		Structure.print(str);
 
-		// Relation<Boolean> rel2 = pol1.makeSubdirectRel(subs);
-		// DigraphPoly pol2 = new DigraphPoly(rel2);
-		// pol2.printMembers();
-		// pol2.printHomomorphismExt(rel1, "00 11 22 33 44 60 91");
-		// pol2.printUnaryOps();
-		// pol2.printBinaryOps();
-		// pol2.printTernaryOps();
+		// CompatibleOps ops = new CompatibleOps(str);
+		// ops.printUnaryOps();
+		// ops.printBinaryOps();
+		// ops.printTernaryOps();
 
+		DigraphPoly poly = new DigraphPoly(str.getRelation(0));
+		poly.printOperationExt(
+				6,
+				"4444444 5555666 3333666",
+				""
+						+ "6633635 6634635 6635635 6643635 6644635 6645635 6653635 6654635 6655635 "
+						+ "6363563 6463563 6563563 6364563 6464563 6564563 6365563 6465563 6565563 "
+						+ "6336356 6346356 6356356 6436356 6446356 6456356 6536356 6546356 6556356 ");
+	}
+
+	public static void main3(String[] args) {
 		String[] benoit = new String[] {
 				"00 03 04 11 12 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",
 				"00 03 04 11 12 14 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",

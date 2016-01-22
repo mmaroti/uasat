@@ -38,6 +38,10 @@ public final class Algebra<BOOL> {
 	public List<Operation<BOOL>> getOperations() {
 		return ops;
 	}
+	
+	public Operation<BOOL> getOperation(int index) {
+		return ops.get(index);
+	}
 
 	public Algebra(BoolAlgebra<BOOL> alg, int size, List<Operation<BOOL>> ops) {
 		assert alg != null && !ops.isEmpty();

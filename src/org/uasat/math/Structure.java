@@ -37,6 +37,10 @@ public final class Structure<BOOL> {
 	public List<Relation<BOOL>> getRelations() {
 		return rels;
 	}
+	
+	public Relation<BOOL> getRelation(int index) {
+		return rels.get(index);
+	}
 
 	public Structure(BoolAlgebra<BOOL> alg, int size, List<Relation<BOOL>> rels) {
 		assert alg != null && !rels.isEmpty();
