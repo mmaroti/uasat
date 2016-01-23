@@ -26,7 +26,6 @@ import org.uasat.solvers.*;
 public class CompatibleOps {
 	private final Structure<Boolean> structure;
 	private final SatSolver<?> solver;
-	private int maxSolutions = 100;
 
 	public CompatibleOps(Structure<Boolean> structure) {
 		assert structure != null;
@@ -50,7 +49,8 @@ public class CompatibleOps {
 		return solver;
 	}
 
-	public List<Operation<Boolean>> findUnaryOps(final String options) {
+	public List<Operation<Boolean>> findUnaryOps(final String options,
+			int maxSolutions) {
 		int size = structure.getSize();
 		BoolProblem prob = new BoolProblem(new int[] { size, size }) {
 			@Override
@@ -84,7 +84,8 @@ public class CompatibleOps {
 		return Operation.wrap(Tensor.unstack(sol));
 	}
 
-	public List<Operation<Boolean>> findBinaryOps(final String options) {
+	public List<Operation<Boolean>> findBinaryOps(final String options,
+			int maxSolutions) {
 		int size = structure.getSize();
 		BoolProblem prob = new BoolProblem(new int[] { size, size, size }) {
 			@Override
@@ -126,7 +127,8 @@ public class CompatibleOps {
 		return Operation.wrap(Tensor.unstack(sol));
 	}
 
-	public List<Operation<Boolean>> findTernaryOps(final String options) {
+	public List<Operation<Boolean>> findTernaryOps(final String options,
+			int maxSolutions) {
 		int size = structure.getSize();
 		BoolProblem prob = new BoolProblem(new int[] { size, size, size, size }) {
 			@Override
@@ -168,19 +170,134 @@ public class CompatibleOps {
 		return Operation.wrap(Tensor.unstack(sol));
 	}
 
+	public List<Operation<Boolean>> findSiggersTerms() {
+		int[] shape = Util.createShape(structure.getSize(), 4);
+		BoolProblem problem = new BoolProblem(shape, shape) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Structure<BOOL> str = Structure.lift(alg, structure);
+				Operation<BOOL> op1 = new Operation<BOOL>(alg, tensors.get(0));
+				Operation<BOOL> op2 = new Operation<BOOL>(alg, tensors.get(1));
+
+				BOOL b = op1.isOperation();
+				b = alg.and(b, str.isCompatibleWith(op1));
+				b = alg.and(b, op2.isOperation());
+				b = alg.and(b, str.isCompatibleWith(op2));
+				b = alg.and(b, Operation.areSiggersTerms(op1, op2));
+				return b;
+			}
+		};
+
+		List<Tensor<Boolean>> sol = problem.solveOne(solver);
+		if (sol == null)
+			return null;
+
+		return Operation.wrap(sol);
+	}
+
+	public List<Operation<Boolean>> findJovanovicTerms() {
+		int[] shape = Util.createShape(structure.getSize(), 4);
+		BoolProblem problem = new BoolProblem(shape, shape) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Structure<BOOL> str = Structure.lift(alg, structure);
+				Operation<BOOL> op1 = new Operation<BOOL>(alg, tensors.get(0));
+				Operation<BOOL> op2 = new Operation<BOOL>(alg, tensors.get(1));
+
+				BOOL b = op1.isOperation();
+				b = alg.and(b, str.isCompatibleWith(op1));
+				b = alg.and(b, op2.isOperation());
+				b = alg.and(b, str.isCompatibleWith(op2));
+				b = alg.and(b, Operation.areJovanovicTerms(op1, op2));
+				return b;
+			}
+		};
+
+		List<Tensor<Boolean>> sol = problem.solveOne(solver);
+		if (sol == null)
+			return null;
+
+		return Operation.wrap(sol);
+	}
+
+	public List<Operation<Boolean>> findJonssonTerms(int count) {
+		assert count >= 1;
+
+		Tensor<Boolean> mask = Relation.full(structure.getSize(), 4)
+				.getTensor();
+		List<Tensor<Boolean>> masks = new ArrayList<Tensor<Boolean>>();
+		for (int i = 0; i < count; i++)
+			masks.add(mask);
+
+		BoolProblem problem = new BoolProblem(masks) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Structure<BOOL> str = Structure.lift(alg, structure);
+
+				List<Operation<BOOL>> ops = new ArrayList<Operation<BOOL>>();
+				for (int i = 0; i < tensors.size(); i++)
+					ops.add(new Operation<BOOL>(alg, tensors.get(i)));
+
+				BOOL b = alg.TRUE;
+				for (int i = 0; i < ops.size(); i++) {
+					b = alg.and(b, ops.get(i).isOperation());
+					b = alg.and(b, str.isCompatibleWith(ops.get(i)));
+				}
+
+				b = alg.and(b, Operation.areJonssonTerms(ops));
+				return b;
+			}
+		};
+
+		List<Tensor<Boolean>> sol = problem.solveOne(solver);
+		if (sol == null)
+			return null;
+
+		return Operation.wrap(sol);
+	}
+
+	public boolean hasUnaryOp(String options) {
+		return !findUnaryOps(options, 1).isEmpty();
+	}
+
+	public boolean hasBinaryOp(String options) {
+		return !findBinaryOps(options, 1).isEmpty();
+	}
+
+	public boolean hasTernaryOp(String options) {
+		return !findTernaryOps(options, 1).isEmpty();
+	}
+
+	public boolean hasSiggersTerms() {
+		return findSiggersTerms() != null;
+	}
+
+	public boolean hasJovanovicTerms() {
+		return findJovanovicTerms() != null;
+	}
+
+	public boolean hasJonssonTerms(int count) {
+		return findJonssonTerms(count) != null;
+	}
+
 	private boolean printOps(String what, List<Operation<Boolean>> list,
-			int limit) {
+			int maxSolutions, int printLimit) {
 		System.out.println(what.trim() + " ops: "
 				+ (list.size() < maxSolutions ? "" : ">= ") + list.size());
 
-		for (int i = 0; i < Math.min(list.size(), limit); i++)
+		for (int i = 0; i < Math.min(list.size(), printLimit); i++)
 			System.out.println(Operation.formatTable(list.get(i)));
 
 		return !list.isEmpty();
 	}
 
-	public boolean printUnaryOps(String options, int limit) {
-		return printOps("unary " + options, findUnaryOps(options), limit);
+	public boolean printUnaryOps(String options, int printLimit) {
+		int maxSolutions = Math.max(100, printLimit);
+		return printOps("unary " + options,
+				findUnaryOps(options, maxSolutions), maxSolutions, printLimit);
 	}
 
 	public void printUnaryOps() {
@@ -189,8 +306,10 @@ public class CompatibleOps {
 		System.out.println();
 	}
 
-	public boolean printBinaryOps(String options, int limit) {
-		return printOps("binary " + options, findBinaryOps(options), limit);
+	public boolean printBinaryOps(String options, int printLimit) {
+		int maxSolutions = Math.max(100, printLimit);
+		return printOps("binary " + options,
+				findBinaryOps(options, maxSolutions), maxSolutions, printLimit);
 	}
 
 	@SuppressWarnings("unused")
@@ -212,8 +331,10 @@ public class CompatibleOps {
 		System.out.println();
 	}
 
-	public boolean printTernaryOps(String options, int limit) {
-		return printOps("ternary " + options, findTernaryOps(options), limit);
+	public boolean printTernaryOps(String options, int printLimit) {
+		int maxSolutions = Math.max(100, printLimit);
+		return printOps("ternary " + options,
+				findTernaryOps(options, maxSolutions), maxSolutions, printLimit);
 	}
 
 	@SuppressWarnings("unused")
@@ -228,5 +349,26 @@ public class CompatibleOps {
 				|| printTernaryOps("surjective essential", 1);
 		boolean essential = idempotent || surjective
 				|| printTernaryOps("essential", 1);
+		System.out.println();
+	}
+
+	public void printSpecialOps() {
+		if (hasJonssonTerms(1))
+			System.out.println("has majority term, CD(3)");
+		else if (hasJonssonTerms(2))
+			System.out.println("has two Jonsson terms, CD(4)");
+		else if (hasJonssonTerms(3))
+			System.out.println("has three Jonsson terms, CD(5)");
+		else {
+			System.out.println("does not have three Jonsson terms, not CD(5)");
+
+			if (hasJovanovicTerms())
+				System.out.println("has Jovanovic terms, SD(meet)");
+			else if (hasSiggersTerms())
+				System.out.println("has Siggers terms, omits type 1");
+			else
+				System.out.println("does not have Siggers terms");
+		}
+		System.out.println();
 	}
 }

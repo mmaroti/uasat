@@ -599,6 +599,31 @@ public final class Relation<BOOL> {
 		return b;
 	}
 
+	public Relation<BOOL> makeComplexRel(final List<Relation<BOOL>> subsets) {
+		int[] shape = new int[getArity()];
+		Arrays.fill(shape, subsets.size());
+
+		Tensor<BOOL> tensor = Tensor.generate(shape, new Func1<BOOL, int[]>() {
+			@Override
+			public BOOL call(int[] elem) {
+				Relation<BOOL> r = subsets.get(elem[0]);
+				for (int i = 1; i < elem.length; i++)
+					r = r.cartesian(subsets.get(elem[i]));
+
+				r = intersect(r); // with this
+
+				BOOL b = alg.TRUE;
+				for (int i = 0; i < elem.length; i++)
+					b = alg.and(b, subsets.get(elem[i])
+							.isSubsetOf(r.project(i)));
+
+				return b;
+			}
+		});
+
+		return new Relation<BOOL>(alg, tensor);
+	}
+
 	public static String formatMembers(Relation<Boolean> rel) {
 		StringBuilder s = new StringBuilder();
 

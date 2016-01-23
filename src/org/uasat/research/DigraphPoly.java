@@ -234,32 +234,6 @@ public class DigraphPoly {
 		return list;
 	}
 
-	public Relation<Boolean> makeSubdirectRel(
-			final List<Relation<Boolean>> subsets) {
-		int[] shape = new int[relation.getArity()];
-		Arrays.fill(shape, subsets.size());
-
-		Tensor<Boolean> tensor = Tensor.generate(shape,
-				new Func1<Boolean, int[]>() {
-					@Override
-					public Boolean call(int[] elem) {
-						Relation<Boolean> r = subsets.get(elem[0]);
-						for (int i = 1; i < elem.length; i++)
-							r = r.cartesian(subsets.get(elem[i]));
-
-						r = r.intersect(relation);
-
-						for (int i = 0; i < elem.length; i++)
-							if (!subsets.get(elem[i]).isSubsetOf(r.project(i)))
-								return false;
-
-						return true;
-					}
-				});
-
-		return Relation.wrap(tensor);
-	}
-
 	public void printHomomorphismExt(final Relation<Boolean> target,
 			String pairs) {
 		assert target.getArity() == 2;
@@ -498,49 +472,6 @@ public class DigraphPoly {
 		return found;
 	}
 
-	public static boolean hasJovanovicTerms(SatSolver<?> solver,
-			final Relation<Boolean> rel) {
-		int[] shape = Util.createShape(rel.getSize(), 4);
-		BoolProblem problem = new BoolProblem(shape, shape) {
-			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
-				Relation<BOOL> r = Relation.lift(alg, rel);
-				Operation<BOOL> op1 = new Operation<BOOL>(alg, tensors.get(0));
-				Operation<BOOL> op2 = new Operation<BOOL>(alg, tensors.get(1));
-
-				BOOL b = op1.isOperation();
-				b = alg.and(b, op1.preserves(r));
-				b = alg.and(b, op2.isOperation());
-				b = alg.and(b, op2.preserves(r));
-				b = alg.and(b, Operation.areJovanovicTerms(op1, op2));
-				return b;
-			}
-		};
-
-		return problem.solveOne(solver) != null;
-	}
-
-	public static boolean hasTwoSemilatTerm(SatSolver<?> solver,
-			final Relation<Boolean> rel) {
-		int[] shape = Util.createShape(rel.getSize(), 3);
-		BoolProblem problem = new BoolProblem(shape) {
-			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
-				Relation<BOOL> r = Relation.lift(alg, rel);
-				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
-
-				BOOL b = op.isOperation();
-				b = alg.and(b, op.preserves(r));
-				b = alg.and(b, op.isTwoSemilattice());
-				return b;
-			}
-		};
-
-		return problem.solveOne(solver) != null;
-	}
-
 	private SatSolver<?> solver = new Sat4J();
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
@@ -559,7 +490,8 @@ public class DigraphPoly {
 
 		System.out.println("filtering for no 2sl");
 		for (Relation<Boolean> rel : list) {
-			if (!hasTwoSemilatTerm(solver, rel))
+			CompatibleOps ops = new CompatibleOps(Structure.wrap(rel), solver);
+			if (!ops.hasBinaryOp("two-semilat"))
 				System.out.println("no 2sl: " + Relation.formatMembers(rel));
 		}
 
@@ -574,7 +506,7 @@ public class DigraphPoly {
 	}
 
 	@SuppressWarnings("unused")
-	public static void main(String[] args) {
+	public static void main3(String[] args) {
 		PartialOrder<Boolean> a1 = PartialOrder.antiChain(1);
 		PartialOrder<Boolean> a2 = PartialOrder.antiChain(2);
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
@@ -589,15 +521,16 @@ public class DigraphPoly {
 		// ops.printTernaryOps();
 
 		DigraphPoly poly = new DigraphPoly(str.getRelation(0));
-		poly.printOperationExt(7, "00100001 11001101 22232301 33322301 44442301 "
-				+ "00100000 10101111 20102322 30102333 40102344 "
-				+ "01010000 11011111 21012322 31012333 41012344 "
-				+ "02230000 12231111 22232322 32232333 42232344 "
-				+ "03320000 13321111 23322322 33322333 43322344 "
-				+ "04440000 14441111 24442322 34442333 44442344 ", "");
+		poly.printOperationExt(7,
+				"00100001 11001101 22232301 33322301 44442301 "
+						+ "00100000 10101111 20102322 30102333 40102344 "
+						+ "01010000 11011111 21012322 31012333 41012344 "
+						+ "02230000 12231111 22232322 32232333 42232344 "
+						+ "03320000 13321111 23322322 33322333 43322344 "
+						+ "04440000 14441111 24442322 34442333 44442344 ", "");
 	}
 
-	public static void main3(String[] args) {
+	public static void main(String[] args) {
 		String[] benoit = new String[] {
 				"00 03 04 11 12 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",
 				"00 03 04 11 12 14 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",
@@ -627,6 +560,7 @@ public class DigraphPoly {
 			ops.printUnaryOps();
 			ops.printBinaryOps();
 			ops.printTernaryOps();
+			ops.printSpecialOps();
 		}
 	}
 }

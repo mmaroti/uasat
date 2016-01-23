@@ -388,35 +388,34 @@ public final class Operation<BOOL> {
 	 * p_2(x,x,y). p_{n-1}(x,y,y) = y (for n odd). p_{n-1}(x,x,y) = y (for n
 	 * even).
 	 */
-	@SafeVarargs
-	public static <BOOL> BOOL areJonssonTerms(Operation<BOOL>... ops) {
-		assert ops.length >= 1;
-		BoolAlgebra<BOOL> alg = ops[0].getAlg();
+	public static <BOOL> BOOL areJonssonTerms(List<Operation<BOOL>> ops) {
+		assert ops.size() >= 1;
+		BoolAlgebra<BOOL> alg = ops.get(0).getAlg();
 
 		BOOL b = alg.TRUE;
-		for (int i = 0; i < ops.length; i++) {
-			assert ops[i].getArity() == 3 && ops[i].getAlg() == alg;
-			b = alg.and(b, ops[i].isSatisfied(0, 1, 0));
+		for (int i = 0; i < ops.size(); i++) {
+			assert ops.get(i).getArity() == 3 && ops.get(i).getAlg() == alg;
+			b = alg.and(b, ops.get(i).isSatisfied(0, 1, 0));
 		}
 
-		b = alg.and(b, ops[0].isSatisfied(0, 0, 1));
+		b = alg.and(b, ops.get(0).isSatisfied(0, 0, 1));
 
-		for (int i = 0; i + 1 < ops.length; i += 2) {
-			BOOL c = ops[i].polymer(0, 1, 1).isEqualTo(
-					ops[i + 1].polymer(0, 1, 1));
+		for (int i = 0; i + 1 < ops.size(); i += 2) {
+			BOOL c = ops.get(i).polymer(0, 1, 1)
+					.isEqualTo(ops.get(i + 1).polymer(0, 1, 1));
 			b = alg.and(b, c);
 		}
 
-		for (int i = 1; i + 1 < ops.length; i += 2) {
-			BOOL c = ops[i].polymer(0, 0, 1).isEqualTo(
-					ops[i + 1].polymer(0, 0, 1));
+		for (int i = 1; i + 1 < ops.size(); i += 2) {
+			BOOL c = ops.get(i).polymer(0, 0, 1)
+					.isEqualTo(ops.get(i + 1).polymer(0, 0, 1));
 			b = alg.and(b, c);
 		}
 
-		if (ops.length % 2 == 0)
-			b = alg.and(b, ops[ops.length - 1].isSatisfied(1, 0, 0));
+		if (ops.size() % 2 == 0)
+			b = alg.and(b, ops.get(ops.size() - 1).isSatisfied(1, 0, 0));
 		else
-			b = alg.and(b, ops[ops.length - 1].isSatisfied(1, 1, 0));
+			b = alg.and(b, ops.get(ops.size() - 1).isSatisfied(1, 1, 0));
 
 		return b;
 	}
