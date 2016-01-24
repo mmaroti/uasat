@@ -283,6 +283,41 @@ public class CompatibleOps {
 		return findJonssonTerms(count) != null;
 	}
 
+	public Function<Boolean> findTotallySymmetricIdempotentHom() {
+		int size = structure.getSize();
+		List<Relation<Boolean>> subsets = Relation.subsets(size, 1, size);
+		final Structure<Boolean> complex = structure
+				.makeComplexStructure(subsets);
+
+		BoolProblem problem = new BoolProblem(
+				new int[] { size, subsets.size() }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Function<BOOL> fun = new Function<BOOL>(alg, tensors.get(0));
+				Structure<BOOL> str1 = Structure.lift(alg, complex);
+				Structure<BOOL> str2 = Structure.lift(alg, structure);
+
+				BOOL b = fun.isFunction();
+				b = alg.and(b, fun.preserve(str1, str2));
+				for (int i = 0; i < fun.getCodomain(); i++)
+					b = alg.and(b, fun.hasValue(i, i));
+
+				return b;
+			}
+		};
+
+		List<Tensor<Boolean>> sol = problem.solveOne(solver);
+		if (sol == null)
+			return null;
+
+		return Function.wrap(sol.get(0));
+	}
+
+	public boolean hasTotallySymmetricIdempotentTerms() {
+		return findTotallySymmetricIdempotentHom() != null;
+	}
+
 	private boolean printOps(String what, List<Operation<Boolean>> list,
 			int maxSolutions, int printLimit) {
 		System.out.println(what.trim() + " ops: "
@@ -352,23 +387,37 @@ public class CompatibleOps {
 		System.out.println();
 	}
 
-	public void printSpecialOps() {
-		if (hasJonssonTerms(1))
-			System.out.println("has majority term, CD(3)");
-		else if (hasJonssonTerms(2))
-			System.out.println("has two Jonsson terms, CD(4)");
-		else if (hasJonssonTerms(3))
-			System.out.println("has three Jonsson terms, CD(5)");
+	private static boolean printSpecialOps(String what,
+			List<Operation<Boolean>> ops) {
+		if (ops == null)
+			System.out.println(what + ": no");
 		else {
-			System.out.println("does not have three Jonsson terms, not CD(5)");
-
-			if (hasJovanovicTerms())
-				System.out.println("has Jovanovic terms, SD(meet)");
-			else if (hasSiggersTerms())
-				System.out.println("has Siggers terms, omits type 1");
-			else
-				System.out.println("does not have Siggers terms");
+			System.out.println(what + ": yes");
+			for (Operation<Boolean> op : ops)
+				System.out.println(Operation.formatTable(op));
 		}
-		System.out.println();
+		return ops != null;
+	}
+
+	public void printSpecialOps() {
+		printSpecialOps("Siggers terms, Taylor", findSiggersTerms());
+		printSpecialOps("Jovanovic terms, SD(meet)", findJovanovicTerms());
+
+		Function<Boolean> hom = findTotallySymmetricIdempotentHom();
+		if (hom != null) {
+			System.out.println("Totally symmetric idempotent terms: yes");
+			System.out.println(Function.format(hom));
+		} else
+			System.out.println("Totally symmetric idempotent terms: no");
+
+		List<Operation<Boolean>> ops;
+		if ((ops = findJonssonTerms(1)) != null)
+			printSpecialOps("Jonsson terms, CD(3)", ops);
+		if ((ops = findJonssonTerms(2)) != null)
+			printSpecialOps("Jonsson terms, CD(4)", ops);
+		else {
+			ops = findJonssonTerms(3);
+			printSpecialOps("Jonsson terms, CD(5)", ops);
+		}
 	}
 }

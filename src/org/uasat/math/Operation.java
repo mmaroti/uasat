@@ -19,6 +19,7 @@
 package org.uasat.math;
 
 import java.util.*;
+
 import org.uasat.core.*;
 
 public final class Operation<BOOL> {
@@ -63,6 +64,20 @@ public final class Operation<BOOL> {
 		List<Operation<Boolean>> list = new ArrayList<Operation<Boolean>>();
 		for (Tensor<Boolean> t : tensors)
 			list.add(wrap(t));
+		return list;
+	}
+
+	public static <BOOL> Operation<BOOL> lift(BoolAlgebra<BOOL> alg,
+			Operation<Boolean> op) {
+		Tensor<BOOL> tensor = Tensor.map(alg.LIFT, op.tensor);
+		return new Operation<BOOL>(alg, tensor);
+	}
+
+	public static <BOOL> List<Operation<BOOL>> lift(BoolAlgebra<BOOL> alg,
+			List<Operation<Boolean>> ops) {
+		List<Operation<BOOL>> list = new ArrayList<Operation<BOOL>>();
+		for (Operation<Boolean> op : ops)
+			list.add(lift(alg, op));
 		return list;
 	}
 
@@ -456,12 +471,6 @@ public final class Operation<BOOL> {
 		Tensor<BOOL> t = c.get(Contract.range(0, a + 1, a + b + 1));
 
 		return new Operation<BOOL>(alg, t);
-	}
-
-	public static <BOOL> Operation<BOOL> lift(BoolAlgebra<BOOL> alg,
-			Operation<Boolean> op) {
-		Tensor<BOOL> tensor = Tensor.map(alg.LIFT, op.tensor);
-		return new Operation<BOOL>(alg, tensor);
 	}
 
 	public Relation<BOOL> evaluate(Relation<BOOL> rel) {

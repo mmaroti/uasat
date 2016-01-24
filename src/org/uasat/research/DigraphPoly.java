@@ -475,24 +475,27 @@ public class DigraphPoly {
 	private SatSolver<?> solver = new Sat4J();
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
-	@SuppressWarnings("unused")
-	public static void main2(String[] args) {
+	public static void main(String[] args) {
 		SatSolver<?> solver = new Sat4J();
-		int size = 6;
-		String options;
+		int size = 5;
+		String what = "reflexive taylor non-isomorphic";
+
+		if (args.length >= 1)
+			size = Integer.parseInt(args[0]);
+		if (args.length >= 2)
+			what = args[1];
 
 		long time = System.currentTimeMillis();
 
-		System.out.println("finding taylors for size " + size);
-		List<Relation<Boolean>> list = findDigraphs(solver, size,
-				"reflexive antisymmetric transitive taylor non-isomorphic");
+		System.out.println("finding " + what + " of size " + size);
+		List<Relation<Boolean>> list = findDigraphs(solver, size, what);
 		System.out.println("count: " + list.size());
 
-		System.out.println("filtering for no 2sl");
+		System.out.println("filtering for no tsi");
 		for (Relation<Boolean> rel : list) {
 			CompatibleOps ops = new CompatibleOps(Structure.wrap(rel), solver);
-			if (!ops.hasBinaryOp("two-semilat"))
-				System.out.println("no 2sl: " + Relation.formatMembers(rel));
+			if (!ops.hasTotallySymmetricIdempotentTerms())
+				System.out.println("no tsi: " + Relation.formatMembers(rel));
 		}
 
 		time = System.currentTimeMillis() - time;
@@ -506,7 +509,7 @@ public class DigraphPoly {
 	}
 
 	@SuppressWarnings("unused")
-	public static void main3(String[] args) {
+	public static void main2(String[] args) {
 		PartialOrder<Boolean> a1 = PartialOrder.antiChain(1);
 		PartialOrder<Boolean> a2 = PartialOrder.antiChain(2);
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
@@ -515,22 +518,19 @@ public class DigraphPoly {
 		Structure<Boolean> str = Structure.wrap(c4.plus(a1).asRelation());
 		Structure.print(str);
 
-		// CompatibleOps ops = new CompatibleOps(str);
-		// ops.printUnaryOps();
-		// ops.printBinaryOps();
-		// ops.printTernaryOps();
+		// List<Relation<Boolean>> subsets = Relation.subsets(str.getSize(), 1,
+		// 2);
+		// Structure<Boolean> str2 = str.makeComplexStructure(subsets);
+		// Structure.print(str2);
 
-		DigraphPoly poly = new DigraphPoly(str.getRelation(0));
-		poly.printOperationExt(7,
-				"00100001 11001101 22232301 33322301 44442301 "
-						+ "00100000 10101111 20102322 30102333 40102344 "
-						+ "01010000 11011111 21012322 31012333 41012344 "
-						+ "02230000 12231111 22232322 32232333 42232344 "
-						+ "03320000 13321111 23322322 33322333 43322344 "
-						+ "04440000 14441111 24442322 34442333 44442344 ", "");
+		CompatibleOps ops = new CompatibleOps(str);
+		ops.printUnaryOps();
+		ops.printBinaryOps();
+		ops.printTernaryOps();
+		ops.printSpecialOps();
 	}
 
-	public static void main(String[] args) {
+	public static void main3(String[] args) {
 		String[] benoit = new String[] {
 				"00 03 04 11 12 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",
 				"00 03 04 11 12 14 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",

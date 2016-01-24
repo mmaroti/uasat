@@ -26,31 +26,22 @@ public class Test {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
 	public static void main(String[] args) {
-		Domain dom = new Domain(5);
+		Domain dom = new Domain(7);
 
 		Relation rel = new Relation(dom, 2);
-		Operation op1 = new Operation(dom, 3);
-		Operation op2 = new Operation(dom, 3);
+		// Operation op1 = new Operation(dom, 3);
+		// Operation op2 = new Operation(dom, 3);
 
-		// Term t = op1.preserves(rel);
-		// t = t.and(op2.preserves(rel));
-		// t = Operation.areSiggersTerms(op1, op2).and(t);
-		// t = Term.exists(op1.getTable(), t);
-		// t = Term.exists(op2.getTable(), t);
-		// t = rel.isPartialOrder().and(t);
-		// t = rel.isLexMinimal().and(t);
-		// t = Term.count(rel.getTable(), t);
-
-		Term s = op1.preserves(rel);
-		s = op2.preserves(rel).and(s);
-		s = Operation.areSiggersTerms(op1, op2).and(s);
+		// Term s = op1.preserves(rel);
+		// s = op2.preserves(rel).and(s);
+		// s = Operation.areSiggersTerms(op1, op2).and(s);
 		// s = op1.isMajority().and(s);
-		s = Term.exists(op1.getTable(), s);
-		s = Term.exists(op2.getTable(), s);
+		// s = Term.exists(op1.getTable(), s);
+		// s = Term.exists(op2.getTable(), s);
 
 		Term t = rel.isPartialOrder();
 		t = rel.isLexMinimal().and(t);
-		t = t.andThen(s);
+		// t = t.andThen(s);
 		t = Term.count(rel.getTable(), t);
 
 		long time = System.currentTimeMillis();

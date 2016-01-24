@@ -19,12 +19,13 @@
 package org.uasat.math;
 
 import java.util.*;
+
 import org.uasat.core.*;
 
 public final class Structure<BOOL> {
 	private final BoolAlgebra<BOOL> alg;
 	private final int size;
-	private final List<Relation<BOOL>> rels;
+	private final List<Relation<BOOL>> relations;
 
 	public BoolAlgebra<BOOL> getAlg() {
 		return alg;
@@ -35,11 +36,11 @@ public final class Structure<BOOL> {
 	}
 
 	public List<Relation<BOOL>> getRelations() {
-		return rels;
+		return relations;
 	}
-	
+
 	public Relation<BOOL> getRelation(int index) {
-		return rels.get(index);
+		return relations.get(index);
 	}
 
 	public Structure(BoolAlgebra<BOOL> alg, int size, List<Relation<BOOL>> rels) {
@@ -50,7 +51,7 @@ public final class Structure<BOOL> {
 
 		this.alg = alg;
 		this.size = size;
-		this.rels = rels;
+		this.relations = rels;
 	}
 
 	@SafeVarargs
@@ -62,12 +63,13 @@ public final class Structure<BOOL> {
 			assert rels[i].getSize() == size;
 
 		this.alg = alg;
-		this.rels = Arrays.asList(rels);
+		this.relations = Arrays.asList(rels);
 	}
 
 	@SafeVarargs
 	final public Structure<BOOL> extend(Relation<BOOL>... rels) {
-		List<Relation<BOOL>> list = new ArrayList<Relation<BOOL>>(this.rels);
+		List<Relation<BOOL>> list = new ArrayList<Relation<BOOL>>(
+				this.relations);
 
 		for (int i = 0; i < rels.length; i++) {
 			assert rels[i].getSize() == size && rels[i].getAlg() == alg;
@@ -81,7 +83,7 @@ public final class Structure<BOOL> {
 		assert alg == op.getAlg() && size == op.getSize();
 
 		BOOL b = alg.TRUE;
-		for (Relation<BOOL> rel : rels)
+		for (Relation<BOOL> rel : relations)
 			b = alg.and(b, op.preserves(rel));
 
 		return b;
@@ -91,10 +93,18 @@ public final class Structure<BOOL> {
 		return ua.isCompatibleWith(this);
 	}
 
+	public Structure<BOOL> makeComplexStructure(List<Relation<BOOL>> subsets) {
+		List<Relation<BOOL>> rels = new ArrayList<Relation<BOOL>>();
+		for (Relation<BOOL> rel : relations)
+			rels.add(rel.makeComplexRelation(subsets));
+
+		return new Structure<BOOL>(alg, subsets.size(), rels);
+	}
+
 	public static <BOOL> Structure<BOOL> lift(BoolAlgebra<BOOL> alg,
 			Structure<Boolean> str) {
 		List<Relation<BOOL>> ops = new ArrayList<Relation<BOOL>>();
-		for (Relation<Boolean> op : str.rels)
+		for (Relation<Boolean> op : str.relations)
 			ops.add(Relation.lift(alg, op));
 
 		return new Structure<BOOL>(alg, str.getSize(), ops);

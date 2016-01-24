@@ -70,6 +70,14 @@ public final class Relation<BOOL> {
 		return new Relation<BOOL>(alg, tensor);
 	}
 
+	public static <BOOL> List<Relation<BOOL>> lift(BoolAlgebra<BOOL> alg,
+			List<Relation<Boolean>> rels) {
+		List<Relation<BOOL>> list = new ArrayList<Relation<BOOL>>();
+		for (Relation<Boolean> rel : rels)
+			list.add(lift(alg, rel));
+		return list;
+	}
+
 	public static Relation<Boolean> full(int size, int arity) {
 		Tensor<Boolean> tensor = Tensor.constant(Util.createShape(size, arity),
 				Boolean.TRUE);
@@ -599,7 +607,7 @@ public final class Relation<BOOL> {
 		return b;
 	}
 
-	public Relation<BOOL> makeComplexRel(final List<Relation<BOOL>> subsets) {
+	public Relation<BOOL> makeComplexRelation(final List<Relation<BOOL>> subsets) {
 		int[] shape = new int[getArity()];
 		Arrays.fill(shape, subsets.size());
 
@@ -692,6 +700,47 @@ public final class Relation<BOOL> {
 				c += 1;
 
 		return c;
+	}
+
+	public static List<Relation<Boolean>> subsets(int size, int card) {
+		assert 0 <= card && card <= size;
+
+		int[] s = new int[card];
+		for (int i = 0; i < card; i++)
+			s[i] = i;
+
+		int[] shape = new int[] { size };
+		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
+
+		outer: for (;;) {
+			Tensor<Boolean> tensor = Tensor.constant(shape, Boolean.FALSE);
+			for (int i = 0; i < card; i++)
+				tensor.setElem(Boolean.TRUE, s[i]);
+
+			list.add(wrap(tensor));
+
+			for (int i = 0; i < card - 1; i++)
+				if (++s[i] < s[i + 1])
+					continue outer;
+				else
+					s[i] = i;
+
+			if (card == 0 || ++s[card - 1] >= size)
+				break;
+		}
+
+		return list;
+	}
+
+	public static List<Relation<Boolean>> subsets(int size, int minCard,
+			int maxCard) {
+		assert 0 <= minCard && minCard <= maxCard && maxCard <= size;
+
+		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
+		for (int i = minCard; i <= maxCard; i++)
+			list.addAll(subsets(size, i));
+
+		return list;
 	}
 
 	public static final Comparator<Relation<Boolean>> COMPARATOR = new Comparator<Relation<Boolean>>() {

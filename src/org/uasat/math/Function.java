@@ -56,6 +56,12 @@ public final class Function<BOOL> {
 		return new Function<Boolean>(BoolAlgebra.INSTANCE, tensor);
 	}
 
+	public static <BOOL> Function<BOOL> lift(BoolAlgebra<BOOL> alg,
+			Function<Boolean> fun) {
+		Tensor<BOOL> tensor = Tensor.map(alg.LIFT, fun.tensor);
+		return new Function<BOOL>(alg, tensor);
+	}
+
 	public BOOL isFunction() {
 		Tensor<BOOL> t = Tensor.fold(alg.ONE, 1, tensor);
 		return Tensor.fold(alg.ALL, 1, t).get();
@@ -115,12 +121,6 @@ public final class Function<BOOL> {
 		return new Function<BOOL>(alg, t1);
 	}
 
-	public static <BOOL> Function<BOOL> lift(BoolAlgebra<BOOL> alg,
-			Function<Boolean> op) {
-		Tensor<BOOL> tensor = Tensor.map(alg.LIFT, op.tensor);
-		return new Function<BOOL>(alg, tensor);
-	}
-
 	public BOOL isLexLeq(Function<BOOL> fun) {
 		assert alg == fun.alg && getDomain() == fun.getDomain()
 				&& getCodomain() == fun.getCodomain();
@@ -150,6 +150,18 @@ public final class Function<BOOL> {
 
 	public BOOL preserves(Relation<BOOL> rel1, Relation<BOOL> rel2) {
 		return evaluate(rel1).isSubsetOf(rel2);
+	}
+
+	public BOOL preserve(Structure<BOOL> str1, Structure<BOOL> str2) {
+		List<Relation<BOOL>> rels1 = str1.getRelations();
+		List<Relation<BOOL>> rels2 = str2.getRelations();
+		assert rels1.size() == rels2.size();
+
+		BOOL b = alg.TRUE;
+		for (int i = 0; i < rels1.size(); i++)
+			b = alg.and(b, preserves(rels1.get(i), rels2.get(i)));
+
+		return b;
 	}
 
 	public static Tensor<Integer> decode(Function<Boolean> fun) {
