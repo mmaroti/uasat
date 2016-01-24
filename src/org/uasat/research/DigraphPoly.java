@@ -477,8 +477,8 @@ public class DigraphPoly {
 
 	public static void main(String[] args) {
 		SatSolver<?> solver = new Sat4J();
-		int size = 5;
-		String what = "reflexive taylor non-isomorphic";
+		int size = 6;
+		String what = "reflexive symmetric taylor non-isomorphic";
 
 		if (args.length >= 1)
 			size = Integer.parseInt(args[0]);
@@ -549,7 +549,7 @@ public class DigraphPoly {
 				"00 02 03 11 12 15 22 23 24 31 33 34 35 40 42 43 44 45 50 51 52 54 55",
 				"00 02 03 11 12 14 22 23 25 31 33 34 35 41 42 44 45 50 52 53 54 55" };
 
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < benoit.length; i++) {
 			System.out.println("digraph #" + i);
 			Relation<Boolean> rel = Relation.parseMembers(6, 2, benoit[i]);
 
