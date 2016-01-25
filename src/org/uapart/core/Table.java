@@ -39,6 +39,14 @@ public abstract class Table extends Function {
 			return new TableN(codomain, domains);
 	}
 
+	public Table copy() {
+		Table t = create(codomain, domains);
+		assert table.length == t.table.length;
+		System.arraycopy(table, 0, t.table, 0, table.length);
+
+		return t;
+	}
+
 	protected Table(Domain codomain, Domain[] domains) {
 		super(codomain, domains);
 
@@ -60,6 +68,10 @@ public abstract class Table extends Function {
 	public Term get(int... coords) {
 		int p = getIndex(coords);
 		return new Peek(this, p);
+	}
+
+	public int getValue(int... coords) {
+		return table[getIndex(coords)];
 	}
 
 	protected int getIndex(int... coords) {

@@ -18,7 +18,7 @@
 
 package org.uasat.research;
 
-import java.text.DecimalFormat;
+import java.text.*;
 import java.util.*;
 
 import org.uasat.core.*;
@@ -475,27 +475,70 @@ public class DigraphPoly {
 	private SatSolver<?> solver = new Sat4J();
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
+	public static Relation<Boolean> importPart(org.uapart.math.Relation rel) {
+		assert rel.getArity() >= 1;
+
+		int a = rel.getArity();
+		int s = rel.getDomain().getSize();
+		final org.uapart.core.Table t = rel.getTable();
+
+		Tensor<Boolean> tensor = Tensor.generate(Util.createShape(s, a),
+				new Func1<Boolean, int[]>() {
+					@Override
+					public Boolean call(int[] elem) {
+						int a = t.getValue(elem);
+						assert 0 <= a && a < 2;
+						return a != 0;
+					}
+				});
+
+		return Relation.wrap(tensor);
+	}
+
+	public static List<Relation<Boolean>> generatePosets(int size) {
+		assert size >= 1;
+		System.out.println("generating posets of size " + size);
+
+		org.uapart.core.Domain dom = new org.uapart.core.Domain(size);
+		org.uapart.math.Relation rel = new org.uapart.math.Relation(dom, 2);
+
+		org.uapart.core.Term t = rel.isLexMinimal().and(rel.isPartialOrder());
+		org.uapart.core.Collector col = new org.uapart.core.Collector(t, 1,
+				rel.getTable());
+		t = new org.uapart.core.Counter(rel.getTable(), col);
+
+		int c = t.$evaluate();
+		System.out.println("found: " + c);
+
+		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
+		for (org.uapart.core.Table[] ts : col.getCollected())
+			list.add(importPart(new org.uapart.math.Relation(ts[0])));
+
+		return list;
+	}
+
 	public static void main(String[] args) {
 		SatSolver<?> solver = new Sat4J();
 		int size = 6;
-		String what = "reflexive symmetric taylor non-isomorphic";
 
 		if (args.length >= 1)
 			size = Integer.parseInt(args[0]);
-		if (args.length >= 2)
-			what = args[1];
 
 		long time = System.currentTimeMillis();
 
-		System.out.println("finding " + what + " of size " + size);
-		List<Relation<Boolean>> list = findDigraphs(solver, size, what);
-		System.out.println("count: " + list.size());
+		// System.out.println("finding posets of size " + size);
+		// List<Relation<Boolean>> list = findDigraphs(solver, size,
+		//		"reflexive antisymmetric transitive non-isomorphic");
+		// System.out.println("count: " + list.size());
 
-		System.out.println("filtering for no tsi");
+		List<Relation<Boolean>> list = generatePosets(size);
+		
+		System.out.println("filtering for taylor but no tsi");
 		for (Relation<Boolean> rel : list) {
 			CompatibleOps ops = new CompatibleOps(Structure.wrap(rel), solver);
-			if (!ops.hasTotallySymmetricIdempotentTerms())
-				System.out.println("no tsi: " + Relation.formatMembers(rel));
+			if (ops.hasSiggersTerms()
+					&& !ops.hasTotallySymmetricIdempotentTerms())
+				System.out.println(Relation.formatMembers(rel));
 		}
 
 		time = System.currentTimeMillis() - time;
