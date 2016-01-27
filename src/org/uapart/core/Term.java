@@ -53,7 +53,7 @@ public abstract class Term {
 	}
 
 	public Term neq(Term term) {
-		return new BoolNeq(this, term);
+		return equ(term).not();
 	}
 
 	public Term leq(Term term) {
@@ -61,7 +61,7 @@ public abstract class Term {
 	}
 
 	public Term or(Term term) {
-		return new BoolOr(this, term);
+		return not().and(term.not()).not();
 	}
 
 	public Term not() {

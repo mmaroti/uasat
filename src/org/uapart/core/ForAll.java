@@ -63,9 +63,8 @@ public class ForAll extends Term {
 		assert p < table.length && table[p] == a;
 
 		int m = 1;
-		int g = guess[p];
 		for (int i = 0; i < size; i++) {
-			a = i + g;
+			a = i + guess[p];
 			table[p] = a < size ? a : a - size;
 
 			a = $evaluate();

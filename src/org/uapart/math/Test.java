@@ -26,22 +26,20 @@ public class Test {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
 	public static void main(String[] args) {
-		Domain dom = new Domain(7);
+		Domain dom = new Domain(5);
 
 		Relation rel = new Relation(dom, 2);
-		// Operation op1 = new Operation(dom, 3);
-		// Operation op2 = new Operation(dom, 3);
+		Operation op = new Operation(dom, 3);
 
-		// Term s = op1.preserves(rel);
-		// s = op2.preserves(rel).and(s);
-		// s = Operation.areSiggersTerms(op1, op2).and(s);
-		// s = op1.isMajority().and(s);
-		// s = Term.exists(op1.getTable(), s);
-		// s = Term.exists(op2.getTable(), s);
+		// Term s = op.preserves(rel).and(op.isMajority());
+		Term s = op.isMajority().and(op.preserves(rel));
+		// Printer p = new Printer(s, -1, rel.getTable(), op.getTable());
+		s = Term.exists(op.getTable(), s);
 
 		Term t = rel.isPartialOrder();
-		t = rel.isLexMinimal().and(t);
-		// t = t.andThen(s);
+		t = t.and(rel.isLexMinimal());
+		// t = t.print(1, rel.getTable());
+		t = t.andThen(s);
 		t = Term.count(rel.getTable(), t);
 
 		long time = System.currentTimeMillis();
@@ -51,6 +49,32 @@ public class Test {
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
 				+ " seconds.");
+	}
 
+	public static void main2(String[] args) {
+		Domain dom = new Domain(5);
+
+		Relation rel = new Relation(dom, 2);
+		int[] table = new int[] { 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1,
+				0, 0, 0, 1, 1, 0, 0, 0, 0, 1 };
+		assert table.length == rel.getTable().getTable().length;
+		System.arraycopy(table, 0, rel.getTable().getTable(), 0, table.length);
+
+		Operation op = new Operation(dom, 3);
+
+		// Term s = op.preserves(rel).and(op.isMajority());
+		Term s = op.isMajority().and(op.preserves(rel));
+		// Term s = op.preserves(rel);
+		// Printer p = new Printer(s, -1, rel.getTable(), op.getTable());
+		s = Term.exists(op.getTable(), s);
+
+		System.out.println(s.$evaluate());
+
+		// Term t = rel.isPartialOrder();
+		// t = rel.isLexMinimal().and(t);
+		// t = t.print(1, rel.getTable()).andThen(s);
+		// t = Term.count(rel.getTable(), t);
+
+		// System.out.println(t.$evaluate());
 	}
 }

@@ -43,4 +43,9 @@ public class BoolNot extends Term {
 	public int getBound() {
 		return subterm.getBound();
 	}
+
+	@Override
+	public Term not() {
+		return subterm;
+	}
 }
