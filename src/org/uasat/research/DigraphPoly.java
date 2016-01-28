@@ -517,7 +517,7 @@ public class DigraphPoly {
 		return list;
 	}
 
-	public static void main(String[] args) {
+	public static void main3(String[] args) {
 		SatSolver<?> solver = new Sat4J();
 		int size = 6;
 
@@ -573,7 +573,8 @@ public class DigraphPoly {
 		ops.printSpecialOps();
 	}
 
-	public static void main3(String[] args) {
+	@SuppressWarnings("unused")
+	public static void main(String[] args) {
 		String[] benoit = new String[] {
 				"00 03 04 11 12 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",
 				"00 03 04 11 12 14 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",
@@ -592,9 +593,11 @@ public class DigraphPoly {
 				"00 02 03 11 12 15 22 23 24 31 33 34 35 40 42 43 44 45 50 51 52 54 55",
 				"00 02 03 11 12 14 22 23 25 31 33 34 35 41 42 44 45 50 52 53 54 55" };
 
-		for (int i = 0; i < benoit.length; i++) {
+		String cycle5 = "01 12 23 34 40";
+		
+		for (int i = 0; i < 1; i++) {
 			System.out.println("digraph #" + i);
-			Relation<Boolean> rel = Relation.parseMembers(6, 2, benoit[i]);
+			Relation<Boolean> rel = Relation.parseMembers(5, 2, cycle5);
 
 			Structure<Boolean> str = Structure.wrap(rel);
 			Structure.print(str);

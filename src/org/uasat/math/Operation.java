@@ -427,7 +427,7 @@ public final class Operation<BOOL> {
 			b = alg.and(b, c);
 		}
 
-		if (ops.size() % 2 == 0)
+		if (ops.size() % 2 == 1)
 			b = alg.and(b, ops.get(ops.size() - 1).isSatisfied(1, 0, 0));
 		else
 			b = alg.and(b, ops.get(ops.size() - 1).isSatisfied(1, 1, 0));

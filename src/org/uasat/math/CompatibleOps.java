@@ -413,11 +413,13 @@ public class CompatibleOps {
 		List<Operation<Boolean>> ops;
 		if ((ops = findJonssonTerms(1)) != null)
 			printSpecialOps("Jonsson terms, CD(3)", ops);
-		if ((ops = findJonssonTerms(2)) != null)
+		else if ((ops = findJonssonTerms(2)) != null)
 			printSpecialOps("Jonsson terms, CD(4)", ops);
-		else {
-			ops = findJonssonTerms(3);
+		else if ((ops = findJonssonTerms(3)) != null)
 			printSpecialOps("Jonsson terms, CD(5)", ops);
+		else {
+			ops = findJonssonTerms(4);
+			printSpecialOps("Jonsson terms, CD(6)", ops);
 		}
 	}
 }
