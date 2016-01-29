@@ -22,9 +22,9 @@
 			<classpath refid="classpath"/>
 		</manifestclasspath>
 		<jar destfile="uasat.jar" includes="" compress="true" update="true">
-			<fileset dir="" includes="src/**/*"/>
+			<fileset dir="src" includes="**/*.java"/>
 			<fileset dir="" includes="lib/*.jar"/>
-			<fileset dir="" includes="bin/**/*.class"/>
+			<fileset dir="bin" includes="**/*.class"/>
 			<fileset file="LICENSE"/>
 			<fileset file="README.md"/>
 			<manifest>

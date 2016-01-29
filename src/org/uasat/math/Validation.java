@@ -20,6 +20,7 @@ package org.uasat.math;
 
 import java.text.*;
 import java.util.*;
+
 import org.uasat.core.*;
 import org.uasat.solvers.*;
 
@@ -281,7 +282,7 @@ public class Validation {
 
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
-	void check() {
+	void validate() {
 		failed = false;
 		long time = System.currentTimeMillis();
 		System.out.println("Validating UASAT:");
@@ -312,7 +313,6 @@ public class Validation {
 	}
 
 	public static void main(String[] args) {
-		Validation v = new Validation();
-		v.check();
+		new Validation().validate();
 	}
 }

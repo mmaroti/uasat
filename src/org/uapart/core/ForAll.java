@@ -68,11 +68,11 @@ public class ForAll extends Term {
 			table[p] = a < size ? a : a - size;
 
 			a = $evaluate();
-			assert a < bound + table.length || a >= 0;
+			assert a < bound || (0 <= a && a <= 1);
 
 			if (a == 0) {
 				guess[p] = table[p];
-				m = 0;
+				m = a;
 				break;
 			} else if (m == 1)
 				m = a;
