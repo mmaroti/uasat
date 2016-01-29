@@ -292,7 +292,7 @@ public final class Relation<BOOL> {
 		return new Relation<BOOL>(alg, tmp);
 	}
 
-	public Relation<BOOL> makeDiagonal(int arity) {
+	public Relation<BOOL> diagonal(int arity) {
 		assert getArity() == 1;
 
 		Tensor<BOOL> tmp = Tensor.constant(Util.createShape(getSize(), arity),

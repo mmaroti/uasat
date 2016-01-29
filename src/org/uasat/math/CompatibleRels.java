@@ -81,7 +81,7 @@ public class CompatibleRels {
 		if (list.size() != 1)
 			throw new IllegalStateException("this cannot happen");
 
-		return list.get(0).makeDiagonal(arity);
+		return list.get(0).diagonal(arity);
 	}
 
 	public Relation<Boolean> findOneRel(final Relation<Boolean> above,

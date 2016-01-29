@@ -472,10 +472,58 @@ public class DigraphPoly {
 		return found;
 	}
 
+	public static boolean isSpecial(SatSolver<?> solver,
+			final Structure<Boolean> structure) {
+		int size = structure.getSize();
+		List<Relation<Boolean>> subsets = Relation.subsets(size, 1, size);
+		final Structure<Boolean> complex = structure
+				.makeComplexStructure(subsets);
+
+		for (int x = 0; x < subsets.size(); x++) {
+			final int fx = x;
+			Relation<Boolean> subset = subsets.get(x);
+			for (int y = 0; y < size; y++) {
+				final int fy = y;
+				if (!subset.getTensor().getElem(y))
+					continue;
+
+				BoolProblem problem = new BoolProblem(new int[] { size,
+						subsets.size() }) {
+					@Override
+					public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+							List<Tensor<BOOL>> tensors) {
+						Function<BOOL> fun = new Function<BOOL>(alg,
+								tensors.get(0));
+						Structure<BOOL> str1 = Structure.lift(alg, complex);
+						Structure<BOOL> str2 = Structure.lift(alg, structure);
+
+						BOOL b = fun.isFunction();
+						b = alg.and(b, fun.preserve(str1, str2));
+						for (int i = 0; i < fun.getCodomain(); i++)
+							b = alg.and(b, fun.hasValue(i, i));
+
+						b = alg.and(b, fun.hasValue(fy, fx));
+
+						return b;
+					}
+				};
+
+				if (problem.solveOne(solver) == null) {
+					System.out.println("special:");
+					System.out.println(Relation.formatMembers(subset));
+					System.out.println(y);
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	private SatSolver<?> solver = new Sat4J();
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
-	public static Relation<Boolean> importPart(org.uapart.math.Relation rel) {
+	public static Relation<Boolean> importPartial(org.uapart.math.Relation rel) {
 		assert rel.getArity() >= 1;
 
 		int a = rel.getArity();
@@ -512,9 +560,27 @@ public class DigraphPoly {
 
 		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
 		for (org.uapart.core.Table[] ts : col.getCollected())
-			list.add(importPart(new org.uapart.math.Relation(ts[0])));
+			list.add(importPartial(new org.uapart.math.Relation(ts[0])));
 
 		return list;
+	}
+
+	public static void main2(String[] args) {
+		SatSolver<?> solver = new Sat4J();
+		int size = 5;
+
+		List<Relation<Boolean>> list = generatePosets(size);
+		for (Relation<Boolean> rel : list) {
+			Structure<Boolean> str = Structure.wrap(rel);
+			CompatibleOps ops = new CompatibleOps(str, solver);
+			if (!ops.hasTotallySymmetricIdempotentTerms())
+				continue;
+
+			if (isSpecial(solver, str))
+				Structure.print(str);
+		}
+
+		System.out.println("done");
 	}
 
 	public static void main3(String[] args) {
@@ -528,11 +594,11 @@ public class DigraphPoly {
 
 		// System.out.println("finding posets of size " + size);
 		// List<Relation<Boolean>> list = findDigraphs(solver, size,
-		//		"reflexive antisymmetric transitive non-isomorphic");
+		// "reflexive antisymmetric transitive non-isomorphic");
 		// System.out.println("count: " + list.size());
 
 		List<Relation<Boolean>> list = generatePosets(size);
-		
+
 		System.out.println("filtering for taylor but no tsi");
 		for (Relation<Boolean> rel : list) {
 			CompatibleOps ops = new CompatibleOps(Structure.wrap(rel), solver);
@@ -552,7 +618,7 @@ public class DigraphPoly {
 	}
 
 	@SuppressWarnings("unused")
-	public static void main2(String[] args) {
+	public static void main(String[] args) {
 		PartialOrder<Boolean> a1 = PartialOrder.antiChain(1);
 		PartialOrder<Boolean> a2 = PartialOrder.antiChain(2);
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
@@ -571,10 +637,18 @@ public class DigraphPoly {
 		ops.printBinaryOps();
 		ops.printTernaryOps();
 		ops.printSpecialOps();
+
+		// System.out.println(isSpecial(ops.getSolver(), str));
+		DigraphPoly poly = new DigraphPoly(str.getRelation(0));
+		List<Relation<Boolean>> subs = poly.printDefinableSubalgs("singletons treedef nonempty", true);
+		System.out.println();
+		
+		Relation<Boolean> pow = str.getRelation(0).makeComplexRelation(subs);
+		Relation.print(pow);
 	}
 
 	@SuppressWarnings("unused")
-	public static void main(String[] args) {
+	public static void main4(String[] args) {
 		String[] benoit = new String[] {
 				"00 03 04 11 12 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",
 				"00 03 04 11 12 14 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",
@@ -594,7 +668,7 @@ public class DigraphPoly {
 				"00 02 03 11 12 14 22 23 25 31 33 34 35 41 42 44 45 50 52 53 54 55" };
 
 		String cycle5 = "01 12 23 34 40";
-		
+
 		for (int i = 0; i < 1; i++) {
 			System.out.println("digraph #" + i);
 			Relation<Boolean> rel = Relation.parseMembers(5, 2, cycle5);

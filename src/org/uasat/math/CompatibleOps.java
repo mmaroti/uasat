@@ -421,5 +421,7 @@ public class CompatibleOps {
 			ops = findJonssonTerms(4);
 			printSpecialOps("Jonsson terms, CD(6)", ops);
 		}
+
+		System.out.println();
 	}
 }
