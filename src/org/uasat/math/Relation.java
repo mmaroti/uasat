@@ -78,6 +78,13 @@ public final class Relation<BOOL> {
 		return list;
 	}
 
+	public static <BOOL> Relation<BOOL> constant(BoolAlgebra<BOOL> alg,
+			int size, int arity, BOOL value) {
+		int[] shape = Util.createShape(size, arity);
+		Tensor<BOOL> tensor = Tensor.constant(shape, value);
+		return new Relation<BOOL>(alg, tensor);
+	}
+
 	public static Relation<Boolean> full(int size, int arity) {
 		Tensor<Boolean> tensor = Tensor.constant(Util.createShape(size, arity),
 				Boolean.TRUE);

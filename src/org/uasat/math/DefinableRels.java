@@ -24,31 +24,30 @@ import org.uasat.core.*;
 import org.uasat.solvers.*;
 
 public class DefinableRels {
-	private final Structure<Boolean> structure;
+	private final int size;
 	private final int arity;
-	private final SatSolver<?> solver;
 	private final TreeSet<Relation<Boolean>> relations;
+	private final SatSolver<?> solver;
 
-	public DefinableRels(Structure<Boolean> structure, int arity) {
-		this(structure, arity, new Sat4J());
+	public DefinableRels(int size, int arity) {
+		this(size, arity, new Sat4J());
 	}
 
-	public DefinableRels(Structure<Boolean> structure, int arity,
-			SatSolver<?> solver) {
-		assert structure != null && arity >= 1 && solver != null;
+	public DefinableRels(int size, int arity, SatSolver<?> solver) {
+		assert size >= 1 && arity >= 1 && solver != null;
 
-		this.structure = structure;
+		this.size = size;
 		this.arity = arity;
-		this.solver = solver;
 		this.relations = new TreeSet<Relation<Boolean>>(Relation.COMPARATOR);
-	}
-
-	public Structure<Boolean> getStructure() {
-		return structure;
+		this.solver = solver;
 	}
 
 	public SatSolver<?> getSolver() {
 		return solver;
+	}
+
+	public int getSize() {
+		return size;
 	}
 
 	public int getArity() {
@@ -59,33 +58,34 @@ public class DefinableRels {
 		return relations;
 	}
 
-	public void addRelation(Relation<Boolean> rel) {
-		assert rel.getArity() == arity && rel.getSize() == structure.getSize();
+	public int getCount() {
+		return relations.size();
+	}
+
+	public void clear() {
+		relations.clear();
+	}
+
+	public void add(Relation<Boolean> rel) {
+		assert rel.getArity() == arity && rel.getSize() == size;
 		relations.add(rel);
 	}
 
 	public void addFull() {
-		relations.add(Relation.full(structure.getSize(), arity));
+		relations.add(Relation.full(size, arity));
 	}
 
-	public void addDiagonals() {
-		int size = structure.getSize();
-		for (int i = 0; i < size; i++) {
-			Relation<Boolean> s = Relation.singleton(size, i);
-			relations.add(s.diagonal(arity));
-		}
-	}
-
-	public void removeEmpty() {
-		relations.remove(Relation.empty(structure.getSize(), arity));
+	public void addSingletons() {
+		assert arity == 1;
+		for (int i = 0; i < size; i++)
+			relations.add(Relation.singleton(size, i));
 	}
 
 	public void addIntersections() {
-		int size = structure.getSize();
 		Tensor<Boolean> full = Relation.full(size, arity).getTensor();
 		Tensor<Boolean> empty = Relation.empty(size, arity).getTensor();
 
-		BoolProblem prob = new BoolProblem(full, empty, empty) {
+		BoolProblem problem = new BoolProblem(full, empty, empty) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -102,37 +102,153 @@ public class DefinableRels {
 			}
 		};
 
-		Tensor<Boolean> tensor = prob.solveAll(solver).get(0);
+		for (;;) {
+			Tensor<Boolean> tensor = problem.solveAll(solver).get(0);
+			if (tensor.getLastDim() == 0)
+				break;
 
-		int a = relations.size();
-		for (Tensor<Boolean> t : Tensor.unstack(tensor))
-			relations.add(Relation.wrap(t));
+			int a = relations.size();
+			for (Tensor<Boolean> t : Tensor.unstack(tensor))
+				relations.add(Relation.wrap(t));
 
-		assert a + tensor.getLastDim() == relations.size();
+			assert a + tensor.getLastDim() == relations.size();
+		}
 	}
 
-	public void addEdgeDefinables() {
-		int size = structure.getSize();
+	public void addInverses() {
+		assert arity == 2;
 
-		for (Relation<Boolean> rel : structure.getRelations()) {
-			for (int cord = 0; cord < rel.getArity(); cord++) {
-				Tensor<Boolean> full = Relation.full(size, arity).getTensor();
-				Tensor<Boolean> empty = Relation.empty(size, arity).getTensor();
+		List<Relation<Boolean>> rels = new ArrayList<Relation<Boolean>>(
+				relations);
+		for (Relation<Boolean> rel : rels)
+			relations.add(rel.rotate(1));
+	}
+
+	public void addEdgeDefinableSubalgs(final Relation<Boolean> relation) {
+		assert arity == 1;
+
+		for (;;) {
+			int s = relations.size();
+
+			for (int c = 0; c < relation.getArity(); c++) {
+				final int coord = c;
+				Tensor<Boolean> full = Relation.full(size, 1).getTensor();
+				Tensor<Boolean> empty = Relation.empty(size, 1).getTensor();
 
 				List<Tensor<Boolean>> sig = new ArrayList<Tensor<Boolean>>();
-				for (int i = 0; i < rel.getSize(); i++)
-					sig.add(i == cord ? full : empty);
+				for (int i = 0; i < relation.getArity(); i++)
+					sig.add(i == coord ? full : empty);
 
 				BoolProblem problem = new BoolProblem(sig) {
 					@Override
 					public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 							List<Tensor<BOOL>> tensors) {
-						// TODO Auto-generated method stub
-						return null;
-					}
+						Relation<BOOL> rel = Relation.lift(alg, relation);
 
+						List<Relation<BOOL>> proj = new ArrayList<Relation<BOOL>>();
+						for (Tensor<BOOL> t : tensors)
+							proj.add(new Relation<BOOL>(alg, t));
+
+						BOOL b = alg.TRUE;
+						for (int i = 0; i < relation.getArity(); i++) {
+							BOOL c = proj.get(i).isMemberOf(relations);
+							if (i == coord)
+								c = alg.not(c);
+							b = alg.and(b, c);
+						}
+
+						for (int i = 0; i < coord; i++)
+							rel = proj.get(i).compose(rel);
+						for (int i = relation.getArity() - 1; i > coord; i--)
+							rel = rel.compose(proj.get(i));
+
+						b = alg.and(b, rel.isEqualTo(proj.get(coord)));
+
+						return b;
+					}
 				};
+
+				Tensor<Boolean> tensor = problem.solveAll(solver).get(coord);
+
+				int a = relations.size();
+				for (Tensor<Boolean> t : Tensor.unstack(tensor))
+					relations.add(Relation.wrap(t));
+
+				assert a + tensor.getLastDim() == relations.size();
 			}
+
+			if (relations.size() == s)
+				break;
 		}
+	}
+
+	public void removeEmpty() {
+		relations.remove(Relation.empty(size, arity));
+	}
+
+	public List<Relation<Boolean>> getMeetIrreducibles() {
+		BoolProblem problem = new BoolProblem(Util.createShape(size, arity)) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
+
+				BOOL b = rel.isMemberOf(relations);
+
+				Relation<BOOL> m = Relation
+						.constant(alg, size, arity, alg.TRUE);
+				for (Relation<Boolean> r1 : relations) {
+					Relation<BOOL> r2 = Relation.lift(alg, r1);
+
+					BOOL c = rel.isSubsetOf(r2);
+					c = alg.not(r2.isSubsetOf(rel));
+					Relation<BOOL> r3 = Relation.constant(alg, size, arity, c);
+				}
+
+				return null;
+			}
+		};
+
+		Tensor<Boolean> tensor = problem.solveAll(solver).get(0);
+
+		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
+		for (Tensor<Boolean> t : Tensor.unstack(tensor))
+			list.add(Relation.wrap(t));
+
+		return list;
+	}
+
+	public static List<Relation<Boolean>> findTreeDefinableSubalgs(
+			Structure<Boolean> structure) {
+		DefinableRels def = new DefinableRels(structure.getSize(), 1);
+
+		def.addSingletons();
+		def.addFull();
+		for (;;) {
+			int c = def.getCount();
+
+			def.addIntersections();
+			for (Relation<Boolean> rel : structure.getRelations())
+				def.addEdgeDefinableSubalgs(rel);
+
+			if (c == def.getCount())
+				break;
+		}
+		def.removeEmpty();
+
+		return new ArrayList<Relation<Boolean>>(def.getRelations());
+	}
+
+	public static List<Relation<Boolean>> printTreeDefinableSubalgs(
+			Structure<Boolean> structure) {
+		List<Relation<Boolean>> list = findTreeDefinableSubalgs(structure);
+
+		System.out.println("tree definable subalgs: " + list.size());
+		for (int i = 0; i < list.size(); i++)
+			System.out.println(Util.formatIndex(i) + ": "
+					+ Relation.formatMembers(list.get(i)));
+		System.out.println();
+
+		return list;
 	}
 }

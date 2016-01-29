@@ -639,10 +639,9 @@ public class DigraphPoly {
 		ops.printSpecialOps();
 
 		// System.out.println(isSpecial(ops.getSolver(), str));
-		DigraphPoly poly = new DigraphPoly(str.getRelation(0));
-		List<Relation<Boolean>> subs = poly.printDefinableSubalgs("singletons treedef nonempty", true);
-		System.out.println();
-		
+		List<Relation<Boolean>> subs = DefinableRels
+				.printTreeDefinableSubalgs(str);
+
 		Relation<Boolean> pow = str.getRelation(0).makeComplexRelation(subs);
 		Relation.print(pow);
 	}
