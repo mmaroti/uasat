@@ -124,6 +124,42 @@ public class DefinableRels {
 			relations.add(rel.rotate(1));
 	}
 
+	public void addCompositions() {
+		assert arity == 2;
+
+		Tensor<Boolean> full = Relation.full(size, arity).getTensor();
+		Tensor<Boolean> empty = Relation.empty(size, arity).getTensor();
+
+		BoolProblem problem = new BoolProblem(full, empty, empty) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> s0 = new Relation<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> s1 = new Relation<BOOL>(alg, tensors.get(1));
+				Relation<BOOL> s2 = new Relation<BOOL>(alg, tensors.get(2));
+
+				BOOL b = alg.not(s0.isMemberOf(relations));
+				b = alg.and(b, s1.isMemberOf(relations));
+				b = alg.and(b, s2.isMemberOf(relations));
+				b = alg.and(b, s0.isEqualTo(s1.compose(s2)));
+
+				return b;
+			}
+		};
+
+		for (;;) {
+			Tensor<Boolean> tensor = problem.solveAll(solver).get(0);
+			if (tensor.getLastDim() == 0)
+				break;
+
+			int a = relations.size();
+			for (Tensor<Boolean> t : Tensor.unstack(tensor))
+				relations.add(Relation.wrap(t));
+
+			assert a + tensor.getLastDim() == relations.size();
+		}
+	}
+
 	public void addEdgeDefinableSubalgs(final Relation<Boolean> relation) {
 		assert arity == 1;
 
