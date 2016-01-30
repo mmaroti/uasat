@@ -639,10 +639,12 @@ public class DigraphPoly {
 		ops.printSpecialOps();
 
 		// System.out.println(isSpecial(ops.getSolver(), str));
-		List<Relation<Boolean>> subs = DefinableRels
-				.printTreeDefinableSubalgs(str);
+		DefinableRels def = new DefinableRels(str.getSize(), 1);
+		def.addTreeDefinableSubalgs(str);
+		// def.keepMeetIrreducibles();
+		def.printRelations("tree definable subalgs");
 
-		Relation<Boolean> pow = str.getRelation(0).makeComplexRelation(subs);
+		Relation<Boolean> pow = str.getRelation(0).makeComplexRelation(def.getRelations());
 		Relation.print(pow);
 	}
 

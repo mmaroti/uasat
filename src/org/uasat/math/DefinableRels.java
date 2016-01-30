@@ -54,8 +54,8 @@ public class DefinableRels {
 		return arity;
 	}
 
-	public Set<Relation<Boolean>> getRelations() {
-		return relations;
+	public List<Relation<Boolean>> getRelations() {
+		return new ArrayList<Relation<Boolean>>(relations);
 	}
 
 	public int getCount() {
@@ -182,73 +182,60 @@ public class DefinableRels {
 		}
 	}
 
-	public void removeEmpty() {
+	public void keepNonEmpty() {
 		relations.remove(Relation.empty(size, arity));
 	}
 
-	public List<Relation<Boolean>> getMeetIrreducibles() {
-		BoolProblem problem = new BoolProblem(Util.createShape(size, arity)) {
-			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
-				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
+	public void keepMeetIrreducibles() {
+		List<Relation<Boolean>> rels = new ArrayList<Relation<Boolean>>(
+				relations);
+		relations.clear();
 
-				BOOL b = rel.isMemberOf(relations);
+		while (!rels.isEmpty()) {
+			Relation<Boolean> rel = rels.remove(rels.size() - 1);
 
-				Relation<BOOL> m = Relation
-						.constant(alg, size, arity, alg.TRUE);
-				for (Relation<Boolean> r1 : relations) {
-					Relation<BOOL> r2 = Relation.lift(alg, r1);
-
-					BOOL c = rel.isSubsetOf(r2);
-					c = alg.not(r2.isSubsetOf(rel));
-					Relation<BOOL> r3 = Relation.constant(alg, size, arity, c);
-				}
-
-				return null;
+			Relation<Boolean> m = Relation.full(size, arity);
+			for (Relation<Boolean> r : rels) {
+				if (rel.isSubsetOf(r))
+					m = m.intersect(r);
 			}
-		};
 
-		Tensor<Boolean> tensor = problem.solveAll(solver).get(0);
+			for (Relation<Boolean> r : relations) {
+				if (rel.isSubsetOf(r))
+					m = m.intersect(r);
+			}
 
-		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
-		for (Tensor<Boolean> t : Tensor.unstack(tensor))
-			list.add(Relation.wrap(t));
-
-		return list;
+			if (!m.isEqualTo(rel))
+				relations.add(rel);
+		}
 	}
 
-	public static List<Relation<Boolean>> findTreeDefinableSubalgs(
-			Structure<Boolean> structure) {
-		DefinableRels def = new DefinableRels(structure.getSize(), 1);
+	public void addTreeDefinableSubalgs(Structure<Boolean> structure) {
+		assert arity == 1;
 
-		def.addSingletons();
-		def.addFull();
+		addSingletons();
+		addFull();
 		for (;;) {
-			int c = def.getCount();
+			int c = getCount();
 
-			def.addIntersections();
+			addIntersections();
 			for (Relation<Boolean> rel : structure.getRelations())
-				def.addEdgeDefinableSubalgs(rel);
+				addEdgeDefinableSubalgs(rel);
 
-			if (c == def.getCount())
+			if (c == getCount())
 				break;
 		}
-		def.removeEmpty();
-
-		return new ArrayList<Relation<Boolean>>(def.getRelations());
+		keepNonEmpty();
 	}
 
-	public static List<Relation<Boolean>> printTreeDefinableSubalgs(
-			Structure<Boolean> structure) {
-		List<Relation<Boolean>> list = findTreeDefinableSubalgs(structure);
+	public void printRelations(String msg) {
+		System.out.println(msg + ": " + relations.size());
 
-		System.out.println("tree definable subalgs: " + list.size());
-		for (int i = 0; i < list.size(); i++)
-			System.out.println(Util.formatIndex(i) + ": "
-					+ Relation.formatMembers(list.get(i)));
+		int i = 0;
+		for (Relation<Boolean> rel : relations)
+			System.out.println(Util.formatIndex(i++) + ": "
+					+ Relation.formatMembers(rel));
+
 		System.out.println();
-
-		return list;
 	}
 }
