@@ -20,10 +20,9 @@ package org.uasat.research;
 
 import java.util.*;
 import org.uasat.core.*;
-import org.uasat.solvers.*;
 
 public class FanoPlane2 {
-	public static class Planes extends BoolProblem {
+	public static class Planes extends SatProblem {
 		public Tensor<Boolean> pts;
 
 		public Planes() {
@@ -69,6 +68,7 @@ public class FanoPlane2 {
 
 	public static void main(String[] args) {
 		Planes p = new Planes();
-		System.out.println(p.solveAll(new Sat4J()).size());
+		SatSolver<?> solver = SatSolver.getDefault();
+		System.out.println(p.solveAll(solver).size());
 	}
 }

@@ -38,7 +38,7 @@ public class Validation {
 	}
 
 	void checkEquivalences() {
-		BoolProblem problem = new BoolProblem(new int[] { 7, 7 }) {
+		SatProblem problem = new SatProblem(new int[] { 7, 7 }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -53,7 +53,7 @@ public class Validation {
 	}
 
 	void checkPartialOrders() {
-		BoolProblem problem = new BoolProblem(new int[] { 5, 5 }) {
+		SatProblem problem = new SatProblem(new int[] { 5, 5 }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -72,7 +72,7 @@ public class Validation {
 		PartialOrder<Boolean> c3 = PartialOrder.chain(3);
 		final PartialOrder<Boolean> ord = c3.product(c2).product(c2);
 
-		BoolProblem problem = new BoolProblem(new int[] { ord.getSize(),
+		SatProblem problem = new SatProblem(new int[] { ord.getSize(),
 				ord.getSize() }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
@@ -88,7 +88,7 @@ public class Validation {
 	}
 
 	void checkAlternations() {
-		BoolProblem problem = new BoolProblem(new int[] { 7, 7 }) {
+		SatProblem problem = new SatProblem(new int[] { 7, 7 }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -106,7 +106,7 @@ public class Validation {
 	void checkAntiChains() {
 		final PartialOrder<Boolean> ord = PartialOrder.powerset(4);
 
-		BoolProblem problem = new BoolProblem(new int[] { ord.getSize() }) {
+		SatProblem problem = new SatProblem(new int[] { ord.getSize() }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -123,7 +123,7 @@ public class Validation {
 	void checkNonIsomorphicDigraphs() {
 		final List<Permutation<Boolean>> perms = Permutation.symmetricGroup(4);
 
-		BoolProblem problem = new BoolProblem(new int[] { 4, 4 }) {
+		SatProblem problem = new SatProblem(new int[] { 4, 4 }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -145,7 +145,7 @@ public class Validation {
 	void checkNonIsomorphicGroupoids() {
 		final List<Permutation<Boolean>> perms = Permutation.symmetricGroup(3);
 
-		BoolProblem problem = new BoolProblem(new int[] { 3, 3, 3 }) {
+		SatProblem problem = new SatProblem(new int[] { 3, 3, 3 }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -168,7 +168,7 @@ public class Validation {
 		final Relation<Boolean> cycle = Relation.parseMembers(3, 2, "01 12 20")
 				.symmetricClosure();
 
-		BoolProblem problem = new BoolProblem(Tensor.constant(
+		SatProblem problem = new SatProblem(Tensor.constant(
 				new int[] { 5, 5 }, Boolean.TRUE), Tensor.constant(new int[] {
 				3, 5 }, Boolean.FALSE)) {
 			@Override
@@ -193,7 +193,7 @@ public class Validation {
 	}
 
 	void checkPartialInjections() {
-		BoolProblem problem = new BoolProblem(new int[] { 5, 5 }) {
+		SatProblem problem = new SatProblem(new int[] { 5, 5 }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -207,7 +207,7 @@ public class Validation {
 	}
 
 	void checkCommutativeSemigroups() {
-		BoolProblem problem = new BoolProblem(new int[] { 4, 4, 4 }) {
+		SatProblem problem = new SatProblem(new int[] { 4, 4, 4 }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -224,7 +224,7 @@ public class Validation {
 	}
 
 	void checkLatinSquares() {
-		BoolProblem problem = new BoolProblem(new int[] { 4, 4, 4 }) {
+		SatProblem problem = new SatProblem(new int[] { 4, 4, 4 }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -244,7 +244,7 @@ public class Validation {
 	void checkFiniteGroups() {
 		final List<Permutation<Boolean>> perms = Permutation.symmetricGroup(4);
 
-		BoolProblem problem = new BoolProblem(new int[] { 4, 4, 4 }) {
+		SatProblem problem = new SatProblem(new int[] { 4, 4, 4 }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {

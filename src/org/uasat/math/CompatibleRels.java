@@ -21,7 +21,6 @@ package org.uasat.math;
 import java.util.*;
 
 import org.uasat.core.*;
-import org.uasat.solvers.*;
 
 public class CompatibleRels {
 	private final Algebra<Boolean> algebra;
@@ -31,7 +30,7 @@ public class CompatibleRels {
 		assert algebra != null;
 
 		this.algebra = algebra;
-		solver = new Sat4J();
+		solver = SatSolver.getDefault();
 	}
 
 	public CompatibleRels(Algebra<Boolean> algebra, SatSolver<?> solver) {
@@ -50,7 +49,7 @@ public class CompatibleRels {
 	}
 
 	public List<Relation<Boolean>> findAllRels(int arity) {
-		BoolProblem problem = new BoolProblem(Util.createShape(
+		SatProblem problem = new SatProblem(Util.createShape(
 				algebra.getSize(), arity)) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
@@ -95,7 +94,7 @@ public class CompatibleRels {
 		assert below == null || below.getSize() == algebra.getSize();
 		assert below == null || below.getArity() == arity;
 
-		BoolProblem problem = new BoolProblem(Util.createShape(
+		SatProblem problem = new SatProblem(Util.createShape(
 				algebra.getSize(), arity)) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
@@ -204,7 +203,7 @@ public class CompatibleRels {
 		final List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
 
 		int[] shape = Util.createShape(algebra.getSize(), arity);
-		BoolProblem problem = new BoolProblem(shape, shape) {
+		SatProblem problem = new SatProblem(shape, shape) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {

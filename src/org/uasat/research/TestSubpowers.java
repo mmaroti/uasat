@@ -23,7 +23,6 @@ import java.util.*;
 
 import org.uasat.core.*;
 import org.uasat.math.*;
-import org.uasat.solvers.*;
 
 public class TestSubpowers {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
@@ -64,9 +63,9 @@ public class TestSubpowers {
 
 		System.out.println(Relation.formatMembers(res));
 
-		BoolProblem prob = new BoolProblem(
-				new int[] { size, size, size, size }, new int[] { size, size,
-						size, size }, Util.createShape(size, arity)) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size, size },
+				new int[] { size, size, size, size }, Util.createShape(size,
+						arity)) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -88,7 +87,7 @@ public class TestSubpowers {
 			}
 		};
 
-		List<Tensor<Boolean>> tensors = prob.solveOne(new Sat4J());
+		List<Tensor<Boolean>> tensors = prob.solveOne(SatSolver.getDefault());
 		if (tensors == null) {
 			System.out.println("no solution");
 			return;

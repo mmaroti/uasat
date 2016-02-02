@@ -21,7 +21,6 @@ package org.uasat.math;
 import java.util.*;
 
 import org.uasat.core.*;
-import org.uasat.solvers.*;
 
 public class DefinableRels {
 	private final int size;
@@ -30,7 +29,7 @@ public class DefinableRels {
 	private final SatSolver<?> solver;
 
 	public DefinableRels(int size, int arity) {
-		this(size, arity, new Sat4J());
+		this(size, arity, SatSolver.getDefault());
 	}
 
 	public DefinableRels(int size, int arity, SatSolver<?> solver) {
@@ -85,7 +84,7 @@ public class DefinableRels {
 		Tensor<Boolean> full = Relation.full(size, arity).getTensor();
 		Tensor<Boolean> empty = Relation.empty(size, arity).getTensor();
 
-		BoolProblem problem = new BoolProblem(full, empty, empty) {
+		SatProblem problem = new SatProblem(full, empty, empty) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -130,7 +129,7 @@ public class DefinableRels {
 		Tensor<Boolean> full = Relation.full(size, arity).getTensor();
 		Tensor<Boolean> empty = Relation.empty(size, arity).getTensor();
 
-		BoolProblem problem = new BoolProblem(full, empty, empty) {
+		SatProblem problem = new SatProblem(full, empty, empty) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -175,7 +174,7 @@ public class DefinableRels {
 				for (int i = 0; i < relation.getArity(); i++)
 					sig.add(i == coord ? full : empty);
 
-				BoolProblem problem = new BoolProblem(sig) {
+				SatProblem problem = new SatProblem(sig) {
 					@Override
 					public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 							List<Tensor<BOOL>> tensors) {
