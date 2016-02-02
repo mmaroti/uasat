@@ -232,8 +232,29 @@ public final class Relation<BOOL> {
 		return new Relation<BOOL>(alg, tmp);
 	}
 
+	public Relation<BOOL> permute(int... coords) {
+		assert coords.length <= getArity();
+
+		int[] map = new int[getArity()];
+		Arrays.fill(map, -1);
+
+		for (int i = 0; i < coords.length; i++) {
+			assert map[coords[i]] < 0;
+			map[coords[i]] = i;
+		}
+
+		int a = coords.length;
+		for (int i = 0; i < map.length; i++)
+			if (map[i] < 0)
+				map[i] = a++;
+		assert a == map.length;
+
+		Tensor<BOOL> tmp = Tensor.reshape(tensor, tensor.getShape(), map);
+		return new Relation<BOOL>(alg, tmp);
+	}
+
 	public Relation<BOOL> project(int... coords) {
-		assert 0 <= coords.length && coords.length <= getArity();
+		assert coords.length <= getArity();
 
 		boolean[] kept = new boolean[getArity()];
 		for (int i = 0; i < coords.length; i++) {
@@ -606,7 +627,7 @@ public final class Relation<BOOL> {
 		return b;
 	}
 
-	public BOOL isMemberOf(Collection<Relation<Boolean>> coll) {
+	public BOOL isMemberOf(Iterable<Relation<Boolean>> coll) {
 		BOOL b = alg.FALSE;
 		for (Relation<Boolean> rel : coll)
 			b = alg.or(b, isEqualTo(Relation.lift(alg, rel)));

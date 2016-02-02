@@ -626,26 +626,27 @@ public class DigraphPoly {
 		Structure<Boolean> str = Structure.wrap(c4.plus(a1).asRelation());
 		Structure.print(str);
 
-		// List<Relation<Boolean>> subsets = Relation.subsets(str.getSize(), 1,
-		// 2);
-		// Structure<Boolean> str2 = str.makeComplexStructure(subsets);
-		// Structure.print(str2);
-
 		CompatibleOps ops = new CompatibleOps(str);
 		ops.printUnaryOps();
 		ops.printBinaryOps();
 		ops.printTernaryOps();
 		ops.printSpecialOps();
 
-		// System.out.println(isSpecial(ops.getSolver(), str));
 		DefinableRels def = new DefinableRels(str.getSize(), 1);
-		def.addTreeDefinableSubalgs(str);
+		def.addTreeDefUnary(str);
 		// def.keepMeetIrreducibles();
-		def.printRelations("tree definable subalgs");
+		def.printRelations("tree definable unary");
 
 		Relation<Boolean> pow = str.getRelation(0).makeComplexRelation(
 				def.getRelations());
 		Relation.print(pow);
+		System.out.println();
+
+		DefinableRels path2 = new DefinableRels(str.getSize(), 2);
+		path2.addPathDefBinary(def.getRelations(), str);
+		System.out.println(path2.getCount());
+		path2.addIntersections();
+		System.out.println(path2.getCount());
 	}
 
 	@SuppressWarnings("unused")
