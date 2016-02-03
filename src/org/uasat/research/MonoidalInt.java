@@ -1033,10 +1033,11 @@ public class MonoidalInt {
 	public static void main(String[] args) {
 		// for (String monoid : TWO_MONOIDS)
 		// printStatistics(3, "000 002 010 012 111 222");
-		String monoid512 = "000 002 012 111 222";
-		String monoid618 = "000 002 010 012 111 222";
-		String monoid719 = "000 002 012 102 111 112 222";
-		String monoid = monoid719;
+		String monoid512 = "000 002 012 111 222";	// finite
+		String monoid616 = "000 001 012 111 112 222";	// infinite
+		String monoid618 = "000 002 010 012 111 222";	// possibly finite
+		String monoid719 = "000 002 012 102 111 112 222";	// possibly countable
+		String monoid = monoid616;
 
 		System.out.println("monid: " + monoid);
 		Tensor<Boolean> mon = decodeMonoid(3, monoid);
