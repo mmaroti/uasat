@@ -179,8 +179,7 @@ public final class Permutation<BOOL> {
 	}
 
 	public BOOL isOdd() {
-		Relation<BOOL> tmp1 = Relation.lift(alg,
-				Relation.lessThan(getSize()));
+		Relation<BOOL> tmp1 = Relation.lift(alg, Relation.lessThan(getSize()));
 		tmp1 = tmp1.compose(asRelation());
 
 		Relation<BOOL> tmp2 = Relation.lift(alg,
@@ -192,5 +191,21 @@ public final class Permutation<BOOL> {
 
 	public BOOL isEven() {
 		return alg.not(isOdd());
+	}
+
+	public static int[] decode(Permutation<Boolean> perm) {
+		assert perm.isPermutation();
+
+		int[] map = new int[perm.getSize()];
+		outer: for (int i = 0; i < map.length; i++) {
+			for (int j = 0; j < map.length; j++)
+				if (perm.tensor.getElem(j, i)) {
+					map[i] = j;
+					continue outer;
+				}
+			throw new IllegalStateException("this cannot happen");
+		}
+
+		return map;
 	}
 }

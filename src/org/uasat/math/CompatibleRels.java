@@ -49,8 +49,8 @@ public class CompatibleRels {
 	}
 
 	public List<Relation<Boolean>> findAllRels(int arity) {
-		SatProblem problem = new SatProblem(Util.createShape(
-				algebra.getSize(), arity)) {
+		SatProblem problem = new SatProblem(Util.createShape(algebra.getSize(),
+				arity)) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -94,8 +94,8 @@ public class CompatibleRels {
 		assert below == null || below.getSize() == algebra.getSize();
 		assert below == null || below.getArity() == arity;
 
-		SatProblem problem = new SatProblem(Util.createShape(
-				algebra.getSize(), arity)) {
+		SatProblem problem = new SatProblem(Util.createShape(algebra.getSize(),
+				arity)) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -256,13 +256,33 @@ public class CompatibleRels {
 
 	public List<Relation<Boolean>> findCriticalRels(int arity) {
 		List<Relation<Boolean>> list = findMeetIrredRels(arity);
-		List<Relation<Boolean>> crit = new ArrayList<Relation<Boolean>>();
 
-		for (Relation<Boolean> r : list)
-			if (r.hasEssentialCoords())
-				crit.add(r);
+		ListIterator<Relation<Boolean>> iter = list.listIterator();
+		while (iter.hasNext()) {
+			Relation<Boolean> r = iter.next();
+			if (!r.hasEssentialCoords())
+				iter.remove();
+		}
 
-		return crit;
+		return list;
+	}
+
+	public List<Relation<Boolean>> findUniqueCriticalRels(int arity) {
+		List<Relation<Boolean>> list = findCriticalRels(arity);
+		List<Permutation<Boolean>> perms = Permutation.symmetricGroup(arity);
+
+		ListIterator<Relation<Boolean>> iter = list.listIterator();
+		outer: while (iter.hasNext()) {
+			Relation<Boolean> r = iter.next();
+			for (Permutation<Boolean> p : perms) {
+				if (r.permute(p).isLexLess(r)) {
+					iter.remove();
+					continue outer;
+				}
+			}
+		}
+
+		return list;
 	}
 
 	private static void printRels(String what, int arity,
@@ -292,5 +312,19 @@ public class CompatibleRels {
 
 	public void printCriticalRels(int arity) {
 		printRels("critical", arity, findCriticalRels(arity));
+	}
+
+	public void printCriticalRelsUni(int arity) {
+		printRels("critical unique", arity, findUniqueCriticalRels(arity));
+	}
+
+	public void printCriticalRelsUniCom(int arity) {
+		List<Relation<Boolean>> list = findUniqueCriticalRels(arity);
+
+		ListIterator<Relation<Boolean>> iter = list.listIterator();
+		while (iter.hasNext())
+			iter.set(iter.next().complement());
+
+		printRels("critical unique complement", arity, list);
 	}
 }

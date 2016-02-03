@@ -253,6 +253,11 @@ public final class Relation<BOOL> {
 		return new Relation<BOOL>(alg, tmp);
 	}
 
+	public Relation<BOOL> permute(Permutation<Boolean> perm) {
+		assert getArity() == perm.getSize();
+		return permute(Permutation.decode(perm));
+	}
+
 	public Relation<BOOL> project(int... coords) {
 		assert coords.length <= getArity();
 

@@ -1029,22 +1029,30 @@ public class MonoidalInt {
 		System.out.println("clones (op 2 rel 2): " + closed.getDim(1));
 	}
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		// for (String monoid : TWO_MONOIDS)
 		// printStatistics(3, "000 002 010 012 111 222");
-		Tensor<Boolean> monoid = decodeMonoid(3, "000 002 012 111 222");
+		String monoid512 = "000 002 012 111 222";
+		String monoid618 = "000 002 010 012 111 222";
+		String monoid719 = "000 002 012 102 111 112 222";
+		String monoid = monoid719;
+
+		System.out.println("monid: " + monoid);
+		Tensor<Boolean> mon = decodeMonoid(3, monoid);
 		List<Operation<Boolean>> ops = new ArrayList<Operation<Boolean>>();
-		for (Tensor<Boolean> op : Tensor.unstack(monoid))
+		for (Tensor<Boolean> op : Tensor.unstack(mon))
 			ops.add(Operation.wrap(op));
 		Algebra<Boolean> alg = Algebra.wrap(ops);
 		// Algebra.print(alg);
-		
+
 		CompatibleRels rels = new CompatibleRels(alg);
-		rels.printCriticalRels(1);
-		rels.printCriticalRels(2);
-		rels.printCriticalRels(3);
-		rels.printCriticalRels(4);
-		rels.printCriticalRels(5);
+		rels.printCriticalRelsUniCom(1);
+		rels.printCriticalRelsUniCom(2);
+		rels.printCriticalRelsUniCom(3);
+		rels.printCriticalRelsUniCom(4);
+		rels.printCriticalRelsUniCom(5);
+		rels.printCriticalRelsUniCom(6);
 	}
 
 	public static void main2(String[] args) {
