@@ -803,15 +803,14 @@ public class MonoidalInt {
 			"000 001 011 012 111 112", "000 001 011 012 111 222",
 			"000 001 012 102 110 111", "000 001 012 110 111 222",
 			"000 001 012 111 112 222", "000 002 010 012 101 111",
-			"000 002 010 012 111 222", "000 001 002 010 011 012 111",
-			"000 001 002 010 012 110 111", "000 001 002 010 012 111 222",
-			"000 001 002 011 012 110 111", "000 001 002 011 012 111 112",
-			"000 001 002 011 012 111 222", "000 001 002 012 110 111 112",
-			"000 001 002 012 110 111 222", "000 001 002 012 111 112 222",
-			"000 001 010 011 012 110 111", "000 001 010 011 012 111 222",
-			"000 001 010 012 101 110 111", "000 001 010 012 110 111 222",
-			"000 001 011 012 111 112 222", "000 001 012 102 110 111 222",
-			"000 001 002 010 011 012 110 111",
+			"000 001 002 010 011 012 111", "000 001 002 010 012 110 111",
+			"000 001 002 010 012 111 222", "000 001 002 011 012 110 111",
+			"000 001 002 011 012 111 112", "000 001 002 011 012 111 222",
+			"000 001 002 012 110 111 112", "000 001 002 012 110 111 222",
+			"000 001 002 012 111 112 222", "000 001 010 011 012 110 111",
+			"000 001 010 011 012 111 222", "000 001 010 012 101 110 111",
+			"000 001 010 012 110 111 222", "000 001 011 012 111 112 222",
+			"000 001 012 102 110 111 222", "000 001 002 010 011 012 110 111",
 			"000 001 002 010 011 012 111 222",
 			"000 001 002 010 012 101 110 111",
 			"000 001 002 010 012 110 111 112",
@@ -878,7 +877,8 @@ public class MonoidalInt {
 			"000 002 012 111 112", "000 002 012 220 222",
 			"000 011 012 021 022", "002 012 022 200 220",
 			"002 012 112 220 221", "000 001 002 010 012 020",
-			"000 002 010 012 101 111", "000 002 010 012 111 222",
+			"000 002 010 012 101 111",
+			"000 002 010 012 111 222" /* countable? */,
 			"000 002 012 022 111 222", "000 002 012 102 111 112",
 			"000 002 012 111 112 222", "000 002 012 111 220 222",
 			"002 012 022 200 210 220", "002 012 102 112 220 221",
@@ -1031,10 +1031,20 @@ public class MonoidalInt {
 
 	public static void main(String[] args) {
 		// for (String monoid : TWO_MONOIDS)
-		// printStatistics(2, monoid);
-		// printStatistics(3, "000 002 012 102 111 112 222");
-		// printStatistics(3, "000 002 012 111 112 222");
-		printStatistics(2, "01");
+		// printStatistics(3, "000 002 010 012 111 222");
+		Tensor<Boolean> monoid = decodeMonoid(3, "000 002 012 111 222");
+		List<Operation<Boolean>> ops = new ArrayList<Operation<Boolean>>();
+		for (Tensor<Boolean> op : Tensor.unstack(monoid))
+			ops.add(Operation.wrap(op));
+		Algebra<Boolean> alg = Algebra.wrap(ops);
+		// Algebra.print(alg);
+		
+		CompatibleRels rels = new CompatibleRels(alg);
+		rels.printCriticalRels(1);
+		rels.printCriticalRels(2);
+		rels.printCriticalRels(3);
+		rels.printCriticalRels(4);
+		rels.printCriticalRels(5);
 	}
 
 	public static void main2(String[] args) {
@@ -1051,7 +1061,7 @@ public class MonoidalInt {
 			printStatistics(3, monoid);
 	}
 
-	public static final int LIMIT = 700;
-	public static final int GALOIS_LIMIT = 100 * LIMIT;
+	public static final int LIMIT = 10000;
+	public static final int GALOIS_LIMIT = 10 * LIMIT;
 	public static final int PRINT_LIMIT = 100;
 }

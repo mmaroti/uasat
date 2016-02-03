@@ -22,11 +22,10 @@ import java.text.*;
 import java.util.*;
 
 import org.uasat.core.*;
-import org.uasat.solvers.*;
 
 public class Validation {
 	boolean failed = false;
-	SatSolver<?> solver = new Sat4J();
+	SatSolver<?> solver = SatSolver.getDefault();
 
 	void verify(String msg, int count, int expected) {
 		System.out.println(msg + " is " + count + ".");

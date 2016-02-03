@@ -623,7 +623,7 @@ public class DigraphPoly {
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
 		PartialOrder<Boolean> c6 = PartialOrder.crown(6);
 
-		Structure<Boolean> str = Structure.wrap(c4.plus(a1).asRelation());
+		Structure<Boolean> str = Structure.wrap(a2.plus(a2).plus(a2).asRelation());
 		Structure.print(str);
 
 		CompatibleOps ops = new CompatibleOps(str);

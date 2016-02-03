@@ -120,6 +120,11 @@ public final class Algebra<BOOL> {
 		return new Algebra<Boolean>(BoolAlgebra.INSTANCE, ops);
 	}
 
+	public static Algebra<Boolean> wrap(List<Operation<Boolean>> ops) {
+		assert ops.size() >= 1;
+		return new Algebra<Boolean>(BoolAlgebra.INSTANCE, ops.get(0).getSize(), ops);
+	}
+
 	public static void print(Algebra<Boolean> ua) {
 		List<Operation<Boolean>> ops = ua.getOperations();
 		System.out.println("algebra of size " + ua.getSize() + " with "
