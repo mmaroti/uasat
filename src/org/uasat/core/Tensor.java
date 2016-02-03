@@ -262,6 +262,10 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		});
 	}
 
+	/**
+	 * Reshapes the tensor to the given new shape, so that the old coordinates
+	 * are mapped to the new one using the map vector.
+	 */
 	public static <ELEM> Tensor<ELEM> reshape(Tensor<ELEM> arg, int[] shape,
 			int[] map) {
 		assert arg.getOrder() == map.length;

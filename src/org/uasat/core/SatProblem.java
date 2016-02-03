@@ -20,46 +20,32 @@ package org.uasat.core;
 
 import java.util.*;
 
-import org.uasat.solvers.*;
-
-public abstract class BoolProblem {
+public abstract class SatProblem {
 	protected final List<Tensor<Boolean>> masks;
 	public boolean verbose = true;
 
-	public BoolProblem(List<Tensor<Boolean>> masks) {
+	public SatProblem(List<Tensor<Boolean>> masks) {
 		this.masks = masks;
 	}
 
-	public BoolProblem(int[] shape) {
+	public SatProblem(int[]... shapes) {
 		masks = new ArrayList<Tensor<Boolean>>();
-		masks.add(Tensor.constant(shape, Boolean.TRUE));
+		for (int[] s : shapes)
+			masks.add(Tensor.constant(s, Boolean.TRUE));
 	}
 
-	public BoolProblem(int[] shape1, int[] shape2) {
-		masks = new ArrayList<Tensor<Boolean>>();
-		masks.add(Tensor.constant(shape1, Boolean.TRUE));
-		masks.add(Tensor.constant(shape2, Boolean.TRUE));
-	}
-
-	public BoolProblem(int[] shape1, int[] shape2, int[] shape3) {
-		masks = new ArrayList<Tensor<Boolean>>();
-		masks.add(Tensor.constant(shape1, Boolean.TRUE));
-		masks.add(Tensor.constant(shape2, Boolean.TRUE));
-		masks.add(Tensor.constant(shape3, Boolean.TRUE));
-	}
-
-	public BoolProblem(Tensor<Boolean> mask) {
+	public SatProblem(Tensor<Boolean> mask) {
 		masks = new ArrayList<Tensor<Boolean>>();
 		masks.add(mask);
 	}
 
-	public BoolProblem(Tensor<Boolean> mask1, Tensor<Boolean> mask2) {
+	public SatProblem(Tensor<Boolean> mask1, Tensor<Boolean> mask2) {
 		masks = new ArrayList<Tensor<Boolean>>();
 		masks.add(mask1);
 		masks.add(mask2);
 	}
 
-	public BoolProblem(Tensor<Boolean> mask1, Tensor<Boolean> mask2,
+	public SatProblem(Tensor<Boolean> mask1, Tensor<Boolean> mask2,
 			Tensor<Boolean> mask3) {
 		masks = new ArrayList<Tensor<Boolean>>();
 		masks.add(mask1);

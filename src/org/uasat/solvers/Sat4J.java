@@ -23,6 +23,7 @@ import java.util.*;
 import org.sat4j.core.*;
 import org.sat4j.minisat.*;
 import org.sat4j.specs.*;
+import org.uasat.core.*;
 
 public class Sat4J extends SatSolver<Integer> {
 	protected int variables;

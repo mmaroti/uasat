@@ -16,14 +16,18 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
-package org.uasat.solvers;
+package org.uasat.core;
 
 import java.text.*;
 import java.util.*;
 
-import org.uasat.core.*;
+import org.uasat.solvers.*;
 
 public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
+	public static SatSolver<?> getDefault() {
+		return new Sat4J();
+	}
+
 	public boolean debugging = false;
 	public int totalLiterals = 0;
 	public int totalClauses = 0;
@@ -168,29 +172,5 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 		clause(Arrays.asList(not(a), b, var));
 		clause(Arrays.asList(not(a), not(b), not(var)));
 		return var;
-	}
-
-	public static void main(String[] args) {
-		SatSolver<Integer> solver = new Sat4J();
-		Integer a = solver.variable();
-		Integer b = solver.variable();
-		solver.clause(Arrays.asList(solver.or(a, b)));
-		if (solver.solve())
-			System.out.println(solver.decode(a) + " " + solver.decode(b));
-		solver.clause(Arrays.asList(
-				solver.add(a, solver.lift(solver.decode(a))),
-				solver.add(b, solver.lift(solver.decode(b)))));
-		if (solver.solve())
-			System.out.println(solver.decode(a) + " " + solver.decode(b));
-		solver.clause(Arrays.asList(
-				solver.add(a, solver.lift(solver.decode(a))),
-				solver.add(b, solver.lift(solver.decode(b)))));
-		if (solver.solve())
-			System.out.println(solver.decode(a) + " " + solver.decode(b));
-		solver.clause(Arrays.asList(
-				solver.add(a, solver.lift(solver.decode(a))),
-				solver.add(b, solver.lift(solver.decode(b)))));
-		if (solver.solve())
-			System.out.println(solver.decode(a) + " " + solver.decode(b));
 	}
 }

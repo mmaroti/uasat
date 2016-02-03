@@ -21,6 +21,8 @@ package org.uasat.solvers;
 import java.io.*;
 import java.util.*;
 
+import org.uasat.core.*;
+
 public class MiniSat extends SatSolver<Integer> {
 	protected int variables;
 	protected List<int[]> clauses = new ArrayList<int[]>();

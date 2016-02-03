@@ -23,7 +23,6 @@ import java.util.*;
 
 import org.uasat.core.*;
 import org.uasat.math.*;
-import org.uasat.solvers.*;
 
 public class DigraphPoly {
 	private Relation<Boolean> relation;
@@ -54,11 +53,11 @@ public class DigraphPoly {
 				Relation.COMPARATOR);
 		set.add(Relation.full(size, 1));
 
-		List<BoolProblem> problems = new ArrayList<BoolProblem>();
+		List<SatProblem> problems = new ArrayList<SatProblem>();
 		Tensor<Boolean> full = Relation.full(size, 1).getTensor();
 		Tensor<Boolean> empty = Relation.empty(size, 1).getTensor();
 
-		BoolProblem intersect = new BoolProblem(full, empty, empty) {
+		SatProblem intersect = new SatProblem(full, empty, empty) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -75,7 +74,7 @@ public class DigraphPoly {
 			}
 		};
 
-		BoolProblem union = new BoolProblem(full, empty, empty) {
+		SatProblem union = new SatProblem(full, empty, empty) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -92,7 +91,7 @@ public class DigraphPoly {
 			}
 		};
 
-		BoolProblem upset = new BoolProblem(full, empty) {
+		SatProblem upset = new SatProblem(full, empty) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -108,7 +107,7 @@ public class DigraphPoly {
 			}
 		};
 
-		BoolProblem downset = new BoolProblem(full, empty) {
+		SatProblem downset = new SatProblem(full, empty) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -124,7 +123,7 @@ public class DigraphPoly {
 			}
 		};
 
-		BoolProblem union_upset = new BoolProblem(full, empty, empty) {
+		SatProblem union_upset = new SatProblem(full, empty, empty) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -142,7 +141,7 @@ public class DigraphPoly {
 			}
 		};
 
-		BoolProblem union_downset = new BoolProblem(full, empty, empty) {
+		SatProblem union_downset = new SatProblem(full, empty, empty) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -207,7 +206,7 @@ public class DigraphPoly {
 		int count = 0;
 		while (set.size() != count) {
 			count = set.size();
-			for (BoolProblem prob : problems) {
+			for (SatProblem prob : problems) {
 				prob.verbose = false;
 
 				Tensor<Boolean> tensor = prob.solveAll(solver).get(0);
@@ -247,7 +246,7 @@ public class DigraphPoly {
 				throw new IllegalArgumentException();
 		}
 
-		BoolProblem prob = new BoolProblem(new int[] { target.getSize(),
+		SatProblem prob = new SatProblem(new int[] { target.getSize(),
 				relation.getSize() }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
@@ -298,7 +297,7 @@ public class DigraphPoly {
 				throw new IllegalArgumentException();
 		}
 
-		BoolProblem prob = new BoolProblem(Util.createShape(relation.getSize(),
+		SatProblem prob = new SatProblem(Util.createShape(relation.getSize(),
 				arity + 1)) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
@@ -352,7 +351,7 @@ public class DigraphPoly {
 			}
 		}
 
-		BoolProblem problem = new BoolProblem(masks) {
+		SatProblem problem = new SatProblem(masks) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -487,7 +486,7 @@ public class DigraphPoly {
 				if (!subset.getTensor().getElem(y))
 					continue;
 
-				BoolProblem problem = new BoolProblem(new int[] { size,
+				SatProblem problem = new SatProblem(new int[] { size,
 						subsets.size() }) {
 					@Override
 					public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
@@ -520,7 +519,7 @@ public class DigraphPoly {
 		return false;
 	}
 
-	private SatSolver<?> solver = new Sat4J();
+	private SatSolver<?> solver = SatSolver.getDefault();
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
 	public static Relation<Boolean> importPartial(org.uapart.math.Relation rel) {
@@ -566,7 +565,7 @@ public class DigraphPoly {
 	}
 
 	public static void main2(String[] args) {
-		SatSolver<?> solver = new Sat4J();
+		SatSolver<?> solver = SatSolver.getDefault();
 		int size = 5;
 
 		List<Relation<Boolean>> list = generatePosets(size);
@@ -584,7 +583,7 @@ public class DigraphPoly {
 	}
 
 	public static void main3(String[] args) {
-		SatSolver<?> solver = new Sat4J();
+		SatSolver<?> solver = SatSolver.getDefault();
 		int size = 6;
 
 		if (args.length >= 1)
@@ -627,25 +626,27 @@ public class DigraphPoly {
 		Structure<Boolean> str = Structure.wrap(c4.plus(a1).asRelation());
 		Structure.print(str);
 
-		// List<Relation<Boolean>> subsets = Relation.subsets(str.getSize(), 1,
-		// 2);
-		// Structure<Boolean> str2 = str.makeComplexStructure(subsets);
-		// Structure.print(str2);
-
 		CompatibleOps ops = new CompatibleOps(str);
 		ops.printUnaryOps();
 		ops.printBinaryOps();
 		ops.printTernaryOps();
 		ops.printSpecialOps();
 
-		// System.out.println(isSpecial(ops.getSolver(), str));
 		DefinableRels def = new DefinableRels(str.getSize(), 1);
-		def.addTreeDefinableSubalgs(str);
+		def.addTreeDefUnary(str);
 		// def.keepMeetIrreducibles();
-		def.printRelations("tree definable subalgs");
+		def.printRelations("tree definable unary");
 
-		Relation<Boolean> pow = str.getRelation(0).makeComplexRelation(def.getRelations());
+		Relation<Boolean> pow = str.getRelation(0).makeComplexRelation(
+				def.getRelations());
 		Relation.print(pow);
+		System.out.println();
+
+		DefinableRels path2 = new DefinableRels(str.getSize(), 2);
+		path2.addPathDefBinary(def.getRelations(), str);
+		System.out.println(path2.getCount());
+		path2.addIntersections();
+		System.out.println(path2.getCount());
 	}
 
 	@SuppressWarnings("unused")

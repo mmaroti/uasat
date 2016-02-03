@@ -21,7 +21,6 @@ package org.uasat.math;
 import java.util.*;
 
 import org.uasat.core.*;
-import org.uasat.solvers.*;
 
 public class CompatibleOps {
 	private final Structure<Boolean> structure;
@@ -31,7 +30,7 @@ public class CompatibleOps {
 		assert structure != null;
 
 		this.structure = structure;
-		solver = new Sat4J();
+		solver = SatSolver.getDefault();
 	}
 
 	public CompatibleOps(Structure<Boolean> structure, SatSolver<?> solver) {
@@ -52,7 +51,7 @@ public class CompatibleOps {
 	public List<Operation<Boolean>> findUnaryOps(final String options,
 			int maxSolutions) {
 		int size = structure.getSize();
-		BoolProblem prob = new BoolProblem(new int[] { size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -87,7 +86,7 @@ public class CompatibleOps {
 	public List<Operation<Boolean>> findBinaryOps(final String options,
 			int maxSolutions) {
 		int size = structure.getSize();
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -130,7 +129,7 @@ public class CompatibleOps {
 	public List<Operation<Boolean>> findTernaryOps(final String options,
 			int maxSolutions) {
 		int size = structure.getSize();
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -172,7 +171,7 @@ public class CompatibleOps {
 
 	public List<Operation<Boolean>> findSiggersTerms() {
 		int[] shape = Util.createShape(structure.getSize(), 4);
-		BoolProblem problem = new BoolProblem(shape, shape) {
+		SatProblem problem = new SatProblem(shape, shape) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -198,7 +197,7 @@ public class CompatibleOps {
 
 	public List<Operation<Boolean>> findJovanovicTerms() {
 		int[] shape = Util.createShape(structure.getSize(), 4);
-		BoolProblem problem = new BoolProblem(shape, shape) {
+		SatProblem problem = new SatProblem(shape, shape) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -231,7 +230,7 @@ public class CompatibleOps {
 		for (int i = 0; i < count; i++)
 			masks.add(mask);
 
-		BoolProblem problem = new BoolProblem(masks) {
+		SatProblem problem = new SatProblem(masks) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -289,7 +288,7 @@ public class CompatibleOps {
 		final Structure<Boolean> complex = structure
 				.makeComplexStructure(subsets);
 
-		BoolProblem problem = new BoolProblem(
+		SatProblem problem = new SatProblem(
 				new int[] { size, subsets.size() }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,

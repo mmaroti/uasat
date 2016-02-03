@@ -22,7 +22,6 @@ import java.text.*;
 import java.util.*;
 import org.uasat.core.*;
 import org.uasat.math.*;
-import org.uasat.solvers.*;
 
 public class MonoidalInt {
 	public static Tensor<Boolean> decodeMonoid(final int size, String monoid) {
@@ -263,7 +262,7 @@ public class MonoidalInt {
 	public static <ELEM> Tensor<Boolean> getUnaryRels(SatSolver<ELEM> solver,
 			int size, String monoid) {
 		final Tensor<Boolean> mon = decodeMonoid(size, monoid);
-		BoolProblem prob = new BoolProblem(new int[] { size }) {
+		SatProblem prob = new SatProblem(new int[] { size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -281,7 +280,7 @@ public class MonoidalInt {
 	public static <ELEM> Tensor<Boolean> getBinaryRels(SatSolver<ELEM> solver,
 			int size, String monoid) {
 		final Tensor<Boolean> mon = decodeMonoid(size, monoid);
-		BoolProblem prob = new BoolProblem(new int[] { size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -298,7 +297,7 @@ public class MonoidalInt {
 
 	public static <ELEM> Tensor<Boolean> getAllBinaryRels(
 			SatSolver<ELEM> solver, int size) {
-		BoolProblem prob = new BoolProblem(new int[] { size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -312,7 +311,7 @@ public class MonoidalInt {
 	public static <ELEM> Tensor<Boolean> getEssentialBinaryRels(
 			SatSolver<ELEM> solver, int size, String monoid) {
 		final Tensor<Boolean> mon = decodeMonoid(size, monoid);
-		BoolProblem prob = new BoolProblem(new int[] { size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -333,7 +332,7 @@ public class MonoidalInt {
 	public static <ELEM> Tensor<Boolean> getQuasiorderRels(
 			SatSolver<ELEM> solver, int size, String monoid) {
 		final Tensor<Boolean> mon = decodeMonoid(size, monoid);
-		BoolProblem prob = new BoolProblem(new int[] { size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -352,7 +351,7 @@ public class MonoidalInt {
 	public static <ELEM> Tensor<Boolean> getTernaryRels(SatSolver<ELEM> solver,
 			int size, String monoid) {
 		final Tensor<Boolean> mon = decodeMonoid(size, monoid);
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -379,7 +378,7 @@ public class MonoidalInt {
 			}
 		});
 
-		BoolProblem prob = new BoolProblem(mask) {
+		SatProblem prob = new SatProblem(mask) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -397,7 +396,7 @@ public class MonoidalInt {
 	public static <ELEM> Tensor<Boolean> getEssentialTernaryRels(
 			SatSolver<ELEM> solver, int size, String monoid) {
 		final Tensor<Boolean> mon = decodeMonoid(size, monoid);
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -418,7 +417,7 @@ public class MonoidalInt {
 	public static <ELEM> Tensor<Boolean> getQuaternaryRels(
 			SatSolver<ELEM> solver, int size, String monoid) {
 		final Tensor<Boolean> mon = decodeMonoid(size, monoid);
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -436,7 +435,7 @@ public class MonoidalInt {
 	public static <ELEM> Tensor<Boolean> getBinaryOps(SatSolver<ELEM> solver,
 			int size, String monoid) {
 		final Tensor<Boolean> mon = decodeMonoid(size, monoid);
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -457,7 +456,7 @@ public class MonoidalInt {
 	public static <ELEM> Tensor<Boolean> getAllBinaryOps(
 			SatSolver<ELEM> solver, int size) {
 
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -472,7 +471,7 @@ public class MonoidalInt {
 	public static <ELEM> Tensor<Boolean> getEssentialBinaryOps(
 			SatSolver<ELEM> solver, int size, String monoid) {
 		final Tensor<Boolean> mon = decodeMonoid(size, monoid);
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -494,7 +493,7 @@ public class MonoidalInt {
 	public static <ELEM> Tensor<Boolean> getTernaryOps(SatSolver<ELEM> solver,
 			int size, String monoid) {
 		final Tensor<Boolean> mon = decodeMonoid(size, monoid);
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -524,7 +523,7 @@ public class MonoidalInt {
 			}
 		});
 
-		BoolProblem prob = new BoolProblem(mask) {
+		SatProblem prob = new SatProblem(mask) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -545,7 +544,7 @@ public class MonoidalInt {
 	public static <ELEM> Tensor<Boolean> getQuaternaryOps(
 			SatSolver<ELEM> solver, int size, String monoid) {
 		final Tensor<Boolean> mon = decodeMonoid(size, monoid);
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size, size,
+		SatProblem prob = new SatProblem(new int[] { size, size, size, size,
 				size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
@@ -567,7 +566,7 @@ public class MonoidalInt {
 	public static <ELEM> Tensor<Boolean> getEssentialTernaryOps(
 			SatSolver<ELEM> solver, int size, String monoid) {
 		final Tensor<Boolean> mon = decodeMonoid(size, monoid);
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -589,7 +588,7 @@ public class MonoidalInt {
 	public static <ELEM> Tensor<Boolean> getMajorityOps(SatSolver<ELEM> solver,
 			int size, String monoid) {
 		final Tensor<Boolean> mon = decodeMonoid(size, monoid);
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -611,7 +610,7 @@ public class MonoidalInt {
 	public static <ELEM> Tensor<Boolean> getMaltsevOps(SatSolver<ELEM> solver,
 			int size, String monoid) {
 		final Tensor<Boolean> mon = decodeMonoid(size, monoid);
-		BoolProblem prob = new BoolProblem(new int[] { size, size, size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -714,7 +713,7 @@ public class MonoidalInt {
 
 	public static <ELEM> Tensor<Boolean> getClosedSubsets(
 			SatSolver<ELEM> solver, final Tensor<Boolean> galois) {
-		BoolProblem prob = new BoolProblem(new int[] { galois.getDim(0) }) {
+		SatProblem prob = new SatProblem(new int[] { galois.getDim(0) }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -904,7 +903,8 @@ public class MonoidalInt {
 		if (ops.getLastDim() * rels.getLastDim() <= GALOIS_LIMIT) {
 			Tensor<Boolean> compat = getCompatibility(BoolAlgebra.INSTANCE,
 					ops, rels);
-			Tensor<Boolean> closed = getClosedSubsets(new Sat4J(), compat);
+			Tensor<Boolean> closed = getClosedSubsets(SatSolver.getDefault(),
+					compat);
 			System.out.println("clones (" + what + "):\t" + closed.getDim(1));
 			if (closed.getDim(0) <= PRINT_LIMIT
 					&& closed.getDim(1) <= PRINT_LIMIT)
@@ -913,7 +913,7 @@ public class MonoidalInt {
 	}
 
 	public static void printStatistics(int size, String monoid) {
-		SatSolver<Integer> solver = new Sat4J();
+		SatSolver<?> solver = SatSolver.getDefault();
 		solver.debugging = false;
 
 		System.out.println("monoid: " + monoid);
@@ -1011,7 +1011,7 @@ public class MonoidalInt {
 	}
 
 	public static void main3(String[] args) {
-		SatSolver<Integer> solver = new Sat4J();
+		SatSolver<?> solver = SatSolver.getDefault();
 		int size = 3;
 
 		System.out.println("size:                " + size);

@@ -22,13 +22,12 @@ import java.text.*;
 import java.util.*;
 import org.uasat.core.*;
 import org.uasat.math.*;
-import org.uasat.solvers.*;
 
 public class Quasigroup {
-	SatSolver<?> solver = new Sat4J();
+	SatSolver<?> solver = SatSolver.getDefault();
 
 	Operation<Boolean> generateLatinSquare(int size) {
-		BoolProblem problem = new BoolProblem(new int[] { size, size, size }) {
+		SatProblem problem = new SatProblem(new int[] { size, size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -55,7 +54,7 @@ public class Quasigroup {
 		int size = q1.getSize();
 		assert size == q2.getSize() && q1.getArity() == 2 && q2.getArity() == 2;
 
-		BoolProblem problem = new BoolProblem(new int[] { size, size },
+		SatProblem problem = new SatProblem(new int[] { size, size },
 				new int[] { size, size }, new int[] { size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
