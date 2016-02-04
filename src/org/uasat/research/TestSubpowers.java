@@ -43,14 +43,14 @@ public class TestSubpowers {
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
-		Algebra<Boolean> alg = Algebra.wrap(IMPL, JOIN);
+		Algebra<Boolean> alg = Algebra.wrap(2);
 		CompatibleRels subs = new CompatibleRels(alg);
 
-		subs.printCriticalRels(1);
-		subs.printCriticalRels(2);
-		subs.printCriticalRels(3);
-		subs.printCriticalRels(4);
-		subs.printCriticalRels(5);
+		subs.printCriticalRelsUniCom(1);
+		subs.printCriticalRelsUniCom(2);
+		subs.printCriticalRelsUniCom(3);
+		subs.printCriticalRelsUniCom(4);
+		// subs.printCriticalRels(5);
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

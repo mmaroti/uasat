@@ -38,13 +38,13 @@ public final class Algebra<BOOL> {
 	public List<Operation<BOOL>> getOperations() {
 		return ops;
 	}
-	
+
 	public Operation<BOOL> getOperation(int index) {
 		return ops.get(index);
 	}
 
 	public Algebra(BoolAlgebra<BOOL> alg, int size, List<Operation<BOOL>> ops) {
-		assert alg != null && !ops.isEmpty();
+		assert alg != null;
 
 		for (Operation<BOOL> op : ops)
 			assert op.getSize() == size;
@@ -116,13 +116,20 @@ public final class Algebra<BOOL> {
 	}
 
 	@SafeVarargs
+	public static Algebra<Boolean> wrap(int size, Operation<Boolean>... ops) {
+		return new Algebra<Boolean>(BoolAlgebra.INSTANCE, size,
+				Arrays.asList(ops));
+	}
+
+	@SafeVarargs
 	public static Algebra<Boolean> wrap(Operation<Boolean>... ops) {
 		return new Algebra<Boolean>(BoolAlgebra.INSTANCE, ops);
 	}
 
 	public static Algebra<Boolean> wrap(List<Operation<Boolean>> ops) {
 		assert ops.size() >= 1;
-		return new Algebra<Boolean>(BoolAlgebra.INSTANCE, ops.get(0).getSize(), ops);
+		return new Algebra<Boolean>(BoolAlgebra.INSTANCE, ops.get(0).getSize(),
+				ops);
 	}
 
 	public static void print(Algebra<Boolean> ua) {
