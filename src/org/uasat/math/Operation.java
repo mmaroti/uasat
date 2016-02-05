@@ -499,7 +499,8 @@ public final class Operation<BOOL> {
 		else if (getArity() == 3 && rel.getArity() == 5)
 			return evaluate_op3_rel5(rel);
 
-		throw new IllegalArgumentException("not implemented for these arities");
+		throw new UnsupportedOperationException(
+				"not implemented for these arities");
 	}
 
 	private Relation<BOOL> evaluate_op0(int arity) {
@@ -699,6 +700,8 @@ public final class Operation<BOOL> {
 	}
 
 	public static Tensor<Integer> decode(Operation<Boolean> op) {
+		assert op.isOperation();
+
 		Func1<Integer, Iterable<Boolean>> lookup = new Func1<Integer, Iterable<Boolean>>() {
 			@Override
 			public Integer call(Iterable<Boolean> elem) {
@@ -710,11 +713,32 @@ public final class Operation<BOOL> {
 
 					count += 1;
 				}
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException("this cannot happen");
 			}
 		};
 
 		return Tensor.fold(lookup, 1, op.getTensor());
+	}
+
+	public static Operation<Boolean> encode(int size,
+			final Tensor<Integer> tensor) {
+		assert size >= 1;
+
+		int arity = tensor.getOrder();
+		for (int i = 0; i < arity; i++)
+			assert tensor.getDim(i) == size;
+
+		final int[] index = new int[arity];
+		Func1<Boolean, int[]> lookup = new Func1<Boolean, int[]>() {
+			@Override
+			public Boolean call(int[] elem) {
+				System.arraycopy(elem, 1, index, 0, index.length);
+				return tensor.getElem(index) == elem[0];
+			}
+		};
+
+		int[] shape = Util.createShape(size, arity + 1);
+		return Operation.wrap(Tensor.generate(shape, lookup));
 	}
 
 	public static String formatTable(Operation<Boolean> op) {
@@ -739,29 +763,43 @@ public final class Operation<BOOL> {
 		assert size >= 1 && arity >= 0;
 
 		Tensor<Boolean> tensor;
-		tensor = Tensor.constant(Util.createShape(size, arity + 1), false);
+		tensor = Tensor.constant(Util.createShape(size, arity + 1),
+				Boolean.FALSE);
 
-		int[] index = new int[arity + 1];
+		Iterator<int[]> iter = Util.cubeIterator(size, arity + 1);
 		for (int i = 0; i < str.length(); i++) {
 			if (Character.isWhitespace(str.charAt(i))) {
 				continue;
-			} else {
-				index[0] = Util.parseIndex(size, str.charAt(i));
-				tensor.setElem(true, index);
+			} else if (iter.hasNext()) {
+				int a = Util.parseIndex(size, str.charAt(i));
+				assert 0 <= a && a < size;
 
+				int[] index = iter.next();
+				assert index[0] == 0;
+				index[0] = a;
+				tensor.setElem(Boolean.TRUE, index);
 				index[0] = size - 1;
-				boolean cont = Util.nextIndex(tensor.getShape(), index);
-
-				if (cont != (i < str.length() - 1))
-					throw new IllegalArgumentException("bad entry count");
-			}
+			} else
+				throw new IllegalArgumentException("too many entries");
 		}
-
-		for (int i = 0; i < index.length; i++)
-			assert index[i] == 0;
+		if (iter.hasNext())
+			throw new IllegalArgumentException("too few entries");
 
 		return Operation.wrap(tensor);
 	}
+
+	public static final Comparator<Operation<Boolean>> COMPARATOR = new Comparator<Operation<Boolean>>() {
+		final Comparator<Tensor<Boolean>> comp = Tensor
+				.comparator(BoolAlgebra.COMPARATOR);
+
+		@Override
+		public int compare(Operation<Boolean> o1, Operation<Boolean> o2) {
+			assert o1.getSize() == o2.getSize()
+					&& o1.getArity() == o2.getArity();
+
+			return comp.compare(o2.getTensor(), o1.getTensor());
+		}
+	};
 
 	public static void print(Operation<Boolean> op) {
 		System.out.println("operation of size " + op.getSize() + " arity "

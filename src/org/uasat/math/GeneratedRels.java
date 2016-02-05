@@ -1,18 +1,18 @@
 /**
  *	Copyright (C) Miklos Maroti, 2015-2016
  *
- * This program is free software; you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the 
- * Free Software Foundation; either version 2 of the License, or (at your 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but 
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along 
- * with this program; if not, write to the Free Software Foundation, Inc., 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
@@ -22,17 +22,17 @@ import java.util.*;
 
 import org.uasat.core.*;
 
-public class DefinableRels implements Iterable<Relation<Boolean>> {
+public class GeneratedRels implements Iterable<Relation<Boolean>> {
 	private final int size;
 	private final int arity;
 	private final TreeSet<Relation<Boolean>> relations;
 	private final SatSolver<?> solver;
 
-	public DefinableRels(int size, int arity) {
+	public GeneratedRels(int size, int arity) {
 		this(size, arity, SatSolver.getDefault());
 	}
 
-	public DefinableRels(int size, int arity, SatSolver<?> solver) {
+	public GeneratedRels(int size, int arity, SatSolver<?> solver) {
 		assert size >= 1 && arity >= 1 && solver != null;
 
 		this.size = size;

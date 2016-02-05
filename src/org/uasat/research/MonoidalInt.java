@@ -1,18 +1,18 @@
 /**
  *	Copyright (C) Miklos Maroti, 2015
  *
- * This program is free software; you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the 
- * Free Software Foundation; either version 2 of the License, or (at your 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but 
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along 
- * with this program; if not, write to the Free Software Foundation, Inc., 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
@@ -20,6 +20,7 @@ package org.uasat.research;
 
 import java.text.*;
 import java.util.*;
+
 import org.uasat.core.*;
 import org.uasat.math.*;
 
@@ -1033,10 +1034,10 @@ public class MonoidalInt {
 	public static void main(String[] args) {
 		// for (String monoid : TWO_MONOIDS)
 		// printStatistics(3, "000 002 010 012 111 222");
-		String monoid512 = "000 002 012 111 222";	// finite
-		String monoid616 = "000 001 012 111 112 222";	// infinite
-		String monoid618 = "000 002 010 012 111 222";	// possibly finite
-		String monoid719 = "000 002 012 102 111 112 222";	// possibly countable
+		String monoid512 = "000 002 012 111 222"; // finite
+		String monoid616 = "000 001 012 111 112 222"; // infinite
+		String monoid618 = "000 002 010 012 111 222"; // possibly finite
+		String monoid719 = "000 002 012 102 111 112 222"; // possibly countable
 		String monoid = monoid616;
 
 		System.out.println("monid: " + monoid);
@@ -1047,13 +1048,18 @@ public class MonoidalInt {
 		Algebra<Boolean> alg = Algebra.wrap(ops);
 		// Algebra.print(alg);
 
+		GeneratedOps gen = new GeneratedOps(3, 1);
+		gen.addAll(ops);
+		System.out.println("composition closed: " + gen.isCompositionClosed());
+		gen.print();
+
 		CompatibleRels rels = new CompatibleRels(alg);
 		rels.printCriticalRelsUniCom(1);
 		rels.printCriticalRelsUniCom(2);
 		rels.printCriticalRelsUniCom(3);
-		rels.printCriticalRelsUniCom(4);
-		rels.printCriticalRelsUniCom(5);
-		rels.printCriticalRelsUniCom(6);
+		// rels.printCriticalRelsUniCom(4);
+		// rels.printCriticalRelsUniCom(5);
+		// rels.printCriticalRelsUniCom(6);
 	}
 
 	public static void main2(String[] args) {

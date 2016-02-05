@@ -632,18 +632,18 @@ public class DigraphPoly {
 		ops.printTernaryOps();
 		ops.printSpecialOps();
 
-		DefinableRels def = new DefinableRels(str.getSize(), 1);
-		def.addTreeDefUnary(str);
+		GeneratedRels gen = new GeneratedRels(str.getSize(), 1);
+		gen.addTreeDefUnary(str);
 		// def.keepMeetIrreducibles();
-		def.printRelations("tree definable unary");
+		gen.printRelations("tree definable unary");
 
 		Relation<Boolean> pow = str.getRelation(0).makeComplexRelation(
-				def.getRelations());
+				gen.getRelations());
 		Relation.print(pow);
 		System.out.println();
 
-		DefinableRels path2 = new DefinableRels(str.getSize(), 2);
-		path2.addPathDefBinary(def.getRelations(), str);
+		GeneratedRels path2 = new GeneratedRels(str.getSize(), 2);
+		path2.addPathDefBinary(gen.getRelations(), str);
 		System.out.println(path2.getCount());
 		path2.addIntersections();
 		System.out.println(path2.getCount());
