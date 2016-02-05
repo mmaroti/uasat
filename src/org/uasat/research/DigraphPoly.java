@@ -633,14 +633,12 @@ public class DigraphPoly {
 		ops.printTernaryOps();
 		ops.printSpecialOps();
 
-		GeneratedRels gen = new GeneratedRels(str.getSize(), 1);
-		gen.addTreeDefUnary(str);
+		GeneratedRels gen = GeneratedRels.getTreeDefUnary(str);
 		// def.keepMeetIrreducibles();
-		gen.printRelations("tree definable unary");
+		gen.print();
 
-		Relation<Boolean> pow = str.getRelation(0).makeComplexRelation(
-				gen.getRelations());
-		Relation.print(pow);
+		Structure<Boolean> pow = str.makeComplexStructure(gen.getRelations());
+		Structure.print(pow);
 		System.out.println();
 
 		GeneratedRels path2 = new GeneratedRels(str.getSize(), 2);
@@ -650,7 +648,7 @@ public class DigraphPoly {
 		System.out.println(path2.getCount());
 	}
 
-	public static void main(String[] args) {
+	public static void main4(String[] args) {
 		for (;;) {
 			PartialOrder<Boolean> po = PartialOrder.random(14, 0.1);
 
@@ -669,7 +667,7 @@ public class DigraphPoly {
 	}
 
 	@SuppressWarnings("unused")
-	public static void main4(String[] args) {
+	public static void main(String[] args) {
 		String[] benoit = new String[] {
 				"00 03 04 11 12 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",
 				"00 03 04 11 12 14 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",
@@ -688,16 +686,32 @@ public class DigraphPoly {
 				"00 02 03 11 12 15 22 23 24 31 33 34 35 40 42 43 44 45 50 51 52 54 55",
 				"00 02 03 11 12 14 22 23 25 31 33 34 35 41 42 44 45 50 52 53 54 55" };
 
-		String cycle5 = "01 12 23 34 40";
+		String cycle = "00 11 22 01 12 20";
 
 		for (int i = 0; i < 1; i++) {
 			System.out.println("digraph #" + i);
-			Relation<Boolean> rel = Relation.parseMembers(5, 2, cycle5);
+			Relation<Boolean> rel = Relation.parseMembers(3, 2, cycle);
 
 			Structure<Boolean> str = Structure.wrap(rel);
 			Structure.print(str);
 
 			CompatibleOps ops = new CompatibleOps(str);
+			ops.printUnaryOps();
+			ops.printBinaryOps();
+			ops.printTernaryOps();
+			ops.printSpecialOps();
+
+			GeneratedRels def = GeneratedRels.getTreeDefUnary(str);
+			def.keepNonEmpty();
+			def.print();
+
+			Structure<Boolean> pow = str.makeComplexStructure(def
+					.getRelations());
+			for (int j = 0; j < rel.getSize(); j++)
+				pow.add(Relation.singleton(pow.getSize(), j));
+			Structure.print(pow);
+
+			ops = new CompatibleOps(pow);
 			ops.printUnaryOps();
 			ops.printBinaryOps();
 			ops.printTernaryOps();

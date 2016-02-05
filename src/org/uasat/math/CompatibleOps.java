@@ -315,9 +315,8 @@ public class CompatibleOps {
 	public Function<Boolean> findTotallySymmetricIdempotentHom() {
 		final int size = structure.getSize();
 
-		GeneratedRels gen = new GeneratedRels(size, 1);
-		gen.addTreeDefUnary(structure);
-		final List<Relation<Boolean>> subsets = gen.getRelations();
+		final List<Relation<Boolean>> subsets = GeneratedRels.getTreeDefUnary(
+				structure).getRelations();
 		final Structure<Boolean> complex = structure
 				.makeComplexStructure(subsets);
 

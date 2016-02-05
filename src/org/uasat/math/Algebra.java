@@ -25,7 +25,7 @@ import org.uasat.core.*;
 public final class Algebra<BOOL> {
 	private final BoolAlgebra<BOOL> alg;
 	private final int size;
-	private final List<Operation<BOOL>> ops;
+	private final List<Operation<BOOL>> operations;
 
 	public BoolAlgebra<BOOL> getAlg() {
 		return alg;
@@ -36,11 +36,11 @@ public final class Algebra<BOOL> {
 	}
 
 	public List<Operation<BOOL>> getOperations() {
-		return ops;
+		return operations;
 	}
 
 	public Operation<BOOL> getOperation(int index) {
-		return ops.get(index);
+		return operations.get(index);
 	}
 
 	public Algebra(BoolAlgebra<BOOL> alg, int size, List<Operation<BOOL>> ops) {
@@ -51,7 +51,7 @@ public final class Algebra<BOOL> {
 
 		this.alg = alg;
 		this.size = size;
-		this.ops = ops;
+		this.operations = ops;
 	}
 
 	@SafeVarargs
@@ -63,12 +63,17 @@ public final class Algebra<BOOL> {
 			assert ops[i].getSize() == size;
 
 		this.alg = alg;
-		this.ops = Arrays.asList(ops);
+		this.operations = Arrays.asList(ops);
 	}
 
+	public void add(Operation<BOOL> op) {
+		assert op.getSize() == size;
+		operations.add(op);
+	}
+	
 	@SafeVarargs
 	final public Algebra<BOOL> extend(Operation<BOOL>... ops) {
-		List<Operation<BOOL>> list = new ArrayList<Operation<BOOL>>(this.ops);
+		List<Operation<BOOL>> list = new ArrayList<Operation<BOOL>>(this.operations);
 
 		for (int i = 0; i < ops.length; i++) {
 			assert ops[i].getSize() == size && ops[i].getAlg() == alg;
@@ -82,7 +87,7 @@ public final class Algebra<BOOL> {
 		assert alg == rel.getAlg() && size == rel.getSize();
 
 		BOOL b = alg.TRUE;
-		for (Operation<BOOL> op : ops)
+		for (Operation<BOOL> op : operations)
 			b = alg.and(b, op.preserves(rel));
 
 		return b;
@@ -99,7 +104,7 @@ public final class Algebra<BOOL> {
 	}
 
 	public boolean hasConstants() {
-		for (Operation<BOOL> op : ops)
+		for (Operation<BOOL> op : operations)
 			if (op.getArity() == 0)
 				return true;
 
@@ -109,7 +114,7 @@ public final class Algebra<BOOL> {
 	public static <BOOL> Algebra<BOOL> lift(BoolAlgebra<BOOL> alg,
 			Algebra<Boolean> ua) {
 		List<Operation<BOOL>> ops = new ArrayList<Operation<BOOL>>();
-		for (Operation<Boolean> op : ua.ops)
+		for (Operation<Boolean> op : ua.operations)
 			ops.add(Operation.lift(alg, op));
 
 		return new Algebra<BOOL>(alg, ua.getSize(), ops);

@@ -30,11 +30,16 @@ public final class Util {
 		return shape;
 	}
 
+	public static final int LOWER_END = 10 + 'z' - 'a';
+	public static final int UPPER_END = LOWER_END + 'Z' - 'A';
+
 	public static char formatIndex(int elem) {
 		if (0 <= elem && elem < 10)
-			return (char) ('0' + elem);
-		else if (10 <= elem && elem < 36)
-			return (char) ('a' + elem - 10);
+			return (char) (elem + '0');
+		else if (10 <= elem && elem < LOWER_END)
+			return (char) (elem - 10 + 'a');
+		else if (LOWER_END <= elem && elem < UPPER_END)
+			return (char) (elem - LOWER_END + 'A');
 		else
 			throw new IllegalArgumentException();
 	}
@@ -45,6 +50,8 @@ public final class Util {
 			i = c - '0';
 		else if ('a' <= c && c <= 'z')
 			i = c - 'a' + 10;
+		else if ('A' <= c && c <= 'Z')
+			i = c - 'A' + LOWER_END;
 		else
 			i = size;
 

@@ -54,6 +54,11 @@ public final class Structure<BOOL> {
 		this.relations = rels;
 	}
 
+	public void add(Relation<BOOL> rel) {
+		assert rel.getSize() == size;
+		relations.add(rel);
+	}
+	
 	@SafeVarargs
 	public Structure(BoolAlgebra<BOOL> alg, Relation<BOOL>... rels) {
 		assert alg != null && rels.length > 0;

@@ -197,23 +197,6 @@ public class GeneratedRels implements Iterable<Relation<Boolean>> {
 		}
 	}
 
-	public void addTreeDefUnary(Structure<Boolean> structure) {
-		assert arity == 1;
-
-		addSingletons();
-		addFull();
-		for (;;) {
-			int c = getCount();
-
-			addIntersections();
-			for (Relation<Boolean> rel : structure.getRelations())
-				addTreeDefUnary(rel);
-
-			if (c == getCount())
-				break;
-		}
-	}
-
 	public void addPathDefBinary(final List<Relation<Boolean>> subalgs,
 			final Relation<Boolean> relation) {
 		assert arity == 2;
@@ -289,19 +272,6 @@ public class GeneratedRels implements Iterable<Relation<Boolean>> {
 		}
 	}
 
-	public void addPathDefBinary(List<Relation<Boolean>> subalgs,
-			Structure<Boolean> structure) {
-		assert arity == 2;
-
-		for (Relation<Boolean> s : subalgs)
-			add(s.diagonal(2));
-
-		for (Relation<Boolean> rel : structure.getRelations())
-			addPathDefBinary(subalgs, rel);
-
-		addCompositions();
-	}
-
 	public void keepNonEmpty() {
 		relations.remove(Relation.empty(size, arity));
 	}
@@ -330,12 +300,45 @@ public class GeneratedRels implements Iterable<Relation<Boolean>> {
 		}
 	}
 
-	public void printRelations(String msg) {
-		System.out.println(msg + ": " + relations.size());
+	public static GeneratedRels getTreeDefUnary(Structure<Boolean> structure) {
+		GeneratedRels gen = new GeneratedRels(structure.getSize(), 1);
 
-		int i = 0;
+		gen.addSingletons();
+		gen.addFull();
+		for (;;) {
+			int c = gen.getCount();
+
+			gen.addIntersections();
+			for (Relation<Boolean> rel : structure.getRelations())
+				gen.addTreeDefUnary(rel);
+
+			if (c == gen.getCount())
+				break;
+		}
+
+		return gen;
+	}
+
+	public void addPathDefBinary(List<Relation<Boolean>> subalgs,
+			Structure<Boolean> structure) {
+		assert arity == 2;
+
+		for (Relation<Boolean> s : subalgs)
+			add(s.diagonal(2));
+
+		for (Relation<Boolean> rel : structure.getRelations())
+			addPathDefBinary(subalgs, rel);
+
+		addCompositions();
+	}
+
+	public void print() {
+		System.out.println("generated rels of size " + size + " arity " + arity
+				+ " count " + relations.size());
+
+		int c = 0;
 		for (Relation<Boolean> rel : relations)
-			System.out.println((i++) + ": " + Relation.formatMembers(rel));
+			System.out.println((c++) + ":\t" + Relation.formatMembers(rel));
 
 		System.out.println();
 	}
