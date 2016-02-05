@@ -617,13 +617,14 @@ public class DigraphPoly {
 	}
 
 	@SuppressWarnings("unused")
-	public static void main(String[] args) {
+	public static void main5(String[] args) {
 		PartialOrder<Boolean> a1 = PartialOrder.antiChain(1);
 		PartialOrder<Boolean> a2 = PartialOrder.antiChain(2);
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
 		PartialOrder<Boolean> c6 = PartialOrder.crown(6);
 
-		Structure<Boolean> str = Structure.wrap(a2.plus(a2).plus(a2).asRelation());
+		Structure<Boolean> str = Structure.wrap(a2.plus(a2).plus(a2)
+				.asRelation());
 		Structure.print(str);
 
 		CompatibleOps ops = new CompatibleOps(str);
@@ -647,6 +648,33 @@ public class DigraphPoly {
 		System.out.println(path2.getCount());
 		path2.addIntersections();
 		System.out.println(path2.getCount());
+	}
+
+	public static void main(String[] args) {
+		int size = 14;
+		Relation<Boolean> leq = Relation.lessOrEqual(size);
+
+		for (;;) {
+			Relation<Boolean> rel = Relation.random(size, 2, 0.15);
+			rel = rel.reflexiveClosure();
+			rel = Relation.transitiveClosure(rel);
+
+			Relation<Boolean> ant = rel.intersect(rel.rotate(1)).intersect(leq);
+			rel = rel.intersect(ant);
+			// assert rel.isPartialOrder();
+
+			Structure<Boolean> str = Structure.wrap(rel);
+			CompatibleOps comp = new CompatibleOps(str);
+			if (!comp.hasSiggersTerms())
+				continue;
+
+			System.out.println(Relation.formatMembers(rel));
+
+			if (!comp.hasTotallySymmetricIdempotentTerms()) {
+				System.out.println("BINGO");
+				break;
+			}
+		}
 	}
 
 	@SuppressWarnings("unused")

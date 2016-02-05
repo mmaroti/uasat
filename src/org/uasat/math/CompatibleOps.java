@@ -282,14 +282,13 @@ public class CompatibleOps {
 		return findJonssonTerms(count) != null;
 	}
 
-	public Function<Boolean> findTotallySymmetricIdempotentHom() {
+	public Function<Boolean> findTotallySymmetricIdempotentHomOld() {
 		int size = structure.getSize();
 		List<Relation<Boolean>> subsets = Relation.subsets(size, 1, size);
 		final Structure<Boolean> complex = structure
 				.makeComplexStructure(subsets);
 
-		SatProblem problem = new SatProblem(
-				new int[] { size, subsets.size() }) {
+		SatProblem problem = new SatProblem(new int[] { size, subsets.size() }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -301,6 +300,43 @@ public class CompatibleOps {
 				b = alg.and(b, fun.preserve(str1, str2));
 				for (int i = 0; i < fun.getCodomain(); i++)
 					b = alg.and(b, fun.hasValue(i, i));
+
+				return b;
+			}
+		};
+
+		List<Tensor<Boolean>> sol = problem.solveOne(solver);
+		if (sol == null)
+			return null;
+
+		return Function.wrap(sol.get(0));
+	}
+
+	public Function<Boolean> findTotallySymmetricIdempotentHom() {
+		final int size = structure.getSize();
+
+		GeneratedRels gen = new GeneratedRels(size, 1);
+		gen.addTreeDefUnary(structure);
+		final List<Relation<Boolean>> subsets = gen.getRelations();
+		final Structure<Boolean> complex = structure
+				.makeComplexStructure(subsets);
+
+		SatProblem problem = new SatProblem(new int[] { size, subsets.size() }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Function<BOOL> fun = new Function<BOOL>(alg, tensors.get(0));
+				Structure<BOOL> str1 = Structure.lift(alg, complex);
+				Structure<BOOL> str2 = Structure.lift(alg, structure);
+
+				BOOL b = fun.isFunction();
+				b = alg.and(b, fun.preserve(str1, str2));
+				for (int i = 0; i < fun.getCodomain(); i++) {
+					int j = subsets.indexOf(Relation.singleton(size, i));
+					assert j >= 0;
+
+					b = alg.and(b, fun.hasValue(i, j));
+				}
 
 				return b;
 			}
