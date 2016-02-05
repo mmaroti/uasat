@@ -651,24 +651,15 @@ public class DigraphPoly {
 	}
 
 	public static void main(String[] args) {
-		int size = 14;
-		Relation<Boolean> leq = Relation.lessOrEqual(size);
-
 		for (;;) {
-			Relation<Boolean> rel = Relation.random(size, 2, 0.15);
-			rel = rel.reflexiveClosure();
-			rel = Relation.transitiveClosure(rel);
+			PartialOrder<Boolean> po = PartialOrder.random(14, 0.1);
 
-			Relation<Boolean> ant = rel.intersect(rel.rotate(1)).intersect(leq);
-			rel = rel.intersect(ant);
-			// assert rel.isPartialOrder();
-
-			Structure<Boolean> str = Structure.wrap(rel);
+			Structure<Boolean> str = Structure.wrap(po.asRelation());
 			CompatibleOps comp = new CompatibleOps(str);
 			if (!comp.hasSiggersTerms())
 				continue;
 
-			System.out.println(Relation.formatMembers(rel));
+			System.out.println(PartialOrder.formatCovers(po));
 
 			if (!comp.hasTotallySymmetricIdempotentTerms()) {
 				System.out.println("BINGO");

@@ -84,6 +84,18 @@ public final class PartialOrder<BOOL> {
 		return wrap(tensor);
 	}
 
+	public static PartialOrder<Boolean> random(int size, double density) {
+		Relation<Boolean> rel = Relation.random(size, 2, density);
+		rel = Relation.transitiveClosure(rel.reflexiveClosure());
+
+		Relation<Boolean> neq = Relation.notEqual(size);
+		Relation<Boolean> ant = rel.intersect(rel.rotate(1)).intersect(neq);
+		rel = rel.intersect(ant.complement());
+
+		assert rel.isPartialOrder();
+		return rel.asPartialOrder();
+	}
+	
 	public static PartialOrder<Boolean> wrap(Tensor<Boolean> tensor) {
 		return new PartialOrder<Boolean>(BoolAlgebra.INSTANCE, tensor);
 	}
