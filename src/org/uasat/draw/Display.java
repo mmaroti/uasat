@@ -149,9 +149,13 @@ public class Display extends JComponent {
 			if ((event.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {
 				if (dragState == DRAGSTATE_NONE) {
 					Node n = graph.find(mousePt);
-					if (n != null && n.isSelected())
+					if (n != null) {
+						if (!n.isSelected()) {
+							graph.unselectAll();
+							n.setSelected(true);
+						}
 						dragState = DRAGSTATE_MOVE;
-					else
+					} else
 						dragState = DRAGSTATE_SELECT;
 				}
 

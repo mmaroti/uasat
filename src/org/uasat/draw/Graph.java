@@ -82,6 +82,14 @@ public class Graph {
 		return list;
 	}
 
+	public boolean hasNothingSelected() {
+		for (Node n : nodes)
+			if (n.isSelected())
+				return false;
+
+		return true;
+	}
+
 	public void moveSlected(Point offset) {
 		for (Node n : nodes)
 			if (n.isSelected())
