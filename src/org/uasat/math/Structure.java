@@ -43,8 +43,13 @@ public final class Structure<BOOL> {
 		return relations.get(index);
 	}
 
+	public void add(Relation<BOOL> rel) {
+		assert rel.getSize() == size;
+		relations.add(rel);
+	}
+
 	public Structure(BoolAlgebra<BOOL> alg, int size, List<Relation<BOOL>> rels) {
-		assert alg != null && !rels.isEmpty();
+		assert alg != null;
 
 		for (Relation<BOOL> rel : rels)
 			assert rel.getSize() == size;
@@ -52,11 +57,6 @@ public final class Structure<BOOL> {
 		this.alg = alg;
 		this.size = size;
 		this.relations = rels;
-	}
-
-	public void add(Relation<BOOL> rel) {
-		assert rel.getSize() == size;
-		relations.add(rel);
 	}
 
 	@SafeVarargs
@@ -118,6 +118,11 @@ public final class Structure<BOOL> {
 	@SafeVarargs
 	public static Structure<Boolean> wrap(Relation<Boolean>... rels) {
 		return new Structure<Boolean>(BoolAlgebra.INSTANCE, rels);
+	}
+
+	public static Structure<Boolean> trivial(int size) {
+		return new Structure<Boolean>(BoolAlgebra.INSTANCE, size,
+				new ArrayList<Relation<Boolean>>());
 	}
 
 	public static void print(Structure<Boolean> str) {

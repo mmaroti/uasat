@@ -27,10 +27,7 @@ public class CompatibleRels {
 	private final SatSolver<?> solver;
 
 	public CompatibleRels(Algebra<Boolean> algebra) {
-		assert algebra != null;
-
-		this.algebra = algebra;
-		solver = SatSolver.getDefault();
+		this(algebra, SatSolver.getDefault());
 	}
 
 	public CompatibleRels(Algebra<Boolean> algebra, SatSolver<?> solver) {
@@ -48,7 +45,7 @@ public class CompatibleRels {
 		return solver;
 	}
 
-	public List<Relation<Boolean>> findAllRels(int arity) {
+	public List<Relation<Boolean>> findAllRels(int arity, int limit) {
 		SatProblem problem = new SatProblem(Util.createShape(algebra.getSize(),
 				arity)) {
 			@Override
@@ -61,7 +58,37 @@ public class CompatibleRels {
 			}
 		};
 
-		Tensor<Boolean> sol = problem.solveAll(solver).get(0);
+		Tensor<Boolean> sol = problem.solveAll(solver, limit).get(0);
+
+		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
+		for (Tensor<Boolean> t : Tensor.unstack(sol))
+			list.add(Relation.wrap(t));
+
+		return list;
+	}
+
+	public List<Relation<Boolean>> findUniqueRels(int arity, int limit) {
+		final List<Permutation<Boolean>> perms = Permutation
+				.symmetricGroup(arity);
+		perms.remove(Permutation.identity(arity));
+
+		SatProblem problem = new SatProblem(Util.createShape(algebra.getSize(),
+				arity)) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
+				Algebra<BOOL> ualg = Algebra.lift(alg, algebra);
+
+				BOOL b = ualg.isSubuniverse(rel);
+				for (Permutation<Boolean> p : perms)
+					b = alg.and(b, rel.isLexLeq(rel.permute(p)));
+
+				return b;
+			}
+		};
+
+		Tensor<Boolean> sol = problem.solveAll(solver, limit).get(0);
 
 		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
 		for (Tensor<Boolean> t : Tensor.unstack(sol))
@@ -295,7 +322,11 @@ public class CompatibleRels {
 	}
 
 	public void printAllRels(int arity) {
-		printRels("all", arity, findAllRels(arity));
+		printRels("all", arity, findAllRels(arity, -1));
+	}
+
+	public void printUniqueRels(int arity) {
+		printRels("uniquel", arity, findUniqueRels(arity, -1));
 	}
 
 	public void printMaximalRels(int arity) {

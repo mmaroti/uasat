@@ -702,7 +702,7 @@ public class DigraphPoly {
 			ops.printSpecialOps();
 
 			GeneratedRels def = GeneratedRels.getTreeDefUnary(str);
-			def.keepNonEmpty();
+			def.removeEmpty();
 			def.print();
 
 			Structure<Boolean> pow = str.makeComplexStructure(def

@@ -60,7 +60,8 @@ public final class Operation<BOOL> {
 		return new Operation<Boolean>(BoolAlgebra.INSTANCE, tensor);
 	}
 
-	public static List<Operation<Boolean>> wrap(List<Tensor<Boolean>> tensors) {
+	public static List<Operation<Boolean>> wrap(
+			Iterable<Tensor<Boolean>> tensors) {
 		List<Operation<Boolean>> list = new ArrayList<Operation<Boolean>>();
 		for (Tensor<Boolean> t : tensors)
 			list.add(wrap(t));
@@ -74,7 +75,7 @@ public final class Operation<BOOL> {
 	}
 
 	public static <BOOL> List<Operation<BOOL>> lift(BoolAlgebra<BOOL> alg,
-			List<Operation<Boolean>> ops) {
+			Iterable<Operation<Boolean>> ops) {
 		List<Operation<BOOL>> list = new ArrayList<Operation<BOOL>>();
 		for (Operation<Boolean> op : ops)
 			list.add(lift(alg, op));

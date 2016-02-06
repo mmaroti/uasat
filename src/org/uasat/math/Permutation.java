@@ -68,6 +68,10 @@ public final class Permutation<BOOL> {
 				}));
 	}
 
+	public static Permutation<Boolean> identity(int size) {
+		return wrap(Relation.equal(size).getTensor());
+	}
+
 	public static List<Permutation<Boolean>> transpositions(int size) {
 		assert size >= 1;
 		List<Permutation<Boolean>> list = new ArrayList<Permutation<Boolean>>();

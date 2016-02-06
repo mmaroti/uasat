@@ -24,20 +24,30 @@ import org.uasat.core.*;
 
 public class CompatibleOps {
 	private final Structure<Boolean> structure;
+	private final GeneratedOps stabilizer;
 	private final SatSolver<?> solver;
 
 	public CompatibleOps(Structure<Boolean> structure) {
-		assert structure != null;
-
-		this.structure = structure;
-		solver = SatSolver.getDefault();
+		this(structure, null, SatSolver.getDefault());
 	}
 
 	public CompatibleOps(Structure<Boolean> structure, SatSolver<?> solver) {
+		this(structure, null, solver);
+	}
+
+	public CompatibleOps(Structure<Boolean> structure, GeneratedOps stabilizer) {
+		this(structure, stabilizer, SatSolver.getDefault());
+	}
+
+	public CompatibleOps(Structure<Boolean> structure, GeneratedOps stabilizer,
+			SatSolver<?> solver) {
 		assert structure != null && solver != null;
+		assert stabilizer == null
+				|| stabilizer.getSize() == structure.getSize();
 
 		this.structure = structure;
 		this.solver = solver;
+		this.stabilizer = stabilizer;
 	}
 
 	public Structure<Boolean> getStructure() {
@@ -61,6 +71,9 @@ public class CompatibleOps {
 
 				BOOL res = op.isOperation();
 				res = alg.and(res, str.isCompatibleWith(op));
+
+				if (stabilizer != null)
+					res = alg.and(res, stabilizer.isClosedUnder(alg, op));
 
 				for (String token : options.split(" ")) {
 					if (token.equals("automorphism"))
@@ -97,6 +110,9 @@ public class CompatibleOps {
 				BOOL res = op.isOperation();
 				res = alg.and(res, str.isCompatibleWith(op));
 
+				if (stabilizer != null)
+					res = alg.and(res, stabilizer.isClosedUnder(alg, op));
+
 				for (String token : options.split(" ")) {
 					if (token.equals("idempotent"))
 						res = alg.and(res, op.isIdempotent());
@@ -112,6 +128,8 @@ public class CompatibleOps {
 						res = alg.and(res, op.isSemilattice());
 					else if (token.equals("two-semilat"))
 						res = alg.and(res, op.isTwoSemilattice());
+					else if (token.equals("unique"))
+						res = alg.and(res, op.isLexLeq(op.polymer(1, 0)));
 					else if (!token.isEmpty())
 						throw new IllegalArgumentException("invalid option: "
 								+ token);
@@ -140,6 +158,9 @@ public class CompatibleOps {
 				BOOL res = op.isOperation();
 				res = alg.and(res, str.isCompatibleWith(op));
 
+				if (stabilizer != null)
+					res = alg.and(res, stabilizer.isClosedUnder(alg, op));
+
 				for (String token : options.split(" ")) {
 					if (token.equals("idempotent"))
 						res = alg.and(res, op.isIdempotent());
@@ -155,7 +176,13 @@ public class CompatibleOps {
 						res = alg.and(res, op.isMaltsev());
 					else if (token.equals("weak-nu"))
 						res = alg.and(res, op.isWeakNearUnanimity());
-					else if (!token.isEmpty())
+					else if (token.equals("unique")) {
+						res = alg.and(res, op.isLexLeq(op.polymer(0, 1, 2)));
+						res = alg.and(res, op.isLexLeq(op.polymer(1, 0, 2)));
+						res = alg.and(res, op.isLexLeq(op.polymer(1, 2, 0)));
+						res = alg.and(res, op.isLexLeq(op.polymer(2, 0, 1)));
+						res = alg.and(res, op.isLexLeq(op.polymer(2, 1, 0)));
+					} else if (!token.isEmpty())
 						throw new IllegalArgumentException("invalid option: "
 								+ token);
 				}
@@ -180,9 +207,13 @@ public class CompatibleOps {
 				Operation<BOOL> op2 = new Operation<BOOL>(alg, tensors.get(1));
 
 				BOOL b = op1.isOperation();
-				b = alg.and(b, str.isCompatibleWith(op1));
 				b = alg.and(b, op2.isOperation());
+				b = alg.and(b, str.isCompatibleWith(op1));
 				b = alg.and(b, str.isCompatibleWith(op2));
+				if (stabilizer != null) {
+					b = alg.and(b, stabilizer.isClosedUnder(alg, op1));
+					b = alg.and(b, stabilizer.isClosedUnder(alg, op2));
+				}
 				b = alg.and(b, Operation.areSiggersTerms(op1, op2));
 				return b;
 			}
@@ -206,9 +237,13 @@ public class CompatibleOps {
 				Operation<BOOL> op2 = new Operation<BOOL>(alg, tensors.get(1));
 
 				BOOL b = op1.isOperation();
-				b = alg.and(b, str.isCompatibleWith(op1));
 				b = alg.and(b, op2.isOperation());
+				b = alg.and(b, str.isCompatibleWith(op1));
 				b = alg.and(b, str.isCompatibleWith(op2));
+				if (stabilizer != null) {
+					b = alg.and(b, stabilizer.isClosedUnder(alg, op1));
+					b = alg.and(b, stabilizer.isClosedUnder(alg, op2));
+				}
 				b = alg.and(b, Operation.areJovanovicTerms(op1, op2));
 				return b;
 			}
@@ -242,8 +277,11 @@ public class CompatibleOps {
 
 				BOOL b = alg.TRUE;
 				for (int i = 0; i < ops.size(); i++) {
-					b = alg.and(b, ops.get(i).isOperation());
-					b = alg.and(b, str.isCompatibleWith(ops.get(i)));
+					Operation<BOOL> op = ops.get(i);
+					b = alg.and(b, op.isOperation());
+					b = alg.and(b, str.isCompatibleWith(op));
+					if (stabilizer != null)
+						b = alg.and(b, stabilizer.isClosedUnder(alg, op));
 				}
 
 				b = alg.and(b, Operation.areJonssonTerms(ops));
@@ -283,6 +321,8 @@ public class CompatibleOps {
 	}
 
 	public Function<Boolean> findTotallySymmetricIdempotentHomOld() {
+		assert stabilizer == null;
+
 		int size = structure.getSize();
 		List<Relation<Boolean>> subsets = Relation.subsets(size, 1, size);
 		final Structure<Boolean> complex = structure
@@ -313,8 +353,9 @@ public class CompatibleOps {
 	}
 
 	public Function<Boolean> findTotallySymmetricIdempotentHom() {
-		final int size = structure.getSize();
+		assert stabilizer == null;
 
+		final int size = structure.getSize();
 		final List<Relation<Boolean>> subsets = GeneratedRels.getTreeDefUnary(
 				structure).getRelations();
 		final Structure<Boolean> complex = structure
@@ -437,12 +478,14 @@ public class CompatibleOps {
 		printSpecialOps("Siggers terms, Taylor", findSiggersTerms());
 		printSpecialOps("Jovanovic terms, SD(meet)", findJovanovicTerms());
 
-		Function<Boolean> hom = findTotallySymmetricIdempotentHom();
-		if (hom != null) {
-			System.out.println("Totally symmetric idempotent terms: yes");
-			System.out.println(Function.format(hom));
-		} else
-			System.out.println("Totally symmetric idempotent terms: no");
+		if (stabilizer == null) {
+			Function<Boolean> hom = findTotallySymmetricIdempotentHom();
+			if (hom != null) {
+				System.out.println("Totally symmetric idempotent terms: yes");
+				System.out.println(Function.format(hom));
+			} else
+				System.out.println("Totally symmetric idempotent terms: no");
+		}
 
 		List<Operation<Boolean>> ops;
 		if ((ops = findJonssonTerms(1)) != null)

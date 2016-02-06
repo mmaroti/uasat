@@ -110,14 +110,45 @@ public class GeneratedOps implements Iterable<Operation<Boolean>> {
 		}
 	}
 
-	public boolean isCompositionClosed() {
+	public void addCompositions(Operation<Boolean> op) {
+		assert op.getSize() == size;
+
+		for (;;) {
+			int a = operations.size();
+
+			List<Operation<Boolean>> ops = new ArrayList<Operation<Boolean>>(
+					operations);
+
+			@SuppressWarnings("unchecked")
+			Operation<Boolean>[] args = new Operation[op.getArity()];
+
+			for (int radius = 0; radius < ops.size(); radius++) {
+				Iterator<int[]> iter = Util.hullIterator(radius, op.getArity());
+				while (iter.hasNext()) {
+					int[] index = iter.next();
+
+					for (int i = 0; i < args.length; i++)
+						args[i] = ops.get(index[i]);
+
+					Operation<Boolean> op2 = op.compose(args);
+					if (operations.add(op2))
+						ops.add(op2);
+				}
+			}
+
+			if (a == operations.size())
+				break;
+		}
+	}
+
+	public boolean isSelfClosed() {
 		List<Operation<Boolean>> ops = new ArrayList<Operation<Boolean>>(
 				operations);
 
 		@SuppressWarnings("unchecked")
 		Operation<Boolean>[] args = new Operation[arity];
 
-		Iterator<int[]> iter = Util.cubeIterator(size, arity + 1);
+		Iterator<int[]> iter = Util.cubeIterator(operations.size(), arity + 1);
 		while (iter.hasNext()) {
 			int[] index = iter.next();
 
@@ -131,6 +162,42 @@ public class GeneratedOps implements Iterable<Operation<Boolean>> {
 		}
 
 		return true;
+	}
+
+	public <BOOL> BOOL isClosedUnder(BoolAlgebra<BOOL> alg, Operation<BOOL> op) {
+		assert op.getSize() == size;
+
+		List<Operation<BOOL>> ops = Operation.lift(alg, operations);
+
+		@SuppressWarnings("unchecked")
+		Operation<BOOL>[] args = new Operation[op.getArity()];
+
+		BOOL b = alg.TRUE;
+		Iterator<int[]> iter = Util.cubeIterator(ops.size(), op.getArity());
+		while (iter.hasNext()) {
+			int[] index = iter.next();
+			for (int i = 0; i < args.length; i++)
+				args[i] = ops.get(index[i]);
+
+			Operation<BOOL> op2 = op.compose(args);
+			BOOL c = alg.FALSE;
+			for (Operation<BOOL> op3 : ops)
+				c = alg.or(c, op2.isEqualTo(op3));
+
+			b = alg.and(b, c);
+		}
+
+		return b;
+	}
+
+	public void removeProjections() {
+		List<Operation<Boolean>> ops = new ArrayList<Operation<Boolean>>(
+				operations);
+
+		for (Operation<Boolean> op : ops) {
+			if (op.isProjection())
+				operations.remove(op);
+		}
 	}
 
 	public void print() {

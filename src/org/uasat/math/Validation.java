@@ -275,7 +275,7 @@ public class Validation {
 
 		CompatibleRels subs = new CompatibleRels(z3);
 
-		int count = subs.findAllRels(4).size();
+		int count = subs.findAllRels(4, -1).size();
 		verify("A006117 the number of subspaces of Z_3^4", count, 212);
 	}
 

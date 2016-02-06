@@ -70,6 +70,11 @@ public class GeneratedRels implements Iterable<Relation<Boolean>> {
 		relations.add(rel);
 	}
 
+	public void addAll(Iterable<Relation<Boolean>> rels) {
+		for (Relation<Boolean> rel : rels)
+			add(rel);
+	}
+
 	public void addFull() {
 		relations.add(Relation.full(size, arity));
 	}
@@ -272,11 +277,11 @@ public class GeneratedRels implements Iterable<Relation<Boolean>> {
 		}
 	}
 
-	public void keepNonEmpty() {
+	public void removeEmpty() {
 		relations.remove(Relation.empty(size, arity));
 	}
 
-	public void keepMeetIrreducibles() {
+	public void removeMeetReducibles() {
 		List<Relation<Boolean>> rels = new ArrayList<Relation<Boolean>>(
 				relations);
 		relations.clear();

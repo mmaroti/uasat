@@ -57,7 +57,7 @@ public final class Relation<BOOL> {
 		return new Relation<Boolean>(BoolAlgebra.INSTANCE, tensor);
 	}
 
-	public static List<Relation<Boolean>> wrap(List<Tensor<Boolean>> tensors) {
+	public static List<Relation<Boolean>> wrap(Iterable<Tensor<Boolean>> tensors) {
 		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
 		for (Tensor<Boolean> t : tensors)
 			list.add(wrap(t));
@@ -71,7 +71,7 @@ public final class Relation<BOOL> {
 	}
 
 	public static <BOOL> List<Relation<BOOL>> lift(BoolAlgebra<BOOL> alg,
-			List<Relation<Boolean>> rels) {
+			Iterable<Relation<Boolean>> rels) {
 		List<Relation<BOOL>> list = new ArrayList<Relation<BOOL>>();
 		for (Relation<Boolean> rel : rels)
 			list.add(lift(alg, rel));
