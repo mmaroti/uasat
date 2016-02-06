@@ -1,18 +1,18 @@
 /**
  *	Copyright (C) Miklos Maroti, 2015
  *
- * This program is free software; you can redistribute it and/or modify it 
- * under the terms of the GNU General Public License as published by the 
- * Free Software Foundation; either version 2 of the License, or (at your 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but 
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along 
- * with this program; if not, write to the Free Software Foundation, Inc., 
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
@@ -95,7 +95,7 @@ public final class PartialOrder<BOOL> {
 		assert rel.isPartialOrder();
 		return rel.asPartialOrder();
 	}
-	
+
 	public static PartialOrder<Boolean> wrap(Tensor<Boolean> tensor) {
 		return new PartialOrder<Boolean>(BoolAlgebra.INSTANCE, tensor);
 	}
@@ -133,8 +133,7 @@ public final class PartialOrder<BOOL> {
 	}
 
 	public Relation<BOOL> covers() {
-		Relation<BOOL> tmp = Relation.lift(alg,
-				Relation.notEqual(getSize()));
+		Relation<BOOL> tmp = Relation.lift(alg, Relation.notEqual(getSize()));
 		tmp = tmp.intersect(asRelation());
 		return tmp.subtract(tmp.compose(tmp));
 	}
@@ -206,8 +205,7 @@ public final class PartialOrder<BOOL> {
 	public BOOL isAntiChain(Relation<BOOL> rel) {
 		assert rel.getArity() == 1;
 
-		Relation<BOOL> tmp = Relation.lift(alg,
-				Relation.notEqual(getSize()));
+		Relation<BOOL> tmp = Relation.lift(alg, Relation.notEqual(getSize()));
 		tmp = tmp.intersect(asRelation());
 		tmp = rel.compose(tmp).intersect(rel);
 		return tmp.isEmpty();

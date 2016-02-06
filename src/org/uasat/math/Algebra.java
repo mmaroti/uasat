@@ -73,7 +73,8 @@ public final class Algebra<BOOL> {
 
 	@SafeVarargs
 	final public Algebra<BOOL> extend(Operation<BOOL>... ops) {
-		List<Operation<BOOL>> list = new ArrayList<Operation<BOOL>>(this.operations);
+		List<Operation<BOOL>> list = new ArrayList<Operation<BOOL>>(
+				this.operations);
 
 		for (int i = 0; i < ops.length; i++) {
 			assert ops[i].getSize() == size && ops[i].getAlg() == alg;
