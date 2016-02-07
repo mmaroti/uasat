@@ -39,128 +39,49 @@ public class MonoidalInt {
 		return ops;
 	}
 
-	public static <ELEM> Tensor<ELEM> getCompatibility(
-			final BoolAlgebra<ELEM> alg, final List<Operation<ELEM>> ops,
-			final List<Relation<ELEM>> rels) {
-		return Tensor.generate(ops.size(), rels.size(),
-				new Func2<ELEM, Integer, Integer>() {
-					@Override
-					public ELEM call(Integer a, Integer b) {
-						return ops.get(a).preserves(rels.get(b));
-					}
-				});
-	}
-
-	public static void printMatrix(String what, Tensor<Boolean> rel) {
-		assert rel.getOrder() == 2;
-
-		System.out.println(what + ":");
-		for (int j = 0; j < rel.getDim(1); j++) {
-			for (int i = 0; i < rel.getDim(0); i++)
-				System.out.print(rel.getElem(i, j) ? "1" : "0");
-			System.out.println();
-		}
-	}
-
-	public static <ELEM> ELEM isClosedSubset(BoolAlgebra<ELEM> alg,
-			Tensor<ELEM> subset, Tensor<ELEM> galois) {
-		Tensor<ELEM> t;
-
-		t = Tensor.reduce(alg.ALL, "y", alg.LEQ, subset.named("x"),
-				galois.named("xy"));
-		t = Tensor.reduce(alg.ALL, "x", alg.LEQ, t.named("y"),
-				galois.named("xy"));
-		t = Tensor.map2(alg.EQU, subset, t);
-		t = Tensor.fold(alg.ALL, 1, t);
-
-		return t.get();
-	}
-
-	public static <ELEM> Tensor<Boolean> getClosedSubsets(
-			SatSolver<ELEM> solver, final Tensor<Boolean> galois) {
-		SatProblem prob = new SatProblem(new int[] { galois.getDim(0) }) {
-			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
-				Tensor<BOOL> sub = tensors.get(0);
-				Tensor<BOOL> rel = Tensor.map(alg.LIFT, galois);
-				return isClosedSubset(alg, sub, rel);
-			}
-		};
-
-		return prob.solveAll(solver, LIMIT).get(0);
-	}
-
-	public static <ELEM> Tensor<ELEM> transpose(Tensor<ELEM> matrix) {
-		assert matrix.getOrder() == 2;
-		return Tensor.reshape(matrix,
-				new int[] { matrix.getDim(1), matrix.getDim(0) }, new int[] {
-						1, 0 });
-	}
-
-	public static Tensor<Boolean> sort(Tensor<Boolean> tensor) {
-		List<Tensor<Boolean>> list = Tensor.unstack(tensor);
-
-		Collections.sort(list, new Comparator<Tensor<Boolean>>() {
-			@Override
-			public int compare(Tensor<Boolean> arg0, Tensor<Boolean> arg1) {
-				Iterator<Boolean> iter0 = arg0.iterator();
-				Iterator<Boolean> iter1 = arg1.iterator();
-
-				while (iter0.hasNext()) {
-					if (!iter1.hasNext())
-						return 1;
-
-					boolean b0 = iter0.next();
-					boolean b1 = iter1.next();
-					if (b0 && !b1)
-						return 1;
-					else if (!b0 && b1)
-						return -1;
-				}
-
-				return iter1.hasNext() ? -1 : 0;
-			}
-		});
-
-		int[] shape = new int[tensor.getOrder() - 1];
-		System.arraycopy(tensor.getShape(), 0, shape, 0, shape.length);
-		return Tensor.stack(shape, list);
-	}
-
 	protected static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
 	public static void printClones(String what, List<Operation<Boolean>> ops,
 			List<Relation<Boolean>> rels) {
-		if (ops.size() < LIMIT && rels.size() < LIMIT) {
-			Tensor<Boolean> compat = getCompatibility(BoolAlgebra.INSTANCE,
-					ops, rels);
-			Tensor<Boolean> closed = getClosedSubsets(SatSolver.getDefault(),
-					compat);
+		if (ops.size() >= LIMIT || rels.size() >= LIMIT)
+			return;
 
-			System.out.println("clones (" + what + "): " + closed.getDim(1));
-			if (closed.getDim(0) <= PRINT_LIMIT
-					&& closed.getDim(1) <= PRINT_LIMIT)
-				printMatrix("closed op subsets", sort(closed));
+		GaloisConn<Boolean> gal = GaloisConn.compatiblity(ops, rels);
+		List<Relation<Boolean>> list = GaloisConn.findLeftClosedRels(
+				SatSolver.getDefault(), gal, LIMIT);
+
+		System.out.println("clones (" + what + "): " + list.size());
+		if (list.size() <= PRINT_LIMIT && ops.size() <= PRINT_LIMIT
+				&& rels.size() <= PRINT_LIMIT) {
+			Collections.sort(list, Relation.COMPARATOR);
+			int c = 0;
+			for (Relation<Boolean> set : list) {
+				String o = Relation.formatMembers2(set);
+				String r = Relation.formatMembers2(gal.rightClosure(set));
+				System.out.println((c++) + ":\t" + o);
+				System.out.println("\t" + r);
+			}
 		}
 	}
 
-	public static void printRels(String what, Collection<Relation<Boolean>> rels) {
+	public static void printRels(String what, List<Relation<Boolean>> rels) {
 		System.out.println(what + (rels.size() < LIMIT ? ": " : ": >= ")
 				+ rels.size());
 
 		if (rels.size() <= PRINT_LIMIT) {
+			Collections.sort(rels, Relation.COMPARATOR);
 			int c = 0;
 			for (Relation<Boolean> rel : rels)
 				System.out.println((c++) + ":\t" + Relation.formatMembers(rel));
 		}
 	}
 
-	public static void printOps(String what, Collection<Operation<Boolean>> ops) {
+	public static void printOps(String what, List<Operation<Boolean>> ops) {
 		System.out.println(what + (ops.size() < LIMIT ? ": " : ": >= ")
 				+ ops.size());
 
 		if (ops.size() <= PRINT_LIMIT) {
+			Collections.sort(ops, Operation.COMPARATOR);
 			int c = 0;
 			for (Operation<Boolean> op : ops)
 				System.out.println((c++) + ":\t" + Operation.formatTable(op));
@@ -170,6 +91,8 @@ public class MonoidalInt {
 	public static void printStatistics(int size, String monoid) {
 		SatSolver<?> solver = SatSolver.getDefault();
 		solver.debugging = false;
+
+		long time = System.currentTimeMillis();
 
 		GeneratedOps ops = parseMonoid(size, monoid);
 		CompatibleRels crel = new CompatibleRels(Algebra.wrap(ops
@@ -190,8 +113,10 @@ public class MonoidalInt {
 		printRels("unique critical ternary rels",
 				crel.findUniqueCriticalRels(3));
 
-		// printRels("unique critical quaternary rels",
-		// crel.findUniqueCriticalRels(4));
+		List<Relation<Boolean>> quaternaryRels = crel.findUniqueRels(4, LIMIT);
+		printRels("unique quaternary rels", quaternaryRels);
+		printRels("unique critical quaternary rels",
+				crel.findUniqueCriticalRels(4));
 
 		CompatibleOps cops = new CompatibleOps(
 				Structure.trivial(ops.getSize()), ops);
@@ -204,12 +129,12 @@ public class MonoidalInt {
 				LIMIT);
 		printOps("unique ternary ops", ternaryOps);
 
-		long time = System.currentTimeMillis();
-
 		printClones("op 2 rel 2", binaryOps, binaryRels);
 		printClones("op 2 rel 3", binaryOps, ternaryRels);
+		printClones("op 2 rel 4", binaryOps, quaternaryRels);
 		printClones("op 3 rel 2", ternaryOps, binaryRels);
 		printClones("op 3 rel 3", ternaryOps, ternaryRels);
+		printClones("op 3 rel 4", ternaryOps, quaternaryRels);
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
@@ -359,6 +284,6 @@ public class MonoidalInt {
 		printStatistics(3, monoid);
 	}
 
-	public static final int LIMIT = 1000;
-	public static final int PRINT_LIMIT = 100;
+	public static final int LIMIT = 25000;
+	public static final int PRINT_LIMIT = 50;
 }

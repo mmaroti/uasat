@@ -66,6 +66,14 @@ public final class Util {
 			s.append(formatIndex(tuple[i]));
 	}
 
+	public static void formatTuple2(int[] tuple, StringBuilder s) {
+		for (int i = 0; i < tuple.length; i++) {
+			if (i != 0)
+				s.append(',');
+			s.append(tuple[i]);
+		}
+	}
+
 	public static int[] parseTuple(int size, String str) {
 		int[] tuple = new int[str.length()];
 

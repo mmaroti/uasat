@@ -18,6 +18,8 @@
 
 package org.uasat.math;
 
+import java.util.*;
+
 import org.uasat.core.*;
 
 public final class GaloisConn<BOOL> {
@@ -48,13 +50,36 @@ public final class GaloisConn<BOOL> {
 	}
 
 	public static <BOOL> GaloisConn<BOOL> lift(BoolAlgebra<BOOL> alg,
-			GaloisConn<Boolean> rel) {
-		Tensor<BOOL> tensor = Tensor.map(alg.LIFT, rel.tensor);
+			GaloisConn<Boolean> galois) {
+		Tensor<BOOL> tensor = Tensor.map(alg.LIFT, galois.tensor);
 		return new GaloisConn<BOOL>(alg, tensor);
 	}
 
 	public static GaloisConn<Boolean> wrap(Tensor<Boolean> tensor) {
 		return new GaloisConn<Boolean>(BoolAlgebra.INSTANCE, tensor);
+	}
+
+	public static <BOOL> GaloisConn<BOOL> compatibility(
+			final BoolAlgebra<BOOL> alg, final List<Operation<BOOL>> ops,
+			final List<Relation<BOOL>> rels) {
+		Tensor<BOOL> t = Tensor.generate(ops.size(), rels.size(),
+				new Func2<BOOL, Integer, Integer>() {
+					@Override
+					public BOOL call(Integer a, Integer b) {
+						return ops.get(a).preserves(rels.get(b));
+					}
+				});
+		return new GaloisConn<BOOL>(alg, t);
+	}
+
+	public static GaloisConn<Boolean> compatiblity(
+			List<Operation<Boolean>> ops, List<Relation<Boolean>> rels) {
+		return compatibility(BoolAlgebra.INSTANCE, ops, rels);
+	}
+
+	public GaloisConn<BOOL> transpose() {
+		int[] s = new int[] { tensor.getDim(1), tensor.getDim(0) };
+		return new GaloisConn<BOOL>(alg, Tensor.reshape(tensor, s, MAP10));
 	}
 
 	private static int[] MAP0 = new int[] { 0 };
@@ -67,10 +92,10 @@ public final class GaloisConn<BOOL> {
 	}
 
 	private Tensor<BOOL> leftClosure(Tensor<BOOL> right) {
-		int[] shape = tensor.getShape();
-		Tensor<BOOL> t = Tensor.reshape(right, shape, MAP1);
+		Tensor<BOOL> t = Tensor.reshape(right, tensor.getShape(), MAP1);
 		t = Tensor.map2(alg.LEQ, t, tensor);
-		t = Tensor.reshape(t, new int[] { shape[1], shape[0] }, MAP10);
+		int[] s = new int[] { tensor.getDim(1), tensor.getDim(0) };
+		t = Tensor.reshape(t, s, MAP10);
 		return Tensor.fold(alg.ALL, 1, t);
 	}
 
@@ -87,14 +112,34 @@ public final class GaloisConn<BOOL> {
 	}
 
 	public BOOL isLeftClosed(Relation<BOOL> left) {
-		Tensor<BOOL> t = rightClosure(leftClosure(left.getTensor()));
+		assert left.getArity() == 1 && left.getSize() == tensor.getDim(0);
+
+		Tensor<BOOL> t = leftClosure(rightClosure(left.getTensor()));
 		t = Tensor.map2(alg.EQU, t, left.getTensor());
 		return Tensor.fold(alg.ALL, 1, t).get();
 	}
 
 	public BOOL isRightClosed(Relation<BOOL> right) {
-		Tensor<BOOL> t = leftClosure(rightClosure(right.getTensor()));
+		assert right.getArity() == 1 && right.getSize() == tensor.getDim(1);
+
+		Tensor<BOOL> t = rightClosure(leftClosure(right.getTensor()));
 		t = Tensor.map2(alg.EQU, t, right.getTensor());
 		return Tensor.fold(alg.ALL, 1, t).get();
+	}
+
+	public static List<Relation<Boolean>> findLeftClosedRels(
+			SatSolver<?> solver, final GaloisConn<Boolean> galois, int limit) {
+		SatProblem problem = new SatProblem(new int[] { galois.getLeftSize() }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
+				GaloisConn<BOOL> gal = GaloisConn.lift(alg, galois);
+				return gal.isLeftClosed(rel);
+			}
+		};
+
+		Tensor<Boolean> sol = problem.solveAll(solver, limit).get(0);
+		return Relation.wrap(Tensor.unstack(sol));
 	}
 }

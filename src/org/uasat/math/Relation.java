@@ -42,6 +42,10 @@ public final class Relation<BOOL> {
 		return tensor.getOrder();
 	}
 
+	public BOOL getValue(int... index) {
+		return tensor.getElem(index);
+	}
+
 	public Relation(BoolAlgebra<BOOL> alg, Tensor<BOOL> tensor) {
 		assert 1 <= tensor.getOrder();
 
@@ -684,24 +688,15 @@ public final class Relation<BOOL> {
 	public static String formatMembers(Relation<Boolean> rel) {
 		StringBuilder s = new StringBuilder();
 
-		Tensor<Boolean> tensor = rel.getTensor();
-		int[] index = new int[tensor.getOrder()];
-
-		outer: for (;;) {
-			if (tensor.getElem(index)) {
+		Iterator<int[]> iter = Util.cubeIterator(rel.getSize(), rel.getArity());
+		while (iter.hasNext()) {
+			int[] index = iter.next();
+			if (rel.getValue(index)) {
 				if (s.length() != 0)
 					s.append(' ');
 
 				Util.formatTuple(index, s);
 			}
-
-			for (int i = index.length - 1; i >= 0; i--) {
-				if (++index[i] >= tensor.getDim(i))
-					index[i] = 0;
-				else
-					continue outer;
-			}
-			break;
 		}
 
 		return s.toString();
@@ -733,6 +728,23 @@ public final class Relation<BOOL> {
 		assert p == 0;
 
 		return Relation.wrap(tensor);
+	}
+
+	public static String formatMembers2(Relation<Boolean> rel) {
+		StringBuilder s = new StringBuilder();
+
+		Iterator<int[]> iter = Util.cubeIterator(rel.getSize(), rel.getArity());
+		while (iter.hasNext()) {
+			int[] index = iter.next();
+			if (rel.getValue(index)) {
+				if (s.length() != 0)
+					s.append(' ');
+
+				Util.formatTuple2(index, s);
+			}
+		}
+
+		return s.toString();
 	}
 
 	@Override
