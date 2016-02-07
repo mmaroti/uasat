@@ -40,8 +40,10 @@ public class FanoPlane2 {
 			Tensor<ELEM> g = tensors.get(0);
 			Tensor<ELEM> p = Tensor.map(alg.LIFT, pts);
 
-			Tensor<ELEM> t = Tensor.reduce(alg.SUM, "ik", alg.AND,
-					g.named("ij"), p.named("jk"));
+			Contract<ELEM> c = Contract.linear(alg);
+			c.add(g, "ij");
+			c.add(p, "jk");
+			Tensor<ELEM> t = c.get("ik");
 			ELEM b = Tensor.fold(alg.ALL, 1, Tensor.fold(alg.ANY, 1, t)).get();
 
 			List<Tensor<ELEM>> xs = Tensor.unstack(t);
