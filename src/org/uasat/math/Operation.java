@@ -690,14 +690,14 @@ public final class Operation<BOOL> {
 		assert getAlg() == op.getAlg() && getSize() == op.getSize()
 				&& getArity() == op.getArity();
 
-		return alg.lexLeq(getTensor(), op.getTensor());
+		return alg.lexLeq(tensor, op.tensor);
 	}
 
 	public BOOL isLexLess(Operation<BOOL> op) {
 		assert getAlg() == op.getAlg() && getSize() == op.getSize()
 				&& getArity() == op.getArity();
 
-		return alg.lexLess(getTensor(), op.getTensor());
+		return alg.lexLess(tensor, op.tensor);
 	}
 
 	public static Tensor<Integer> decode(Operation<Boolean> op) {
@@ -718,7 +718,7 @@ public final class Operation<BOOL> {
 			}
 		};
 
-		return Tensor.fold(lookup, 1, op.getTensor());
+		return Tensor.fold(lookup, 1, op.tensor);
 	}
 
 	public static Operation<Boolean> encode(int size,
@@ -798,7 +798,7 @@ public final class Operation<BOOL> {
 			assert o1.getSize() == o2.getSize()
 					&& o1.getArity() == o2.getArity();
 
-			return comp.compare(o2.getTensor(), o1.getTensor());
+			return comp.compare(o2.tensor, o1.tensor);
 		}
 	};
 

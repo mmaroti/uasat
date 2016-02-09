@@ -127,7 +127,7 @@ public final class GaloisConn<BOOL> {
 		return Tensor.fold(alg.ALL, 1, t).get();
 	}
 
-	public static List<Relation<Boolean>> findLeftClosedRels(
+	public static List<Relation<Boolean>> findLeftClosedSets(
 			SatSolver<?> solver, final GaloisConn<Boolean> galois, int limit) {
 		SatProblem problem = new SatProblem(new int[] { galois.getLeftSize() }) {
 			@Override
@@ -141,5 +141,35 @@ public final class GaloisConn<BOOL> {
 
 		Tensor<Boolean> sol = problem.solveAll(solver, limit).get(0);
 		return Relation.wrap(Tensor.unstack(sol));
+	}
+
+	public static List<Relation<Boolean>> findRightClosedSets(
+			SatSolver<?> solver, final GaloisConn<Boolean> galois, int limit) {
+		SatProblem problem = new SatProblem(new int[] { galois.getRightSize() }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
+				GaloisConn<BOOL> gal = GaloisConn.lift(alg, galois);
+				return gal.isRightClosed(rel);
+			}
+		};
+
+		Tensor<Boolean> sol = problem.solveAll(solver, limit).get(0);
+		return Relation.wrap(Tensor.unstack(sol));
+	}
+
+	public static void print(GaloisConn<Boolean> galois) {
+		Tensor<Boolean> t = galois.tensor;
+		System.out.println("galois connection: " + t.getDim(0) + " by "
+				+ t.getDim(1));
+
+		StringBuilder s = new StringBuilder();
+		for (int i = 0; i < t.getDim(0); i++) {
+			for (int j = 0; j < t.getDim(1); j++)
+				s.append(t.getElem(i, j) ? '1' : '0');
+			s.append('\n');
+		}
+		System.out.print(s.toString());
 	}
 }

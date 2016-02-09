@@ -47,7 +47,7 @@ public class MonoidalInt {
 			return;
 
 		GaloisConn<Boolean> gal = GaloisConn.compatiblity(ops, rels);
-		List<Relation<Boolean>> list = GaloisConn.findLeftClosedRels(
+		List<Relation<Boolean>> list = GaloisConn.findLeftClosedSets(
 				SatSolver.getDefault(), gal, LIMIT);
 
 		System.out.println("clones (" + what + "): " + list.size());

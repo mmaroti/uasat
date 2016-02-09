@@ -289,23 +289,25 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		ELEM[] src = arg.elems;
 		ELEM[] dst = tensor.elems;
 
-		int pos = 0;
-		int idx = 0;
-		outer: for (;;) {
-			dst[idx++] = src[pos];
+		if (dst.length > 0) {
+			int pos = 0;
+			int idx = 0;
+			outer: for (;;) {
+				dst[idx++] = src[pos];
 
-			for (int i = 0; i < index.length; i++) {
-				if (++index[i] >= shape[i]) {
-					index[i] = 0;
-					pos -= stepb[i];
-				} else {
-					pos += stepa[i];
-					continue outer;
+				for (int i = 0; i < index.length; i++) {
+					if (++index[i] >= shape[i]) {
+						index[i] = 0;
+						pos -= stepb[i];
+					} else {
+						pos += stepa[i];
+						continue outer;
+					}
 				}
+				break;
 			}
-			break;
+			assert idx == dst.length;
 		}
-		assert idx == dst.length;
 
 		return tensor;
 	}
