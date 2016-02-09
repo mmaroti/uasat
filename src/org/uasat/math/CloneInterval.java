@@ -148,45 +148,27 @@ public class CloneInterval {
 		return new Relation<BOOL>(alg, tensor);
 	}
 
-	private static class Pair {
-		final Operation<Boolean> op;
-		final Relation<Boolean> rel;
-
-		Pair(Operation<Boolean> op, Relation<Boolean> rel) {
-			this.op = op;
-			this.rel = rel;
-		}
-	}
-
-	private Pair getCriticalPair(int opArity, int relArity) {
+	public boolean addCriticalPair(int opArity, int relArity) {
 		assert opArity >= 0 && relArity >= 1;
 
 		SatProblem problem = new SatProblem(new int[] { operations.size() },
-				new int[] { relations.size() }, Util.createShape(size,
-						opArity + 1), Util.createShape(size, relArity)) {
+				Util.createShape(size, opArity + 1), Util.createShape(size,
+						relArity)) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
-				Relation<BOOL> ops = new Relation<BOOL>(alg, tensors.get(0));
-				Relation<BOOL> rels = new Relation<BOOL>(alg, tensors.get(1));
-				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(2));
-				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(3));
+				Relation<BOOL> oset = new Relation<BOOL>(alg, tensors.get(0));
+				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(1));
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(2));
+
 				GaloisConn<BOOL> gal = GaloisConn.lift(alg, galois);
+				Relation<BOOL> rset = gal.rightClosure(oset);
 
 				BOOL b = op.isOperation();
 				b = alg.and(b, alg.not(op.preserves(rel)));
-
-				Relation<BOOL> p1 = preservedOps(alg, rel);
-				Relation<BOOL> c1 = gal.leftClosure(rels);
-				b = alg.and(b, p1.intersect(c1).isEqualTo(ops));
-
-				Relation<BOOL> p2 = preservedRels(alg, op);
-				Relation<BOOL> c2 = gal.rightClosure(ops);
-				b = alg.and(b, p2.intersect(c2).isEqualTo(rels));
-
-				Relation<BOOL> d1 = gal.leftClosure(c2);
-				// Relation<BOOL> d2 = gal.rightClosure(c1);
-				b = alg.and(b, alg.not(d1.isEqualTo(ops)));
+				b = alg.and(b, oset.isSubsetOf(preservedOps(alg, rel)));
+				b = alg.and(b, rset.isSubsetOf(preservedRels(alg, op)));
+				b = alg.and(b, gal.leftClosure(rset).isEqualTo(oset));
 
 				return b;
 			}
@@ -194,53 +176,97 @@ public class CloneInterval {
 
 		List<Tensor<Boolean>> sol = problem.solveOne(solver);
 		if (sol == null)
-			return null;
-
-		System.out.println(sol.get(0));
-		System.out.println(sol.get(1));
-		System.out.println(sol.get(2));
-		System.out.println(sol.get(3));
-
-		return new Pair(Operation.wrap(sol.get(2)), Relation.wrap(sol.get(3)));
-	}
-
-	public boolean addCriticalPair(int opArity, int relArity) {
-		Pair pair = getCriticalPair(opArity, relArity);
-		if (pair == null)
 			return false;
 
-		add(pair.op);
-		add(pair.rel);
+		add(Operation.wrap(sol.get(1)));
+		add(Relation.wrap(sol.get(2)));
 		return true;
 	}
 
 	public boolean addCriticalOp(int opArity, int relArity) {
-		Pair pair = getCriticalPair(opArity, relArity);
-		if (pair == null)
+		assert opArity >= 0 && relArity >= 1;
+
+		SatProblem problem = new SatProblem(
+				Util.createShape(size, opArity + 1), Util.createShape(size,
+						relArity)) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(1));
+				GaloisConn<BOOL> gal = GaloisConn.lift(alg, galois);
+
+				BOOL b = op.isOperation();
+				b = alg.and(b, alg.not(op.preserves(rel)));
+
+				Relation<BOOL> rset = preservedRels(alg, op);
+				Relation<BOOL> oset = gal.leftClosure(rset);
+				b = alg.and(b, oset.isSubsetOf(preservedOps(alg, rel)));
+
+				return b;
+			}
+		};
+
+		List<Tensor<Boolean>> sol = problem.solveOne(solver);
+		if (sol == null)
 			return false;
 
-		add(pair.op);
+		add(Operation.wrap(sol.get(0)));
 		return true;
 	}
 
 	public boolean addCriticalRel(int opArity, int relArity) {
-		Pair pair = getCriticalPair(opArity, relArity);
-		if (pair == null)
+		assert opArity >= 0 && relArity >= 1;
+
+		SatProblem problem = new SatProblem(
+				Util.createShape(size, opArity + 1), Util.createShape(size,
+						relArity)) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(1));
+				GaloisConn<BOOL> gal = GaloisConn.lift(alg, galois);
+
+				BOOL b = op.isOperation();
+				b = alg.and(b, alg.not(op.preserves(rel)));
+
+				Relation<BOOL> oset = preservedOps(alg, rel);
+				Relation<BOOL> rset = gal.rightClosure(oset);
+				b = alg.and(b, rset.isSubsetOf(preservedRels(alg, op)));
+
+				return b;
+			}
+		};
+
+		List<Tensor<Boolean>> sol = problem.solveOne(solver);
+		if (sol == null)
 			return false;
 
-		add(pair.rel);
+		add(Relation.wrap(sol.get(1)));
 		return true;
 	}
 
-	public boolean hasCriticalPair(int opArity, int relArity) {
-		return getCriticalPair(opArity, relArity) != null;
+	public void addCriticalAll(int opArity, int relArity) {
+		for (int i = 1; i <= Math.max(opArity, relArity); i++) {
+			if (i <= relArity)
+				for (; addCriticalRel(Math.min(opArity, i), i);)
+					;
+
+			if (i <= opArity)
+				for (; addCriticalOp(i, Math.min(relArity, i));)
+					;
+
+			for (; addCriticalPair(Math.min(opArity, i), Math.min(relArity, i));)
+				;
+		}
 	}
 
-	List<Relation<Boolean>> getClosedOpSets(int limit) {
+	public List<Relation<Boolean>> getClosedOpSets(int limit) {
 		return GaloisConn.findLeftClosedSets(solver, galois, limit);
 	}
 
-	List<Relation<Boolean>> getClosedRelSets(int limit) {
+	public List<Relation<Boolean>> getClosedRelSets(int limit) {
 		return GaloisConn.findRightClosedSets(solver, galois, limit);
 	}
 
@@ -258,6 +284,15 @@ public class CloneInterval {
 			System.out.println((c++) + ":\t" + Relation.formatMembers(rel));
 
 		GaloisConn.print(galois);
+	}
+
+	public void printClosedOpSets(int limit) {
+		List<Relation<Boolean>> sets = getClosedOpSets(limit);
+		System.out.println("closed sets of ops: "
+				+ (sets.size() == limit ? ">=" : "") + sets.size());
+
+		for (int i = 0; i < sets.size(); i++)
+			System.out.println(i + ":\t" + Relation.formatMembers(sets.get(i)));
 	}
 
 	public void printClosedRelSets(int limit) {
@@ -285,12 +320,22 @@ public class CloneInterval {
 
 	public static void main(String[] args) {
 		CloneInterval clone = new CloneInterval(2);
-		for (int i = 0; i < 10; i++) {
-			if (!clone.addCriticalPair(1, 1))
-				break;
-			clone.print();
-			clone.printClosedRelSets(-1);
+		clone.addCriticalAll(3, 4);
+		clone.print();
+		clone.printClosedOpSets(-1);
+		clone.printClosedRelSets(-1);
+	}
 
+	public static void main3(String[] args) {
+		CloneInterval clone = new CloneInterval(2);
+
+		for (int i = 0; i < 8; i++) {
+			clone.addCriticalPair(2, 2);
+			clone.addCriticalOp(2, 2);
+			clone.addCriticalRel(2, 2);
+			clone.print();
+			clone.printClosedOpSets(-1);
+			clone.printClosedRelSets(-1);
 			System.out.println();
 		}
 	}
