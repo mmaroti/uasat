@@ -116,8 +116,20 @@ public final class Structure<BOOL> {
 	}
 
 	@SafeVarargs
+	public static Structure<Boolean> wrap(int size, Relation<Boolean>... rels) {
+		return new Structure<Boolean>(BoolAlgebra.INSTANCE, size,
+				Arrays.asList(rels));
+	}
+
+	@SafeVarargs
 	public static Structure<Boolean> wrap(Relation<Boolean>... rels) {
 		return new Structure<Boolean>(BoolAlgebra.INSTANCE, rels);
+	}
+
+	public static Structure<Boolean> wrap(List<Relation<Boolean>> rels) {
+		assert rels.size() >= 1;
+		return new Structure<Boolean>(BoolAlgebra.INSTANCE, rels.get(0)
+				.getSize(), rels);
 	}
 
 	public static Structure<Boolean> trivial(int size) {
