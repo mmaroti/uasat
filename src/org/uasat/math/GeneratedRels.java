@@ -343,7 +343,7 @@ public class GeneratedRels implements Iterable<Relation<Boolean>> {
 
 		int c = 0;
 		for (Relation<Boolean> rel : relations)
-			System.out.println((c++) + ":\t" + Relation.formatMembers(rel));
+			System.out.println((c++) + ":\t" + Relation.format(rel));
 
 		System.out.println();
 	}

@@ -27,17 +27,17 @@ import org.uasat.math.*;
 public class TestSubpowers {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
-	public static Operation<Boolean> ZERO = Operation.parseTable(2, 0, "0");
-	public static Operation<Boolean> ONE = Operation.parseTable(2, 0, "1");
-	public static Operation<Boolean> NOT = Operation.parseTable(2, 1, "10");
-	public static Operation<Boolean> MEET = Operation.parseTable(2, 2, "00 01");
-	public static Operation<Boolean> JOIN = Operation.parseTable(2, 2, "01 11");
-	public static Operation<Boolean> ADD = Operation.parseTable(2, 2, "01 10");
-	public static Operation<Boolean> EQU = Operation.parseTable(2, 2, "10 01");
-	public static Operation<Boolean> IMPL = Operation.parseTable(2, 2, "11 01");
-	public static Operation<Boolean> MAJOR = Operation.parseTable(2, 3,
+	public static Operation<Boolean> ZERO = Operation.parse(2, 0, "0");
+	public static Operation<Boolean> ONE = Operation.parse(2, 0, "1");
+	public static Operation<Boolean> NOT = Operation.parse(2, 1, "10");
+	public static Operation<Boolean> MEET = Operation.parse(2, 2, "00 01");
+	public static Operation<Boolean> JOIN = Operation.parse(2, 2, "01 11");
+	public static Operation<Boolean> ADD = Operation.parse(2, 2, "01 10");
+	public static Operation<Boolean> EQU = Operation.parse(2, 2, "10 01");
+	public static Operation<Boolean> IMPL = Operation.parse(2, 2, "11 01");
+	public static Operation<Boolean> MAJOR = Operation.parse(2, 3,
 			"00 01 01 11");
-	public static Operation<Boolean> MINOR = Operation.parseTable(2, 3,
+	public static Operation<Boolean> MINOR = Operation.parse(2, 3,
 			"01 10 10 01");
 
 	public static void main(String[] args) {
@@ -61,7 +61,7 @@ public class TestSubpowers {
 		final Relation<Boolean> res = Relation.singleton(size, 0).cartesian(
 				Relation.full(size, arity - 1));
 
-		System.out.println(Relation.formatMembers(res));
+		System.out.println(Relation.format(res));
 
 		SatProblem prob = new SatProblem(new int[] { size, size, size, size },
 				new int[] { size, size, size, size }, Util.createShape(size,
@@ -97,9 +97,9 @@ public class TestSubpowers {
 		Operation<Boolean> op2 = Operation.wrap(tensors.get(1));
 		Relation<Boolean> rel = Relation.wrap(tensors.get(2));
 
-		System.out.println(Operation.formatTable(op1));
-		System.out.println(Operation.formatTable(op2));
-		System.out.println(Relation.formatMembers(rel));
+		System.out.println(Operation.format(op1));
+		System.out.println(Operation.format(op2));
+		System.out.println(Relation.format(rel));
 	}
 
 	public static void main2(String[] args) {

@@ -318,7 +318,7 @@ public class CompatibleRels {
 				+ list.size());
 
 		for (int i = 0; i < list.size(); i++)
-			System.out.println(i + ":\t" + Relation.formatMembers(list.get(i)));
+			System.out.println(i + ":\t" + Relation.format(list.get(i)));
 	}
 
 	public void printAllRels(int arity) {

@@ -164,7 +164,7 @@ public class Validation {
 	}
 
 	void checkThreeColorableGraphs() {
-		final Relation<Boolean> cycle = Relation.parseMembers(3, 2, "01 12 20")
+		final Relation<Boolean> cycle = Relation.parse(3, 2, "01 12 20")
 				.symmetricClosure();
 
 		SatProblem problem = new SatProblem(Tensor.constant(new int[] { 5, 5 },
@@ -270,8 +270,8 @@ public class Validation {
 
 	void checkSubspaces() {
 		Algebra<Boolean> z3 = Algebra.wrap(
-				Operation.parseTable(3, 2, "012 120 201"),
-				Operation.parseTable(3, 0, "0"));
+				Operation.parse(3, 2, "012 120 201"),
+				Operation.parse(3, 0, "0"));
 
 		CompatibleRels subs = new CompatibleRels(z3);
 

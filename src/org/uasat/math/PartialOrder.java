@@ -217,12 +217,12 @@ public final class PartialOrder<BOOL> {
 		return new PartialOrder<BOOL>(alg, tensor);
 	}
 
-	public static String formatCovers(PartialOrder<Boolean> ord) {
-		return Relation.formatMembers(ord.covers());
+	public static String format(PartialOrder<Boolean> ord) {
+		return Relation.format(ord.covers());
 	}
 
-	public static PartialOrder<Boolean> parseCovers(String str, int size) {
-		Relation<Boolean> rel = Relation.parseMembers(size, 2, str);
+	public static PartialOrder<Boolean> parse(String str, int size) {
+		Relation<Boolean> rel = Relation.parse(size, 2, str);
 		rel = Relation.transitiveClosure(rel).reflexiveClosure();
 
 		assert rel.isAntiSymmetric();

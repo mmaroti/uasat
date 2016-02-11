@@ -203,11 +203,11 @@ public class ClonePair {
 		System.out.println("operations: " + operations.size());
 		int c = 0;
 		for (Operation<Boolean> op : operations)
-			System.out.println((c++) + ":\t" + Operation.formatTable(op));
+			System.out.println((c++) + ":\t" + Operation.format(op));
 
 		System.out.println("relations: " + relations.size());
 		c = 0;
 		for (Relation<Boolean> rel : relations)
-			System.out.println((c++) + ":\t" + Relation.formatMembers(rel));
+			System.out.println((c++) + ":\t" + Relation.format(rel));
 	}
 }

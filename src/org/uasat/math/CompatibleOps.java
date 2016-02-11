@@ -399,7 +399,7 @@ public class CompatibleOps {
 				+ (list.size() < maxSolutions ? "" : ">= ") + list.size());
 
 		for (int i = 0; i < Math.min(list.size(), printLimit); i++)
-			System.out.println(Operation.formatTable(list.get(i)));
+			System.out.println(Operation.format(list.get(i)));
 
 		return !list.isEmpty();
 	}
@@ -469,7 +469,7 @@ public class CompatibleOps {
 		else {
 			System.out.println(what + ": yes");
 			for (Operation<Boolean> op : ops)
-				System.out.println(Operation.formatTable(op));
+				System.out.println(Operation.format(op));
 		}
 		return ops != null;
 	}

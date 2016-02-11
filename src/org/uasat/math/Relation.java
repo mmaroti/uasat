@@ -685,7 +685,7 @@ public final class Relation<BOOL> {
 		return new Relation<BOOL>(alg, tensor);
 	}
 
-	public static String formatMembers(Relation<Boolean> rel) {
+	public static String format(Relation<Boolean> rel) {
 		StringBuilder s = new StringBuilder();
 
 		Iterator<int[]> iter = Util.cubeIterator(rel.getSize(), rel.getArity());
@@ -702,7 +702,7 @@ public final class Relation<BOOL> {
 		return s.toString();
 	}
 
-	public static Relation<Boolean> parseMembers(int size, int arity, String str) {
+	public static Relation<Boolean> parse(int size, int arity, String str) {
 		assert arity >= 1;
 
 		Tensor<Boolean> tensor;
@@ -728,23 +728,6 @@ public final class Relation<BOOL> {
 		assert p == 0;
 
 		return Relation.wrap(tensor);
-	}
-
-	public static String formatMembers2(Relation<Boolean> rel) {
-		StringBuilder s = new StringBuilder();
-
-		Iterator<int[]> iter = Util.cubeIterator(rel.getSize(), rel.getArity());
-		while (iter.hasNext()) {
-			int[] index = iter.next();
-			if (rel.getValue(index)) {
-				if (s.length() != 0)
-					s.append(' ');
-
-				Util.formatTuple2(index, s);
-			}
-		}
-
-		return s.toString();
 	}
 
 	@Override
@@ -859,9 +842,9 @@ public final class Relation<BOOL> {
 		System.out.println(s);
 		if (poset) {
 			Relation<Boolean> covers = rel.asPartialOrder().covers();
-			System.out.println("covers: " + Relation.formatMembers(covers));
+			System.out.println("covers: " + Relation.format(covers));
 		}
 
-		System.out.println("members: " + Relation.formatMembers(rel));
+		System.out.println("members: " + Relation.format(rel));
 	}
 }

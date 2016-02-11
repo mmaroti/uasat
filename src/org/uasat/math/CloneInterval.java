@@ -310,12 +310,12 @@ public class CloneInterval {
 		System.out.println("operations: " + operations.size());
 		int c = 0;
 		for (Operation<Boolean> op : operations)
-			System.out.println((c++) + ":\t" + Operation.formatTable(op));
+			System.out.println((c++) + ":\t" + Operation.format(op));
 
 		System.out.println("relations: " + relations.size());
 		c = 0;
 		for (Relation<Boolean> rel : relations)
-			System.out.println((c++) + ":\t" + Relation.formatMembers(rel));
+			System.out.println((c++) + ":\t" + Relation.format(rel));
 
 		GaloisConn.print(galois);
 	}
@@ -326,7 +326,7 @@ public class CloneInterval {
 				+ (sets.size() == limit ? ">=" : "") + sets.size());
 
 		for (int i = 0; i < sets.size(); i++)
-			System.out.println(i + ":\t" + Relation.formatMembers(sets.get(i)));
+			System.out.println(i + ":\t" + Relation.format(sets.get(i)));
 	}
 
 	public void printClosedRelSets(int limit) {
@@ -335,19 +335,19 @@ public class CloneInterval {
 				+ (sets.size() == limit ? ">=" : "") + sets.size());
 
 		for (int i = 0; i < sets.size(); i++)
-			System.out.println(i + ":\t" + Relation.formatMembers(sets.get(i)));
+			System.out.println(i + ":\t" + Relation.format(sets.get(i)));
 	}
 
 	public static void main2(String[] args) {
 		CloneInterval clone = new CloneInterval(2);
-		clone.add(Relation.parseMembers(2, 1, ""));
-		clone.add(Relation.parseMembers(2, 1, "0"));
-		clone.add(Relation.parseMembers(2, 1, "1"));
-		clone.add(Relation.parseMembers(2, 1, "0 1"));
-		clone.add(Operation.parseTable(2, 1, "00"));
-		clone.add(Operation.parseTable(2, 1, "01"));
-		clone.add(Operation.parseTable(2, 1, "10"));
-		clone.add(Operation.parseTable(2, 1, "11"));
+		clone.add(Relation.parse(2, 1, ""));
+		clone.add(Relation.parse(2, 1, "0"));
+		clone.add(Relation.parse(2, 1, "1"));
+		clone.add(Relation.parse(2, 1, "0 1"));
+		clone.add(Operation.parse(2, 1, "00"));
+		clone.add(Operation.parse(2, 1, "01"));
+		clone.add(Operation.parse(2, 1, "10"));
+		clone.add(Operation.parse(2, 1, "11"));
 		clone.print();
 		clone.printClosedRelSets(-1);
 	}

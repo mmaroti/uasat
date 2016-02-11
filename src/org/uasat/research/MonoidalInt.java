@@ -32,7 +32,7 @@ public class MonoidalInt {
 			if (m.isEmpty())
 				continue;
 
-			ops.add(Operation.parseTable(size, 1, m));
+			ops.add(Operation.parse(size, 1, m));
 		}
 
 		assert ops.isSelfClosed();
@@ -56,8 +56,8 @@ public class MonoidalInt {
 			Collections.sort(list, Relation.COMPARATOR);
 			int c = 0;
 			for (Relation<Boolean> set : list) {
-				String o = Relation.formatMembers2(set);
-				String r = Relation.formatMembers2(gal.rightClosure(set));
+				String o = Relation.format(set);
+				String r = Relation.format(gal.rightClosure(set));
 				System.out.println((c++) + ":\t" + o);
 				System.out.println("\t" + r);
 			}
@@ -72,7 +72,7 @@ public class MonoidalInt {
 			Collections.sort(rels, Relation.COMPARATOR);
 			int c = 0;
 			for (Relation<Boolean> rel : rels)
-				System.out.println((c++) + ":\t" + Relation.formatMembers(rel));
+				System.out.println((c++) + ":\t" + Relation.format(rel));
 		}
 	}
 
@@ -84,7 +84,7 @@ public class MonoidalInt {
 			Collections.sort(ops, Operation.COMPARATOR);
 			int c = 0;
 			for (Operation<Boolean> op : ops)
-				System.out.println((c++) + ":\t" + Operation.formatTable(op));
+				System.out.println((c++) + ":\t" + Operation.format(op));
 		}
 	}
 

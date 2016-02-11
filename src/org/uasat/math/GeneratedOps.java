@@ -206,7 +206,7 @@ public class GeneratedOps implements Iterable<Operation<Boolean>> {
 
 		int c = 0;
 		for (Operation<Boolean> op : operations)
-			System.out.println((c++) + ":\t" + Operation.formatTable(op));
+			System.out.println((c++) + ":\t" + Operation.format(op));
 
 		System.out.println();
 	}

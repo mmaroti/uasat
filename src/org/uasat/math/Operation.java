@@ -354,7 +354,7 @@ public final class Operation<BOOL> {
 
 	/**
 	 * Testing Taylor property (omitting type 1):
-	 *
+	 * 
 	 * p(x,x,x) = x. p(x,x,y) = p(y,x,x) = q(x,y,y). p(x,y,x) = q(x,y,x).
 	 */
 	public static <BOOL> BOOL areSiggersTerms(Operation<BOOL> p,
@@ -375,7 +375,7 @@ public final class Operation<BOOL> {
 
 	/**
 	 * Testing congruence meet semi-distributivity (omitting types 1 and 2):
-	 *
+	 * 
 	 * p(x,x,x) = x. p(x,x,y) = p(x,y,x) = p(y,x,x) = q(x,y,x). q(x,x,y) =
 	 * q(x,y,y).
 	 */
@@ -399,7 +399,7 @@ public final class Operation<BOOL> {
 	/**
 	 * Testing congruence distributivity (omitting types 1, 2 and 5 and no
 	 * tails)
-	 *
+	 * 
 	 * p_i(x,y,x) = x. x = p_0(x,x,y). p_0(x,y,y) = p_1(x,y,y). p_1(x,x,y) =
 	 * p_2(x,x,y). p_{n-1}(x,y,y) = y (for n odd). p_{n-1}(x,x,y) = y (for n
 	 * even).
@@ -742,7 +742,7 @@ public final class Operation<BOOL> {
 		return Operation.wrap(Tensor.generate(shape, lookup));
 	}
 
-	public static String formatTable(Operation<Boolean> op) {
+	public static String format(Operation<Boolean> op) {
 		StringBuilder s = new StringBuilder();
 
 		int size = op.getSize();
@@ -760,7 +760,7 @@ public final class Operation<BOOL> {
 		return s.toString();
 	}
 
-	public static Operation<Boolean> parseTable(int size, int arity, String str) {
+	public static Operation<Boolean> parse(int size, int arity, String str) {
 		assert size >= 1 && arity >= 0;
 
 		Tensor<Boolean> tensor;
@@ -854,6 +854,6 @@ public final class Operation<BOOL> {
 		}
 
 		System.out.println(s);
-		System.out.println("table: " + Operation.formatTable(op));
+		System.out.println("table: " + Operation.format(op));
 	}
 }

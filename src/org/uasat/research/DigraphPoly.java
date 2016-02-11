@@ -228,7 +228,7 @@ public class DigraphPoly {
 		if (print)
 			for (int i = 0; i < list.size(); i++)
 				System.out.println(Util.formatIndex(i) + ": "
-						+ Relation.formatMembers(list.get(i)));
+						+ Relation.format(list.get(i)));
 
 		return list;
 	}
@@ -323,7 +323,7 @@ public class DigraphPoly {
 
 		printCount(tuples, "extending ops", tensor.getLastDim());
 		for (Tensor<Boolean> a : Tensor.unstack(tensor))
-			System.out.println(" " + Operation.formatTable(Operation.wrap(a)));
+			System.out.println(" " + Operation.format(Operation.wrap(a)));
 
 		return tensor.getLastDim() > 0;
 	}
@@ -509,7 +509,7 @@ public class DigraphPoly {
 
 				if (problem.solveOne(solver) == null) {
 					System.out.println("special:");
-					System.out.println(Relation.formatMembers(subset));
+					System.out.println(Relation.format(subset));
 					System.out.println(y);
 					return true;
 				}
@@ -603,7 +603,7 @@ public class DigraphPoly {
 			CompatibleOps ops = new CompatibleOps(Structure.wrap(rel), solver);
 			if (ops.hasSiggersTerms()
 					&& !ops.hasTotallySymmetricIdempotentTerms())
-				System.out.println(Relation.formatMembers(rel));
+				System.out.println(Relation.format(rel));
 		}
 
 		time = System.currentTimeMillis() - time;
@@ -657,7 +657,7 @@ public class DigraphPoly {
 			if (!comp.hasSiggersTerms())
 				continue;
 
-			System.out.println(PartialOrder.formatCovers(po));
+			System.out.println(PartialOrder.format(po));
 
 			if (!comp.hasTotallySymmetricIdempotentTerms()) {
 				System.out.println("BINGO");
@@ -690,7 +690,7 @@ public class DigraphPoly {
 
 		for (int i = 0; i < 1; i++) {
 			System.out.println("digraph #" + i);
-			Relation<Boolean> rel = Relation.parseMembers(3, 2, cycle);
+			Relation<Boolean> rel = Relation.parse(3, 2, cycle);
 
 			Structure<Boolean> str = Structure.wrap(rel);
 			Structure.print(str);
