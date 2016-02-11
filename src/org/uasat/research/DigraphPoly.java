@@ -641,8 +641,8 @@ public class DigraphPoly {
 		Structure.print(pow);
 		System.out.println();
 
-		GeneratedRels path2 = new GeneratedRels(str.getSize(), 2);
-		path2.addPathDefBinary(gen.getRelations(), str);
+		GeneratedRels path2 = GeneratedRels.getTreeDefBinary(str,
+				gen.getRelations());
 		System.out.println(path2.getCount());
 		path2.addIntersections();
 		System.out.println(path2.getCount());

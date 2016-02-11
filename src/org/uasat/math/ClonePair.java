@@ -27,6 +27,7 @@ public class ClonePair {
 	private final int size;
 	private final List<Operation<Boolean>> operations;
 	private final List<Relation<Boolean>> relations;
+	public boolean trace = false;
 
 	public ClonePair(int size) {
 		this(size, SatSolver.getDefault());
@@ -78,12 +79,22 @@ public class ClonePair {
 		operations.add(op);
 	}
 
+	public void addOps(Iterable<Operation<Boolean>> ops) {
+		for (Operation<Boolean> op : ops)
+			add(op);
+	}
+
 	public void add(final Relation<Boolean> rel) {
 		assert rel.getSize() == size;
 		for (Operation<Boolean> op : operations)
 			assert op.preserves(rel);
 
 		relations.add(rel);
+	}
+
+	public void addRels(Iterable<Relation<Boolean>> rels) {
+		for (Relation<Boolean> rel : rels)
+			add(rel);
 	}
 
 	public void addSingletons() {
@@ -166,7 +177,16 @@ public class ClonePair {
 		if (sol == null)
 			return null;
 
-		return new Pair(Operation.wrap(sol.get(0)), Relation.wrap(sol.get(1)));
+		Operation<Boolean> op = Operation.wrap(sol.get(0));
+		Relation<Boolean> rel = Relation.wrap(sol.get(1));
+
+		if (trace) {
+			System.out.println("critical pair:");
+			System.out.println("\t" + Operation.format(op));
+			System.out.println("\t" + Relation.format(rel));
+		}
+
+		return new Pair(op, rel);
 	}
 
 	public boolean addCriticalOp(int opArity, int relArity) {
@@ -183,7 +203,6 @@ public class ClonePair {
 		if (pair == null)
 			return false;
 
-		add(pair.getRelation());
 		return true;
 	}
 
@@ -209,5 +228,7 @@ public class ClonePair {
 		c = 0;
 		for (Relation<Boolean> rel : relations)
 			System.out.println((c++) + ":\t" + Relation.format(rel));
+
+		System.out.println();
 	}
 }

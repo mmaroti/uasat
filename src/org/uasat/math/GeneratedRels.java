@@ -70,7 +70,7 @@ public class GeneratedRels implements Iterable<Relation<Boolean>> {
 		relations.add(rel);
 	}
 
-	public void addAll(Iterable<Relation<Boolean>> rels) {
+	public void add(Iterable<Relation<Boolean>> rels) {
 		for (Relation<Boolean> rel : rels)
 			add(rel);
 	}
@@ -106,6 +106,16 @@ public class GeneratedRels implements Iterable<Relation<Boolean>> {
 			if (a == relations.size())
 				break;
 		}
+	}
+
+	public boolean isIntersectionClosed() {
+		for (Relation<Boolean> r1 : relations)
+			for (Relation<Boolean> r2 : relations) {
+				Relation<Boolean> r3 = r1.intersect(r2);
+				if (!relations.contains(r3))
+					return false;
+			}
+		return true;
 	}
 
 	public void addInverses() {
@@ -202,7 +212,7 @@ public class GeneratedRels implements Iterable<Relation<Boolean>> {
 		}
 	}
 
-	public void addPathDefBinary(final List<Relation<Boolean>> subalgs,
+	public void addTreeDefBinary(final List<Relation<Boolean>> subalgs,
 			final Relation<Boolean> relation) {
 		assert arity == 2;
 
@@ -216,64 +226,57 @@ public class GeneratedRels implements Iterable<Relation<Boolean>> {
 		for (int i = 0; i < relation.getArity(); i++)
 			sig.add(empty);
 
-		for (;;) {
-			int s = relations.size();
+		for (int x = 0; x < relation.getArity(); x++) {
+			for (int y = 0; y < relation.getArity(); y++) {
+				if (x == y)
+					continue;
+				final int xf = x, yf = y;
 
-			for (int x = 0; x < relation.getArity(); x++) {
-				for (int y = 0; y < relation.getArity(); y++) {
-					if (x == y)
-						continue;
-					final int xf = x, yf = y;
+				SatProblem problem = new SatProblem(sig) {
+					@Override
+					public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+							List<Tensor<BOOL>> tensors) {
 
-					SatProblem problem = new SatProblem(sig) {
-						@Override
-						public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-								List<Tensor<BOOL>> tensors) {
+						Relation<BOOL> r0 = new Relation<BOOL>(alg,
+								tensors.get(0));
+						BOOL b = alg.not(r0.isMemberOf(relations));
 
-							Relation<BOOL> r0 = new Relation<BOOL>(alg,
-									tensors.get(0));
-							BOOL b = alg.not(r0.isMemberOf(relations));
+						Relation<BOOL> r1 = new Relation<BOOL>(alg,
+								tensors.get(1));
+						b = alg.and(b, r1.isMemberOf(subalgs));
 
-							Relation<BOOL> r1 = new Relation<BOOL>(alg,
-									tensors.get(1));
-							b = alg.and(b, r1.isMemberOf(subalgs));
+						Relation<BOOL> r2 = new Relation<BOOL>(alg,
+								tensors.get(2));
+						b = alg.and(b, r2.isMemberOf(subalgs));
 
-							Relation<BOOL> r2 = new Relation<BOOL>(alg,
-									tensors.get(2));
-							b = alg.and(b, r2.isMemberOf(subalgs));
+						Relation<BOOL> rel = Relation.lift(alg,
+								relation.permute(xf, yf));
 
-							Relation<BOOL> rel = Relation.lift(alg,
-									relation.permute(xf, yf));
-
-							for (int i = 3; i < tensors.size(); i++) {
-								Relation<BOOL> r = new Relation<BOOL>(alg,
-										tensors.get(i));
-								b = alg.and(b, r.isMemberOf(subalgs));
-								rel = rel.compose(r);
-							}
-
-							rel = rel.intersect(r1.cartesian(r2));
-							b = alg.and(b, rel.isEqualTo(r0));
-
-							return b;
+						for (int i = 3; i < tensors.size(); i++) {
+							Relation<BOOL> r = new Relation<BOOL>(alg,
+									tensors.get(i));
+							b = alg.and(b, r.isMemberOf(subalgs));
+							rel = rel.compose(r);
 						}
-					};
 
-					Tensor<Boolean> tensor = problem.solveAll(solver).get(0);
+						rel = rel.intersect(r1.cartesian(r2));
+						b = alg.and(b, rel.isEqualTo(r0));
 
-					int a = relations.size();
-					for (Tensor<Boolean> t : Tensor.unstack(tensor)) {
-						Relation<Boolean> r = Relation.wrap(t);
-						assert r.project(0).isMemberOf(subalgs);
-						assert r.project(1).isMemberOf(subalgs);
-						relations.add(r);
+						return b;
 					}
-					assert a + tensor.getLastDim() == relations.size();
-				}
-			}
+				};
 
-			if (relations.size() == s)
-				break;
+				Tensor<Boolean> tensor = problem.solveAll(solver).get(0);
+
+				int a = relations.size();
+				for (Tensor<Boolean> t : Tensor.unstack(tensor)) {
+					Relation<Boolean> r = Relation.wrap(t);
+					assert r.project(0).isMemberOf(subalgs);
+					assert r.project(1).isMemberOf(subalgs);
+					relations.add(r);
+				}
+				assert a + tensor.getLastDim() == relations.size();
+			}
 		}
 	}
 
@@ -324,17 +327,18 @@ public class GeneratedRels implements Iterable<Relation<Boolean>> {
 		return gen;
 	}
 
-	public void addPathDefBinary(List<Relation<Boolean>> subalgs,
-			Structure<Boolean> structure) {
-		assert arity == 2;
+	public static GeneratedRels getTreeDefBinary(Structure<Boolean> structure,
+			List<Relation<Boolean>> subalgs) {
+		GeneratedRels gen = new GeneratedRels(structure.getSize(), 2);
 
 		for (Relation<Boolean> s : subalgs)
-			add(s.diagonal(2));
+			gen.add(s.diagonal(2));
 
 		for (Relation<Boolean> rel : structure.getRelations())
-			addPathDefBinary(subalgs, rel);
+			gen.addTreeDefBinary(subalgs, rel);
 
-		addCompositions();
+		gen.addCompositions();
+		return gen;
 	}
 
 	public void print() {

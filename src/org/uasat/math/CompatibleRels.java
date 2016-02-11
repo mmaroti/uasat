@@ -317,8 +317,11 @@ public class CompatibleRels {
 		System.out.println(what + " subpowers of arity " + arity + ": "
 				+ list.size());
 
+		Collections.sort(list, Relation.COMPARATOR);
 		for (int i = 0; i < list.size(); i++)
 			System.out.println(i + ":\t" + Relation.format(list.get(i)));
+
+		System.out.println();
 	}
 
 	public void printAllRels(int arity) {

@@ -22,7 +22,7 @@ import java.util.*;
 
 import org.uasat.core.*;
 
-public final class Structure<BOOL> {
+public final class Structure<BOOL> implements Iterable<Relation<BOOL>> {
 	private final BoolAlgebra<BOOL> alg;
 	private final int size;
 	private final List<Relation<BOOL>> relations;
@@ -142,7 +142,12 @@ public final class Structure<BOOL> {
 		System.out.println("structure of size " + str.getSize() + " with "
 				+ rels.size() + " rels");
 		for (int i = 0; i < rels.size(); i++)
-			Relation.print(rels.get(i));
+			System.out.println(i + ":\t" + Relation.format(rels.get(i)));
 		System.out.println();
+	}
+
+	@Override
+	public Iterator<Relation<BOOL>> iterator() {
+		return relations.iterator();
 	}
 }

@@ -19,7 +19,6 @@
 package org.uasat.research;
 
 import java.text.*;
-import java.util.*;
 
 import org.uasat.core.*;
 import org.uasat.math.*;
@@ -35,24 +34,59 @@ public class TestClonePair {
 	private static PartialOrder<Boolean> CROWN6 = PartialOrder.crown(6);
 
 	public static void main(String[] args) {
+		SatSolver<?> solver = new MiniSat();
 		long time = System.currentTimeMillis();
 
-		Relation<Boolean> rel = CROWN4.plus(POINT2).plus(POINT1).asRelation();
-		GeneratedRels gen = GeneratedRels.getTreeDefUnary(Structure.wrap(rel));
-		gen.print();
+		// PartialOrder<Boolean> pos = CROWN4.plus(POINT2).plus(POINT1);
+		PartialOrder<Boolean> pos = CROWN4.plus(POINT1);
+		Structure<Boolean> str = Structure.wrap(pos.asRelation());
+		Structure.print(str);
 
-		ClonePair clone = new ClonePair(rel.getSize(), new MiniSat());
-		clone.add(rel);
+		GeneratedRels gen1 = GeneratedRels.getTreeDefUnary(str);
+		gen1.print();
+
+		GeneratedRels gen2 = GeneratedRels.getTreeDefBinary(str,
+				gen1.getRelations());
+		// gen2.print();
+		System.out.println(gen2.getCount());
+		gen2.addIntersections();
+		System.out.println(gen2.getCount());
+		gen2.addCompositions();
+		System.out.println(gen2.getCount());
+		gen2.addIntersections();
+		gen2.print();
+		// System.out.println(gen2.isIntersectionClosed() + "\n");
+
+		ClonePair clone = new ClonePair(str.getSize(), solver);
+		clone.trace = true;
+		clone.addRels(str);
 		clone.addSingletons();
-		clone.print();
-		System.out.println();
+		// clone.print();
 
 		clone.addCriticalOps(2, 1);
 		clone.print();
-		System.out.println();
 
-		CompatibleRels com = new CompatibleRels(clone.getAlgebra());
+		clone.addCriticalOps(2, 2);
+		clone.print();
+
+		clone.addCriticalOps(3, 2);
+		clone.print();
+
+		Algebra<Boolean> alg = clone.getAlgebra();
+		// Algebra.print(alg);
+
+		CompatibleRels com = new CompatibleRels(alg);
 		com.printAllRels(1);
+		com.printCriticalRels(1);
+
+		com.printAllRels(2);
+		com.printCriticalRels(2);
+
+		clone.addCriticalOps(2, 3);
+		clone.print();
+
+		clone.addCriticalOps(3, 3);
+		clone.print();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

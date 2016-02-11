@@ -22,7 +22,7 @@ import java.util.*;
 
 import org.uasat.core.*;
 
-public final class Algebra<BOOL> {
+public final class Algebra<BOOL> implements Iterable<Operation<BOOL>> {
 	private final BoolAlgebra<BOOL> alg;
 	private final int size;
 	private final List<Operation<BOOL>> operations;
@@ -143,7 +143,13 @@ public final class Algebra<BOOL> {
 		System.out.println("algebra of size " + ua.getSize() + " with "
 				+ ops.size() + " ops");
 		for (int i = 0; i < ops.size(); i++)
-			Operation.print(ops.get(i));
+			System.out.println(i + ":\t" + Operation.format(ops.get(i)));
+
 		System.out.println();
+	}
+
+	@Override
+	public Iterator<Operation<BOOL>> iterator() {
+		return operations.iterator();
 	}
 }

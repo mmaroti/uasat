@@ -848,10 +848,10 @@ public final class Operation<BOOL> {
 		if (a == 2) {
 			for (int i = 0; i < op.getSize(); i++)
 				if (op.isZeroElement(i))
-					s += "zero=" + i;
+					s += " zero=" + i;
 			for (int i = 0; i < op.getSize(); i++)
 				if (op.isUnitElement(i))
-					s += "unit=" + i;
+					s += " unit=" + i;
 		}
 
 		System.out.println(s);
