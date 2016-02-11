@@ -754,10 +754,8 @@ public final class Operation<BOOL> {
 		int[] tuple = new int[size];
 		Iterator<Integer> iter = tensor.iterator();
 		while (iter.hasNext()) {
-			for (int i = 0; i < size; i++) {
-				assert iter.hasNext();
+			for (int i = 0; i < size; i++)
 				tuple[i] = iter.next();
-			}
 
 			if (s.length() != 0)
 				s.append(' ');
@@ -782,10 +780,8 @@ public final class Operation<BOOL> {
 				if (tuple.length != size || !iter.hasNext())
 					throw new IllegalArgumentException();
 
-				for (int i = 0; i < size; i++) {
-					assert iter.hasNext();
+				for (int i = 0; i < size; i++)
 					tensor.setElem(tuple[i], iter.next());
-				}
 			}
 			if (iter.hasNext())
 				throw new IllegalArgumentException();

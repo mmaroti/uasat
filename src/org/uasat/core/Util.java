@@ -186,7 +186,9 @@ public final class Util {
 			if (state == 0)
 				hasNext();
 
+			assert state > 0;
 			state = 0;
+
 			return index;
 		}
 
@@ -247,7 +249,9 @@ public final class Util {
 			if (state == 0)
 				hasNext();
 
+			assert state > 0;
 			state = 0;
+
 			return index;
 		}
 
@@ -328,7 +332,9 @@ public final class Util {
 			if (state == 0)
 				hasNext();
 
+			assert state > 0;
 			state = 0;
+
 			return index;
 		}
 
