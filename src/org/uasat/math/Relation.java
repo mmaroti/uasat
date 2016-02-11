@@ -687,6 +687,7 @@ public final class Relation<BOOL> {
 
 	public static String format(Relation<Boolean> rel) {
 		StringBuilder s = new StringBuilder();
+		int size = rel.getSize();
 
 		Iterator<int[]> iter = Util.cubeIterator(rel.getSize(), rel.getArity());
 		while (iter.hasNext()) {
@@ -695,7 +696,7 @@ public final class Relation<BOOL> {
 				if (s.length() != 0)
 					s.append(' ');
 
-				Util.formatTuple(index, s);
+				s.append(Util.formatTuple(size, index));
 			}
 		}
 
@@ -706,26 +707,15 @@ public final class Relation<BOOL> {
 		assert arity >= 1;
 
 		Tensor<Boolean> tensor;
-		tensor = Tensor.constant(Util.createShape(size, arity), false);
+		tensor = Tensor.constant(Util.createShape(size, arity), Boolean.FALSE);
 
-		int[] index = new int[arity];
-		int p = 0;
+		for (String s : str.split(" ")) {
+			if (s.isEmpty())
+				continue;
 
-		for (int i = 0; i < str.length(); i++) {
-			if (Character.isWhitespace(str.charAt(i))) {
-				if (p == 0)
-					continue;
-				else
-					throw new IllegalArgumentException("bad format");
-			} else {
-				index[p++] = Util.parseIndex(size, str.charAt(i));
-				if (p == index.length) {
-					tensor.setElem(true, index);
-					p = 0;
-				}
-			}
+			int[] index = Util.parseTuple(size, s);
+			tensor.setElem(Boolean.TRUE, index);
 		}
-		assert p == 0;
 
 		return Relation.wrap(tensor);
 	}

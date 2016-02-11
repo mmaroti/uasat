@@ -184,12 +184,18 @@ public final class Function<BOOL> {
 	}
 
 	public static String format(Function<Boolean> fun) {
-		Tensor<Integer> tensor = decode(fun);
+		Tensor<Boolean> t = fun.getTensor();
 
-		String s = "";
-		for (Integer elem : tensor)
-			s += Util.formatIndex(elem);
+		int[] tuple = new int[t.getDim(1)];
+		outer: for (int i = 0; i < tuple.length; i++) {
+			for (int j = 0; j < t.getDim(0); j++) {
+				if (t.getElem(j, i)) {
+					tuple[i] = j;
+					continue outer;
+				}
+			}
+		}
 
-		return s;
+		return Util.formatTuple(t.getDim(0), tuple);
 	}
 }

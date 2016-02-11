@@ -227,8 +227,7 @@ public class DigraphPoly {
 
 		if (print)
 			for (int i = 0; i < list.size(); i++)
-				System.out.println(Util.formatIndex(i) + ": "
-						+ Relation.format(list.get(i)));
+				System.out.println(i + ":\t" + Relation.format(list.get(i)));
 
 		return list;
 	}
@@ -240,8 +239,9 @@ public class DigraphPoly {
 		final List<Integer> p = new ArrayList<Integer>();
 		for (String pair : pairs.split(" ")) {
 			if (pair.length() == 2) {
-				p.add(Util.parseIndex(relation.getSize(), pair.charAt(0)));
-				p.add(Util.parseIndex(target.getSize(), pair.charAt(1)));
+				p.add(Util.parseElement(relation.getSize(),
+						pair.substring(0, 1)));
+				p.add(Util.parseElement(target.getSize(), pair.substring(1, 2)));
 			} else if (!pair.isEmpty())
 				throw new IllegalArgumentException();
 		}
@@ -279,8 +279,8 @@ public class DigraphPoly {
 			if (tuple.length() == arity + 1) {
 				int[] index = new int[arity + 1];
 				for (int i = 0; i <= arity; i++)
-					index[i] = Util.parseIndex(relation.getSize(),
-							tuple.charAt(i));
+					index[i] = Util.parseElement(relation.getSize(),
+							tuple.substring(i, i + 1));
 				ts.add(index);
 			} else if (!tuple.isEmpty())
 				throw new IllegalArgumentException();
@@ -290,8 +290,8 @@ public class DigraphPoly {
 			if (tuple.length() == arity + 1) {
 				int[] index = new int[arity + 1];
 				for (int i = 0; i <= arity; i++)
-					index[i] = Util.parseIndex(relation.getSize(),
-							tuple.charAt(i));
+					index[i] = Util.parseElement(relation.getSize(),
+							tuple.substring(i, i + 1));
 				nts.add(index);
 			} else if (!tuple.isEmpty())
 				throw new IllegalArgumentException();

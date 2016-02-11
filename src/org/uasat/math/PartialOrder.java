@@ -225,7 +225,9 @@ public final class PartialOrder<BOOL> {
 		Relation<Boolean> rel = Relation.parse(size, 2, str);
 		rel = Relation.transitiveClosure(rel).reflexiveClosure();
 
-		assert rel.isAntiSymmetric();
+		if (!rel.isAntiReflexive())
+			throw new IllegalArgumentException();
+
 		return rel.asPartialOrder();
 	}
 }

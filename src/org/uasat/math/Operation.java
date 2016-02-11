@@ -354,7 +354,7 @@ public final class Operation<BOOL> {
 
 	/**
 	 * Testing Taylor property (omitting type 1):
-	 * 
+	 *
 	 * p(x,x,x) = x. p(x,x,y) = p(y,x,x) = q(x,y,y). p(x,y,x) = q(x,y,x).
 	 */
 	public static <BOOL> BOOL areSiggersTerms(Operation<BOOL> p,
@@ -375,7 +375,7 @@ public final class Operation<BOOL> {
 
 	/**
 	 * Testing congruence meet semi-distributivity (omitting types 1 and 2):
-	 * 
+	 *
 	 * p(x,x,x) = x. p(x,x,y) = p(x,y,x) = p(y,x,x) = q(x,y,x). q(x,x,y) =
 	 * q(x,y,y).
 	 */
@@ -399,7 +399,7 @@ public final class Operation<BOOL> {
 	/**
 	 * Testing congruence distributivity (omitting types 1, 2 and 5 and no
 	 * tails)
-	 * 
+	 *
 	 * p_i(x,y,x) = x. x = p_0(x,x,y). p_0(x,y,y) = p_1(x,y,y). p_1(x,x,y) =
 	 * p_2(x,x,y). p_{n-1}(x,y,y) = y (for n odd). p_{n-1}(x,x,y) = y (for n
 	 * even).
@@ -748,13 +748,20 @@ public final class Operation<BOOL> {
 		int size = op.getSize();
 		Tensor<Integer> tensor = decode(op);
 
-		int c = 0;
-		for (Integer elem : tensor) {
-			if (++c > size) {
-				c = 1;
-				s.append(' ');
+		if (op.getArity() == 0)
+			s.append(Util.formatElement(size, tensor.get()));
+
+		int[] tuple = new int[size];
+		Iterator<Integer> iter = tensor.iterator();
+		while (iter.hasNext()) {
+			for (int i = 0; i < size; i++) {
+				assert iter.hasNext();
+				tuple[i] = iter.next();
 			}
-			s.append(Util.formatIndex(elem));
+
+			if (s.length() != 0)
+				s.append(' ');
+			s.append(Util.formatTuple(size, tuple));
 		}
 
 		return s.toString();
@@ -763,30 +770,29 @@ public final class Operation<BOOL> {
 	public static Operation<Boolean> parse(int size, int arity, String str) {
 		assert size >= 1 && arity >= 0;
 
-		Tensor<Boolean> tensor;
-		tensor = Tensor.constant(Util.createShape(size, arity + 1),
-				Boolean.FALSE);
+		Tensor<Integer> tensor = Tensor.constant(Util.createShape(size, arity),
+				null);
 
-		Iterator<int[]> iter = Util.cubeIterator(size, arity + 1);
-		for (int i = 0; i < str.length(); i++) {
-			if (Character.isWhitespace(str.charAt(i))) {
-				continue;
-			} else if (iter.hasNext()) {
-				int a = Util.parseIndex(size, str.charAt(i));
-				assert 0 <= a && a < size;
+		if (arity == 0)
+			tensor.setElem(Util.parseElement(size, str));
+		else {
+			Iterator<int[]> iter = Util.cubeIterator(size, arity);
+			for (String s : str.split(" ")) {
+				int[] tuple = Util.parseTuple(size, s);
+				if (tuple.length != size)
+					throw new IllegalArgumentException();
 
-				int[] index = iter.next();
-				assert index[0] == 0;
-				index[0] = a;
-				tensor.setElem(Boolean.TRUE, index);
-				index[0] = size - 1;
-			} else
-				throw new IllegalArgumentException("too many entries");
+				for (int i = 0; i < size; i++) {
+					if (!iter.hasNext())
+						throw new IllegalArgumentException();
+					tensor.setElem(tuple[i], iter.next());
+				}
+			}
+			if (iter.hasNext())
+				throw new IllegalArgumentException();
 		}
-		if (iter.hasNext())
-			throw new IllegalArgumentException("too few entries");
 
-		return Operation.wrap(tensor);
+		return encode(size, tensor);
 	}
 
 	public static final Comparator<Operation<Boolean>> COMPARATOR = new Comparator<Operation<Boolean>>() {

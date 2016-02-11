@@ -30,55 +30,95 @@ public final class Util {
 		return shape;
 	}
 
-	public static final int LOWER_END = 10 + 'z' - 'a';
-	public static final int UPPER_END = LOWER_END + 'Z' - 'A';
-
-	public static char formatIndex(int elem) {
-		if (0 <= elem && elem < 10)
-			return (char) (elem + '0');
-		else if (10 <= elem && elem < LOWER_END)
-			return (char) (elem - 10 + 'a');
-		else if (LOWER_END <= elem && elem < UPPER_END)
-			return (char) (elem - LOWER_END + 'A');
-		else
+	public static String formatElement(int size, int elem) {
+		if (elem < 0 || elem >= size)
 			throw new IllegalArgumentException();
-	}
-
-	public static int parseIndex(int size, char c) {
-		int i;
-		if ('0' <= c && c <= '9')
-			i = c - '0';
-		else if ('a' <= c && c <= 'z')
-			i = c - 'a' + 10;
-		else if ('A' <= c && c <= 'Z')
-			i = c - 'A' + LOWER_END;
+		else if (size > 'z' - 'a' + 10)
+			return Integer.toString(elem);
+		else if (elem <= 9)
+			return Character.toString((char) ('0' + elem));
 		else
-			i = size;
-
-		if (i < size)
-			return i;
-		else
-			throw new IllegalArgumentException("invalid coordinate: " + c);
+			return Character.toString((char) ('a' + elem - 10));
 	}
 
-	public static void formatTuple(int[] tuple, StringBuilder s) {
-		for (int i = 0; i < tuple.length; i++)
-			s.append(formatIndex(tuple[i]));
-	}
-
-	public static void formatTuple2(int[] tuple, StringBuilder s) {
-		for (int i = 0; i < tuple.length; i++) {
-			if (i != 0)
-				s.append(',');
-			s.append(tuple[i]);
+	public static int parseElement(int size, String elem) {
+		int e;
+		if (size > 'z' - 'a' + 10)
+			e = Integer.parseInt(elem);
+		else if (elem.length() != 1)
+			throw new IllegalArgumentException();
+		else {
+			char c = elem.charAt(0);
+			if ('0' <= c && c <= '9')
+				e = c - '0';
+			else if ('a' <= c && c <= 'z')
+				e = c - 'a' + 10;
+			else
+				throw new IllegalArgumentException();
 		}
+
+		if (e < 0 || e >= size)
+			throw new IllegalArgumentException();
+
+		return e;
+	}
+
+	public static String formatTuple(int size, int[] tuple) {
+		StringBuilder s = new StringBuilder();
+
+		if (size > 'z' - 'a' + 10) {
+			for (int i = 0; i < tuple.length; i++) {
+				if (i != 0)
+					s.append(',');
+				s.append(tuple[i]);
+			}
+		} else {
+			for (int i = 0; i < tuple.length; i++) {
+				int t = tuple[i];
+				if (t < 0 || t >= size)
+					throw new IllegalArgumentException();
+				else if (t <= 9)
+					s.append((char) ('0' + t));
+				else
+					s.append((char) ('a' + t - 10));
+			}
+		}
+
+		return s.toString();
 	}
 
 	public static int[] parseTuple(int size, String str) {
-		int[] tuple = new int[str.length()];
+		int[] tuple;
 
-		for (int i = 0; i < str.length(); i++)
-			tuple[i] = parseIndex(size, str.charAt(i));
+		if (size > 'z' - 'a' + 10) {
+			String[] s = str.split(",");
+			tuple = new int[s.length];
+
+			for (int i = 0; i < s.length; i++) {
+				int t = Integer.parseInt(s[i]);
+
+				if (t < 0 || t >= size)
+					throw new IllegalArgumentException();
+				tuple[i] = t;
+			}
+		} else {
+			tuple = new int[str.length()];
+			for (int i = 0; i < tuple.length; i++) {
+				char c = str.charAt(i);
+
+				int t;
+				if ('0' <= c && c <= '9')
+					t = c - '0';
+				else if ('a' <= c && c <= 'a')
+					t = c - 'a' + 10;
+				else
+					throw new IllegalArgumentException();
+
+				if (t < 0 || t >= size)
+					throw new IllegalArgumentException();
+				tuple[i] = t;
+			}
+		}
 
 		return tuple;
 	}
@@ -273,13 +313,20 @@ public final class Util {
 
 	private static void printTuples(Iterator<int[]> iter) {
 		StringBuilder s = new StringBuilder();
+
 		while (iter.hasNext()) {
+			if (!iter.hasNext())
+				throw new IllegalStateException();
+
 			s.setLength(0);
 			s.append('[');
-			formatTuple(iter.next(), s);
+			s.append(formatTuple(9, iter.next()));
 			s.append(']');
 			System.out.println(s.toString());
 		}
+		if (iter.hasNext())
+			throw new IllegalStateException();
+
 		System.out.println("--");
 	}
 
@@ -288,7 +335,11 @@ public final class Util {
 		printTuples(cubeIterator(new int[] { 1 }));
 		printTuples(cubeIterator(new int[] { 0 }));
 		printTuples(cubeIterator(new int[] { 2, 3 }));
+		printTuples(cubeIterator(2, 0));
+		printTuples(cubeIterator(2, 1));
+		printTuples(cubeIterator(2, 2));
 		printTuples(cubeIterator(2, 3));
+		System.out.println();
 
 		printTuples(hullIterator(0, 1));
 		printTuples(hullIterator(1, 1));
