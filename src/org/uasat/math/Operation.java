@@ -779,12 +779,11 @@ public final class Operation<BOOL> {
 			Iterator<int[]> iter = Util.cubeIterator(size, arity);
 			for (String s : str.split(" ")) {
 				int[] tuple = Util.parseTuple(size, s);
-				if (tuple.length != size)
+				if (tuple.length != size || !iter.hasNext())
 					throw new IllegalArgumentException();
 
 				for (int i = 0; i < size; i++) {
-					if (!iter.hasNext())
-						throw new IllegalArgumentException();
+					assert iter.hasNext();
 					tensor.setElem(tuple[i], iter.next());
 				}
 			}

@@ -153,28 +153,40 @@ public final class Util {
 	private static class CubeIterator implements Iterator<int[]> {
 		private final int[] shape;
 		private final int[] index;
+		private int state;
 
 		public CubeIterator(int[] shape) {
 			assert shape.length >= 1;
 
 			this.shape = shape;
 			index = new int[shape.length];
-			index[0] = -1;
+			state = 1;
 		}
 
 		@Override
 		public boolean hasNext() {
+			if (state != 0)
+				return state > 0;
+
 			for (int i = 0; i < index.length; i++) {
 				if (++index[i] >= shape[i])
 					index[i] = 0;
-				else
+				else {
+					state = 1;
 					return true;
+				}
 			}
+
+			state = -1;
 			return false;
 		}
 
 		@Override
 		public int[] next() {
+			if (state == 0)
+				hasNext();
+
+			state = 0;
 			return index;
 		}
 
@@ -202,28 +214,40 @@ public final class Util {
 	private static class CubeIterator2 implements Iterator<int[]> {
 		private final int size;
 		private final int[] index;
+		private int state;
 
 		public CubeIterator2(int size, int arity) {
 			assert size >= 1 && arity >= 1;
 
 			this.size = size;
 			index = new int[arity];
-			index[0] = -1;
+			state = 1;
 		}
 
 		@Override
 		public boolean hasNext() {
+			if (state != 0)
+				return state > 0;
+
 			for (int i = 0; i < index.length; i++) {
 				if (++index[i] >= size)
 					index[i] = 0;
-				else
+				else {
+					state = 1;
 					return true;
+				}
 			}
+
+			state = -1;
 			return false;
 		}
 
 		@Override
 		public int[] next() {
+			if (state == 0)
+				hasNext();
+
+			state = 0;
 			return index;
 		}
 
@@ -246,8 +270,9 @@ public final class Util {
 
 	private static class HullIterator implements Iterator<int[]> {
 		private final int radius;
-		private int coord;
 		private final int[] index;
+		private int coord;
+		private int state;
 
 		public HullIterator(int radius, int arity) {
 			assert 0 <= radius && 0 < arity;
@@ -255,20 +280,23 @@ public final class Util {
 			this.radius = radius;
 			index = new int[arity];
 
-			coord = 0;
 			index[0] = radius;
-			if (arity >= 2 && radius > 0)
-				index[1] = -1;
+			coord = radius == 0 ? arity - 1 : 0;
+			state = 1;
 		}
 
 		@Override
 		public boolean hasNext() {
+			if (state != 0)
+				return state > 0;
+
 			for (int i = 0; i < coord; i++) {
 				int a = index[i] + 1;
 				if (a >= radius)
 					index[i] = 0;
 				else {
 					index[i] = a;
+					state = 1;
 					return true;
 				}
 			}
@@ -279,24 +307,28 @@ public final class Util {
 					index[i] = 0;
 				else {
 					index[i] = a;
+					state = 1;
 					return true;
 				}
 			}
 
-			if (radius == 0 || index.length == 1)
-				return coord++ == 0;
-
 			index[coord] = 0;
 			if (++coord < index.length) {
 				index[coord] = radius;
+				state = 1;
 				return true;
 			}
 
+			state = -1;
 			return false;
 		}
 
 		@Override
 		public int[] next() {
+			if (state == 0)
+				hasNext();
+
+			state = 0;
 			return index;
 		}
 
@@ -339,7 +371,6 @@ public final class Util {
 		printTuples(cubeIterator(2, 1));
 		printTuples(cubeIterator(2, 2));
 		printTuples(cubeIterator(2, 3));
-		System.out.println();
 
 		printTuples(hullIterator(0, 1));
 		printTuples(hullIterator(1, 1));
