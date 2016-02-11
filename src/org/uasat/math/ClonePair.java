@@ -210,31 +210,4 @@ public class ClonePair {
 		for (Relation<Boolean> rel : relations)
 			System.out.println((c++) + ":\t" + Relation.formatMembers(rel));
 	}
-
-	@SuppressWarnings("unused")
-	public static void main(String[] args) {
-		ClonePair clone = new ClonePair(5);
-
-		PartialOrder<Boolean> a1 = PartialOrder.antiChain(1);
-		PartialOrder<Boolean> a2 = PartialOrder.antiChain(2);
-		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
-		PartialOrder<Boolean> c6 = PartialOrder.crown(6);
-
-		clone.add(c4.plus(a1).asRelation());
-		clone.addSingletons();
-		clone.print();
-		System.out.println();
-
-		clone.addCriticalOps(2, 1);
-		clone.print();
-		System.out.println();
-
-		clone.addCriticalOps(2, 2);
-		clone.print();
-		System.out.println();
-
-		clone.addCriticalOps(2, 3);
-		clone.print();
-		System.out.println();
-	}
 }
