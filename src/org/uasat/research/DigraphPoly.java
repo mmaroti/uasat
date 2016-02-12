@@ -617,19 +617,19 @@ public class DigraphPoly {
 	}
 
 	@SuppressWarnings("unused")
-	public static void main5(String[] args) {
+	public static void main(String[] args) {
 		PartialOrder<Boolean> a1 = PartialOrder.antiChain(1);
 		PartialOrder<Boolean> a2 = PartialOrder.antiChain(2);
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
 		PartialOrder<Boolean> c6 = PartialOrder.crown(6);
 
-		Structure<Boolean> str = Structure.wrap(a2.plus(a2).plus(a2)
-				.asRelation());
+		Structure<Boolean> str = Structure.wrap(c4.plus(a1).asRelation());
 		Structure.print(str);
 
 		CompatibleOps ops = new CompatibleOps(str);
 		ops.printUnaryOps();
 		ops.printBinaryOps();
+		ops.printBinaryOps("semilattice", 100);
 		ops.printTernaryOps();
 		ops.printSpecialOps();
 
@@ -667,7 +667,7 @@ public class DigraphPoly {
 	}
 
 	@SuppressWarnings("unused")
-	public static void main(String[] args) {
+	public static void main5(String[] args) {
 		String[] benoit = new String[] {
 				"00 03 04 11 12 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",
 				"00 03 04 11 12 14 15 22 23 24 25 31 32 33 35 40 42 43 44 50 51 52 54 55",

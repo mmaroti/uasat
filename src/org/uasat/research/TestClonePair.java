@@ -19,6 +19,7 @@
 package org.uasat.research;
 
 import java.text.*;
+import java.util.*;
 
 import org.uasat.core.*;
 import org.uasat.math.*;
@@ -58,7 +59,7 @@ public class TestClonePair {
 		// System.out.println(gen2.isIntersectionClosed() + "\n");
 
 		ClonePair clone = new ClonePair(str.getSize(), solver);
-		clone.trace = true;
+		clone.trace = false;
 		clone.addRels(str);
 		clone.addSingletons();
 		// clone.print();
@@ -73,7 +74,7 @@ public class TestClonePair {
 		clone.print();
 
 		Algebra<Boolean> alg = clone.getAlgebra();
-		// Algebra.print(alg);
+		Algebra.print(alg);
 
 		CompatibleRels com = new CompatibleRels(alg);
 		com.printAllRels(1);
@@ -81,12 +82,18 @@ public class TestClonePair {
 
 		com.printAllRels(2);
 		com.printCriticalRels(2);
+		
+		List<Relation<Boolean>> rels = com.findAllRels(2, -1);
+		for (Relation<Boolean> rel : rels) {
+			if (rel.isEquivalence())
+				System.out.println("equivalence " + Relation.format(rel));
+		}
 
-		clone.addCriticalOps(2, 3);
-		clone.print();
+		// clone.addCriticalOps(2, 3);
+		// clone.print();
 
-		clone.addCriticalOps(3, 3);
-		clone.print();
+		// clone.addCriticalOps(3, 3);
+		// clone.print();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
