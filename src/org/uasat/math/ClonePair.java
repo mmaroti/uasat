@@ -56,11 +56,11 @@ public class ClonePair {
 	}
 
 	public Algebra<Boolean> getAlgebra() {
-		return Algebra.wrap(operations);
+		return new Algebra<Boolean>(BoolAlgebra.INSTANCE, size, operations);
 	}
 
 	public Structure<Boolean> getStructure() {
-		return Structure.wrap(relations);
+		return new Structure<Boolean>(BoolAlgebra.INSTANCE, size, relations);
 	}
 
 	public int getTotalCount() {

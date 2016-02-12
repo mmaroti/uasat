@@ -67,6 +67,29 @@ public class CompatibleRels {
 		return list;
 	}
 
+	public List<Relation<Boolean>> findEquivalences(int limit) {
+		SatProblem problem = new SatProblem(Util.createShape(algebra.getSize(),
+				2)) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
+				Algebra<BOOL> ualg = Algebra.lift(alg, algebra);
+
+				BOOL b = rel.isEquivalence();
+				return alg.and(b, ualg.isSubuniverse(rel));
+			}
+		};
+
+		Tensor<Boolean> sol = problem.solveAll(solver, limit).get(0);
+
+		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
+		for (Tensor<Boolean> t : Tensor.unstack(sol))
+			list.add(Relation.wrap(t));
+
+		return list;
+	}
+
 	public List<Relation<Boolean>> findUniqueRels(int arity, int limit) {
 		final List<Permutation<Boolean>> perms = Permutation
 				.symmetricGroup(arity);
@@ -326,6 +349,10 @@ public class CompatibleRels {
 
 	public void printAllRels(int arity) {
 		printRels("all", arity, findAllRels(arity, -1));
+	}
+
+	public void printEquivalences() {
+		printRels("equivalence", 2, findEquivalences(-1));
 	}
 
 	public void printUniqueRels(int arity) {

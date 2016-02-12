@@ -19,7 +19,6 @@
 package org.uasat.research;
 
 import java.text.*;
-import java.util.*;
 
 import org.uasat.core.*;
 import org.uasat.math.*;
@@ -38,24 +37,24 @@ public class TestClonePair {
 		SatSolver<?> solver = new MiniSat();
 		long time = System.currentTimeMillis();
 
-		// PartialOrder<Boolean> pos = CROWN4.plus(POINT2).plus(POINT1);
-		PartialOrder<Boolean> pos = CROWN4.plus(POINT1);
+		PartialOrder<Boolean> pos = CROWN4.plus(CROWN4).plus(POINT1);
+		// PartialOrder<Boolean> pos = CROWN4.plus(POINT1);
 		Structure<Boolean> str = Structure.wrap(pos.asRelation());
 		Structure.print(str);
 
 		GeneratedRels gen1 = GeneratedRels.getTreeDefUnary(str);
 		gen1.print();
 
-		GeneratedRels gen2 = GeneratedRels.getTreeDefBinary(str,
-				gen1.getRelations());
+		// GeneratedRels gen2 = GeneratedRels.getTreeDefBinary(str,
+		// gen1.getRelations());
 		// gen2.print();
-		System.out.println(gen2.getCount());
-		gen2.addIntersections();
-		System.out.println(gen2.getCount());
-		gen2.addCompositions();
-		System.out.println(gen2.getCount());
-		gen2.addIntersections();
-		gen2.print();
+		// System.out.println(gen2.getCount());
+		// gen2.addIntersections();
+		// System.out.println(gen2.getCount());
+		// gen2.addCompositions();
+		// System.out.println(gen2.getCount());
+		// gen2.addIntersections();
+		// gen2.print();
 		// System.out.println(gen2.isIntersectionClosed() + "\n");
 
 		ClonePair clone = new ClonePair(str.getSize(), solver);
@@ -67,11 +66,11 @@ public class TestClonePair {
 		clone.addCriticalOps(2, 1);
 		clone.print();
 
-		clone.addCriticalOps(2, 2);
+		clone.addCriticalOps(3, 1);
 		clone.print();
 
-		clone.addCriticalOps(3, 2);
-		clone.print();
+		// clone.addCriticalOps(3, 2);
+		// clone.print();
 
 		Algebra<Boolean> alg = clone.getAlgebra();
 		Algebra.print(alg);
@@ -79,15 +78,10 @@ public class TestClonePair {
 		CompatibleRels com = new CompatibleRels(alg);
 		com.printAllRels(1);
 		com.printCriticalRels(1);
+		com.printEquivalences();
 
-		com.printAllRels(2);
-		com.printCriticalRels(2);
-		
-		List<Relation<Boolean>> rels = com.findAllRels(2, -1);
-		for (Relation<Boolean> rel : rels) {
-			if (rel.isEquivalence())
-				System.out.println("equivalence " + Relation.format(rel));
-		}
+		// com.printAllRels(2);
+		// com.printCriticalRels(2);
 
 		// clone.addCriticalOps(2, 3);
 		// clone.print();
