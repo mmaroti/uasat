@@ -453,10 +453,7 @@ public final class Operation<BOOL> {
 	}
 
 	public Operation<BOOL> compose(Operation<BOOL>[] ops) {
-		assert getArity() == ops.length;
-
-		if (getArity() == 0)
-			return this;
+		assert getArity() == ops.length && ops.length >= 1;
 
 		int a = getArity();
 		int b = ops[0].getArity();
@@ -465,7 +462,7 @@ public final class Operation<BOOL> {
 		c.add(tensor, Contract.range(0, a + 1));
 		for (int i = 0; i < ops.length; i++) {
 			assert alg == ops[i].alg && getSize() == ops[i].getSize()
-					&& ops[i].getArity() == ops[0].getArity();
+					&& ops[i].getArity() == b;
 
 			c.add(ops[i].tensor, Contract.range(1 + i, a + 1, a + b + 1));
 		}
@@ -750,16 +747,17 @@ public final class Operation<BOOL> {
 
 		if (op.getArity() == 0)
 			s.append(Util.formatElement(size, tensor.get()));
+		else {
+			int[] tuple = new int[size];
+			Iterator<Integer> iter = tensor.iterator();
+			while (iter.hasNext()) {
+				for (int i = 0; i < size; i++)
+					tuple[i] = iter.next();
 
-		int[] tuple = new int[size];
-		Iterator<Integer> iter = tensor.iterator();
-		while (iter.hasNext()) {
-			for (int i = 0; i < size; i++)
-				tuple[i] = iter.next();
-
-			if (s.length() != 0)
-				s.append(' ');
-			s.append(Util.formatTuple(size, tuple));
+				if (s.length() != 0)
+					s.append(' ');
+				s.append(Util.formatTuple(size, tuple));
+			}
 		}
 
 		return s.toString();

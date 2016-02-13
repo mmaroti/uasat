@@ -21,7 +21,7 @@
 		<manifestclasspath property="jar.classpath" jarfile="uasat.jar">
 			<classpath refid="classpath"/>
 		</manifestclasspath>
-		<jar destfile="uasat.jar" includes="" compress="true" update="true">
+		<jar destfile="uasat.jar" includes="" compress="true">
 			<fileset dir="src" includes="**/*.java"/>
 			<fileset dir="" includes="lib/*.jar"/>
 			<fileset dir="bin" includes="**/*.class"/>

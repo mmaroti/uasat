@@ -33,7 +33,7 @@ public class GeneratedOps implements Iterable<Operation<Boolean>> {
 	}
 
 	public GeneratedOps(int size, int arity, SatSolver<?> solver) {
-		assert size >= 1 && arity >= 0 && solver != null;
+		assert size >= 1 && arity >= 1 && solver != null;
 
 		this.size = size;
 		this.arity = arity;
@@ -176,15 +176,30 @@ public class GeneratedOps implements Iterable<Operation<Boolean>> {
 		Iterator<int[]> iter = Util.cubeIterator(ops.size(), op.getArity());
 		while (iter.hasNext()) {
 			int[] index = iter.next();
-			for (int i = 0; i < args.length; i++)
+			for (int i = 0; i < args.length; i++) {
 				args[i] = ops.get(index[i]);
+				assert args[i].getArity() == arity;
+			}
 
 			Operation<BOOL> op2 = op.compose(args);
+
 			BOOL c = alg.FALSE;
 			for (Operation<BOOL> op3 : ops)
 				c = alg.or(c, op2.isEqualTo(op3));
 
 			b = alg.and(b, c);
+		}
+
+		return b;
+	}
+
+	public <BOOL> BOOL isCompatibleWith(BoolAlgebra<BOOL> alg,
+			Relation<BOOL> rel) {
+		BOOL b = alg.TRUE;
+
+		for (Operation<Boolean> op : operations) {
+			Operation<BOOL> o = Operation.lift(alg, op);
+			b = alg.and(b, o.preserves(rel));
 		}
 
 		return b;

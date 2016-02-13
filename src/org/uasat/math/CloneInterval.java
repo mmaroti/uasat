@@ -21,10 +21,12 @@ package org.uasat.math;
 import java.util.*;
 
 import org.uasat.core.*;
+import org.uasat.solvers.*;
 
 public class CloneInterval {
 	private final SatSolver<?> solver;
 	private final int size;
+	private final GeneratedOps interval;
 	private final List<Operation<Boolean>> operations;
 	private final List<Relation<Boolean>> relations;
 	private GaloisConn<Boolean> galois;
@@ -38,6 +40,25 @@ public class CloneInterval {
 
 		this.size = size;
 		this.solver = solver;
+		this.interval = null;
+
+		operations = new ArrayList<Operation<Boolean>>();
+		relations = new ArrayList<Relation<Boolean>>();
+		galois = GaloisConn.wrap(Tensor.constant(new int[] { 0, 0 },
+				Boolean.FALSE));
+	}
+
+	public CloneInterval(GeneratedOps interval) {
+		this(interval, SatSolver.getDefault());
+	}
+
+	public CloneInterval(GeneratedOps interval, SatSolver<?> solver) {
+		assert interval.getSize() >= 1 && solver != null;
+		assert interval.isSelfClosed();
+
+		this.size = interval.getSize();
+		this.solver = solver;
+		this.interval = interval;
 
 		operations = new ArrayList<Operation<Boolean>>();
 		relations = new ArrayList<Relation<Boolean>>();
@@ -149,9 +170,9 @@ public class CloneInterval {
 	}
 
 	/*
-	 * Ensures that every the closed sets of selected relations in a join
+	 * Ensures that all closed sets of the selected relations in a join
 	 * irreducible partial clone (defined by the polarity of a single operation)
-	 * is the definable by selected operations.
+	 * is definable by the selected operations.
 	 */
 	public boolean addCriticalOp(int opArity, int relArity) {
 		assert opArity >= 0 && relArity >= 1;
@@ -168,6 +189,11 @@ public class CloneInterval {
 
 				BOOL b = op.isOperation();
 				b = alg.and(b, alg.not(op.preserves(rel)));
+
+				if (interval != null) {
+					b = alg.and(b, interval.isClosedUnder(alg, op));
+					b = alg.and(b, interval.isCompatibleWith(alg, rel));
+				}
 
 				Relation<BOOL> rset = preservedRels(alg, op);
 				Relation<BOOL> oset = gal.leftClosure(rset);
@@ -186,9 +212,9 @@ public class CloneInterval {
 	}
 
 	/*
-	 * Ensures that every the closed sets of selected operations in a meet
-	 * irreducible partial clone (defined by the polarity of a single relation)
-	 * is the definable by selected relations.
+	 * Ensures that all closed sets of selected operations in a meet irreducible
+	 * partial clone (defined by the polarity of a single relation) is definable
+	 * by the selected relations.
 	 */
 	public boolean addCriticalRel(int opArity, int relArity) {
 		assert opArity >= 0 && relArity >= 1;
@@ -205,6 +231,11 @@ public class CloneInterval {
 
 				BOOL b = op.isOperation();
 				b = alg.and(b, alg.not(op.preserves(rel)));
+
+				if (interval != null) {
+					b = alg.and(b, interval.isClosedUnder(alg, op));
+					b = alg.and(b, interval.isCompatibleWith(alg, rel));
+				}
 
 				Relation<BOOL> oset = preservedOps(alg, rel);
 				Relation<BOOL> rset = gal.rightClosure(oset);
@@ -243,6 +274,12 @@ public class CloneInterval {
 				b = alg.and(b, op.preserves(rel1));
 				b = alg.and(b, alg.not(op.preserves(rel2)));
 
+				if (interval != null) {
+					b = alg.and(b, interval.isClosedUnder(alg, op));
+					b = alg.and(b, interval.isCompatibleWith(alg, rel1));
+					b = alg.and(b, interval.isCompatibleWith(alg, rel2));
+				}
+
 				Relation<BOOL> set1 = preservedOps(alg, rel1);
 				Relation<BOOL> set2 = preservedOps(alg, rel2);
 				b = alg.and(b, set1.isSubsetOf(set2));
@@ -280,6 +317,12 @@ public class CloneInterval {
 				b = alg.and(b, op1.preserves(rel));
 				b = alg.and(b, alg.not(op2.preserves(rel)));
 
+				if (interval != null) {
+					b = alg.and(b, interval.isClosedUnder(alg, op1));
+					b = alg.and(b, interval.isClosedUnder(alg, op2));
+					b = alg.and(b, interval.isCompatibleWith(alg, rel));
+				}
+
 				Relation<BOOL> set1 = preservedRels(alg, op1);
 				Relation<BOOL> set2 = preservedRels(alg, op2);
 				b = alg.and(b, set1.isSubsetOf(set2));
@@ -294,6 +337,36 @@ public class CloneInterval {
 
 		add(Relation.wrap(sol.get(1)));
 		return true;
+	}
+
+	public void generate(int opArity, int relArity) {
+		assert opArity >= 1 && relArity >= 1;
+
+		for (int i = 1; i <= opArity; i++)
+			for (;;) {
+				int t = getTotalCount();
+				addCriticalOp2(i, relArity);
+				if (t == getTotalCount())
+					break;
+			}
+
+		for (int i = 1; i <= relArity; i++)
+			for (;;) {
+				int t = getTotalCount();
+				addCriticalRel2(opArity, i);
+				if (t == getTotalCount())
+					break;
+			}
+
+		for (int i = 1; i <= Math.max(opArity, relArity); i++) {
+			for (;;) {
+				int t = getTotalCount();
+				addCriticalOp(Math.min(i, opArity), Math.min(i, relArity));
+				addCriticalRel(Math.min(i, opArity), Math.min(i, relArity));
+				if (t == getTotalCount())
+					break;
+			}
+		}
 	}
 
 	public List<Relation<Boolean>> getClosedOpSets(int limit) {
@@ -338,63 +411,22 @@ public class CloneInterval {
 			System.out.println(i + ":\t" + Relation.format(sets.get(i)));
 	}
 
-	public static void main2(String[] args) {
-		CloneInterval clone = new CloneInterval(2);
-		clone.add(Relation.parse(2, 1, ""));
-		clone.add(Relation.parse(2, 1, "0"));
-		clone.add(Relation.parse(2, 1, "1"));
-		clone.add(Relation.parse(2, 1, "0 1"));
-		clone.add(Operation.parse(2, 1, "00"));
-		clone.add(Operation.parse(2, 1, "01"));
-		clone.add(Operation.parse(2, 1, "10"));
-		clone.add(Operation.parse(2, 1, "11"));
-		clone.print();
-		clone.printClosedRelSets(-1);
-	}
-
 	public static void main(String[] args) {
-		CloneInterval clone = new CloneInterval(3);
+		long time = System.currentTimeMillis();
 
-		int oa = 1;
-		int ra = 3;
-
-		for (int i = 1; i <= ra; i++)
-			for (;;) {
-				int t = clone.getTotalCount();
-				clone.addCriticalRel2(oa, i);
-				if (t == clone.getTotalCount())
-					break;
-			}
-
+		GeneratedOps gen = new GeneratedOps(3, 1);
+		gen.add(Operation.parse(3, 1, "012"));
+		gen.add(Operation.parse(3, 1, "021"));
+		// gen.add(Operation.parse(2, 1, "11"));
+		CloneInterval clone = new CloneInterval(gen, new MiniSat());
+		clone.generate(3, 3);
 		clone.print();
-		clone.printClosedOpSets(-1);
+
+		// clone.printClosedOpSets(-1);
 		clone.printClosedRelSets(-1);
 		System.out.println();
 
-		for (int i = 0; i <= oa; i++)
-			for (;;) {
-				int t = clone.getTotalCount();
-				clone.addCriticalOp2(i, ra);
-				if (t == clone.getTotalCount())
-					break;
-			}
-
-		clone.print();
-		clone.printClosedOpSets(-1);
-		clone.printClosedRelSets(-1);
-		System.out.println();
-
-		for (;;) {
-			int t = clone.getTotalCount();
-			clone.addCriticalOp(oa, ra);
-			clone.addCriticalRel(oa, ra);
-			if (t == clone.getTotalCount())
-				break;
-		}
-
-		clone.print();
-		clone.printClosedOpSets(-1);
-		clone.printClosedRelSets(-1);
-		System.out.println();
+		time = System.currentTimeMillis() - time;
+		System.out.println(time);
 	}
 }
