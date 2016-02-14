@@ -261,17 +261,17 @@ public class MonoidalInt {
 		for (String monoid : TWO_MONOIDS)
 			printStatistics(2, monoid);
 
+		System.out.println("*** UNKNOWN INTERVALS ***\n");
+		for (String monoid : UNKNOWN_MONOIDS)
+			printStatistics(3, monoid);
+
 		System.out.println("*** FINITE INTERVALS ***\n");
 		for (String monoid : FINITE_MONOIDS)
 			printStatistics(3, monoid);
 
-		System.out.println("*** INFINITE INTERVALS ***\n");
-		for (String monoid : INFINITE_MONOIDS)
-			printStatistics(3, monoid);
-
-		System.out.println("*** UNKNOWN INTERVALS ***\n");
-		for (String monoid : UNKNOWN_MONOIDS)
-			printStatistics(3, monoid);
+		// System.out.println("*** INFINITE INTERVALS ***\n");
+		// for (String monoid : INFINITE_MONOIDS)
+		// printStatistics(3, monoid);
 	}
 
 	public static final String M512 = "000 002 012 111 222"; // finite
@@ -284,6 +284,6 @@ public class MonoidalInt {
 		printStatistics(3, monoid);
 	}
 
-	public static final int LIMIT = 25000;
+	public static final int LIMIT = 100000;
 	public static final int PRINT_LIMIT = 50;
 }
