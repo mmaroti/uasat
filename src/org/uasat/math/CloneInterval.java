@@ -417,7 +417,7 @@ public class CloneInterval {
 		GeneratedOps gen = new GeneratedOps(3, 1);
 		gen.add(Operation.parse(3, 1, "012"));
 		gen.add(Operation.parse(3, 1, "021"));
-		// gen.add(Operation.parse(2, 1, "11"));
+//		gen.add(Operation.parse(3, 1, "220"));
 		CloneInterval clone = new CloneInterval(gen, new MiniSat());
 		clone.generate(3, 3);
 		clone.print();
