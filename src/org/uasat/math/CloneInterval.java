@@ -415,13 +415,12 @@ public class CloneInterval {
 		long time = System.currentTimeMillis();
 
 		GeneratedOps gen = new GeneratedOps(3, 1);
-		gen.add(Operation.parse(3, 1, "000"));
-		gen.add(Operation.parse(3, 1, "002"));
+		// gen.add(Operation.parse(3, 1, "000"));
+		// gen.add(Operation.parse(3, 1, "002"));
+		// gen.add(Operation.parse(3, 1, "010"));
 		gen.add(Operation.parse(3, 1, "012"));
-		gen.add(Operation.parse(3, 1, "102"));
-		gen.add(Operation.parse(3, 1, "111"));
-		gen.add(Operation.parse(3, 1, "112"));
-		gen.add(Operation.parse(3, 1, "222"));
+		// gen.add(Operation.parse(3, 1, "111"));
+		// gen.add(Operation.parse(3, 1, "222"));
 		gen.print();
 
 		CloneInterval clone = new CloneInterval(gen, new MiniSat());
