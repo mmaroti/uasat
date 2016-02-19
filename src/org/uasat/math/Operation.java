@@ -436,6 +436,47 @@ public final class Operation<BOOL> {
 		return b;
 	}
 
+	/**
+	 * Testing congruence join semi-distributivity (omitting types 1, 2 and 5).
+	 *
+	 * x = d_0(x,y,y). x=d_0(x,y,x). d_0(x,x,y)=d_1(x,x,y). d_1(x,y,y) =
+	 * d_2(x,y,y). d_1(x,y,x)=d_2(x,y,x). d_{n-1}(x,x,y)=y (for n odd).
+	 * d_{n-1}(x,y,y)=y and d_{n-1}(x,y,x)=x (for n even).
+	 */
+	public static <BOOL> BOOL areSDJoinTerms(List<Operation<BOOL>> ops) {
+		assert ops.size() >= 1;
+		BoolAlgebra<BOOL> alg = ops.get(0).getAlg();
+
+		for (int i = 0; i < ops.size(); i++)
+			assert ops.get(i).getArity() == 3 && ops.get(i).getAlg() == alg;
+
+		BOOL b = ops.get(0).isSatisfied(0, 1, 1);
+		b = alg.and(b, ops.get(0).isSatisfied(0, 1, 0));
+
+		for (int i = 0; i + 1 < ops.size(); i += 2) {
+			BOOL c = ops.get(i).polymer(0, 0, 1)
+					.isEqualTo(ops.get(i + 1).polymer(0, 0, 1));
+			b = alg.and(b, c);
+		}
+
+		for (int i = 1; i + 1 < ops.size(); i += 2) {
+			BOOL c = ops.get(i).polymer(0, 1, 1)
+					.isEqualTo(ops.get(i + 1).polymer(0, 1, 1));
+			BOOL d = ops.get(i).polymer(0, 1, 0)
+					.isEqualTo(ops.get(i + 1).polymer(0, 1, 0));
+			b = alg.and(b, alg.and(c, d));
+		}
+
+		if (ops.size() % 2 == 1)
+			b = alg.and(b, ops.get(ops.size() - 1).isSatisfied(1, 1, 0));
+		else {
+			b = alg.and(b, ops.get(ops.size() - 1).isSatisfied(1, 0, 0));
+			b = alg.and(b, ops.get(ops.size() - 1).isSatisfied(0, 1, 0));
+		}
+
+		return b;
+	}
+
 	@SuppressWarnings("unchecked")
 	public Operation<BOOL> compose(Operation<BOOL> op) {
 		return compose(new Operation[] { op });

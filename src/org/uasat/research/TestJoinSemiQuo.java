@@ -23,6 +23,7 @@ import java.util.*;
 
 import org.uasat.core.*;
 import org.uasat.math.*;
+import org.uasat.solvers.*;
 
 public class TestJoinSemiQuo {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
@@ -30,12 +31,12 @@ public class TestJoinSemiQuo {
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
-		int size = 3;
+		int size = 5;
 		int[] fshape = new int[] { size, size, size, size };
 		int[] rshape = new int[] { size, size };
 
 		SatProblem problem = new SatProblem(rshape, rshape, rshape, fshape,
-				fshape) {
+				fshape, fshape) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
@@ -43,32 +44,44 @@ public class TestJoinSemiQuo {
 				Relation<BOOL> b = new Relation<BOOL>(alg, tensors.get(1));
 				Relation<BOOL> c = new Relation<BOOL>(alg, tensors.get(2));
 
-				Operation<BOOL> d1 = new Operation<BOOL>(alg, tensors.get(3));
-				Operation<BOOL> d2 = new Operation<BOOL>(alg, tensors.get(4));
+				List<Operation<BOOL>> ops = new ArrayList<Operation<BOOL>>();
+				for (int i = 3; i < tensors.size(); i++)
+					ops.add(new Operation<BOOL>(alg, tensors.get(i)));
 
 				BOOL r = a.isQuasiOrder();
 				r = alg.and(r, b.isQuasiOrder());
 				r = alg.and(r, c.isQuasiOrder());
 
-				Relation<BOOL> m = a.intersect(b);
-				r = alg.and(r, m.isEqualTo(a.intersect(c)));
-				r = alg.and(
-						r,
-						alg.not(m.isSubsetOf(a.intersect(b.compose(c)
-								.compose(b).compose(c)))));
+				r = alg.and(r, a.intersect(b).isSubsetOf(c));
+				r = alg.and(r, a.intersect(c).isSubsetOf(b));
 
-				r = alg.and(r, d1.isOperation());
-				r = alg.and(r, d2.isOperation());
+				Relation<BOOL> d = b.compose(c).compose(b).compose(c);
+				r = alg.and(r, alg.not(a.intersect(d).isSubsetOf(b)));
 
-				r = alg.and(r, d1.preserves(a));
-				r = alg.and(r, d1.preserves(b));
-				r = alg.and(r, d1.preserves(c));
+				for (Operation<BOOL> op : ops) {
+					r = alg.and(r, op.isOperation());
+					r = alg.and(r, op.preserves(a));
+					r = alg.and(r, op.preserves(b));
+					r = alg.and(r, op.preserves(c));
+				}
 
-				r = alg.and(r, d2.preserves(a));
-				r = alg.and(r, d2.preserves(b));
-				r = alg.and(r, d2.preserves(c));
+				r = alg.and(r, Operation.areSDJoinTerms(ops));
+
+				return r;
 			}
 		};
+
+		List<Tensor<Boolean>> tensors = problem.solveOne(new MiniSat());
+		if (tensors == null) {
+			System.out.println("no solution");
+			return;
+		}
+
+		for (int i = 0; i < 3; i++)
+			Relation.format(Relation.wrap(tensors.get(i)));
+
+		for (int i = 3; i < tensors.size(); i++)
+			Operation.format(Operation.wrap(tensors.get(i)));
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
