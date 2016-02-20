@@ -18,13 +18,17 @@
 
 package org.uasat.core;
 
-import java.text.*;
 import java.util.*;
 
 import org.uasat.solvers.*;
 
 public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 	public static SatSolver<?> getDefault() {
+		try {
+			return new JniSat("minisat");
+		} catch (LinkageError e) {
+		}
+
 		return new Sat4J();
 	}
 
@@ -59,8 +63,6 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 			return decode(elem);
 		}
 	};
-
-	protected static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
 	@Override
 	public BOOL and(BOOL a, BOOL b) {

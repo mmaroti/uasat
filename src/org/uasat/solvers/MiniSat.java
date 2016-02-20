@@ -111,11 +111,6 @@ public class MiniSat extends SatSolver<Integer> {
 			args.add(input.getAbsolutePath());
 			args.add(output.getAbsolutePath());
 
-			if (debugging)
-				System.err.print("Running minisat with " + variables
-						+ " variables and " + clauses.size() + " clauses ... ");
-			long time = System.currentTimeMillis();
-
 			Process proc = Runtime.getRuntime().exec(
 					args.toArray(new String[args.size()]));
 
@@ -126,20 +121,9 @@ public class MiniSat extends SatSolver<Integer> {
 				throw new RuntimeException(e.getMessage());
 			}
 
-			time = System.currentTimeMillis() - time;
-
-			if (result != 10 && result != 20) {
-				if (debugging)
-					System.err.println("exited with error code " + result);
-
+			if (result != 10 && result != 20)
 				throw new RuntimeException("Minisat failed with error code "
 						+ result);
-			}
-
-			if (debugging)
-				System.err.println("finished in "
-						+ TIME_FORMAT.format(0.001 * time) + " seconds: "
-						+ (result == 10 ? "satisfiable." : "unsatisfiable."));
 
 			if (result == 20)
 				return false;
