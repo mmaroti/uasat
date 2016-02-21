@@ -198,6 +198,10 @@ public final class Permutation<BOOL> {
 		return alg.not(isOdd());
 	}
 
+	public BOOL isIdentity() {
+		return asOperation().isIdempotent();
+	}
+	
 	public static int[] decode(Permutation<Boolean> perm) {
 		assert perm.isPermutation();
 

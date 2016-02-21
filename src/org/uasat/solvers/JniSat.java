@@ -76,8 +76,7 @@ public class JniSat extends SatSolver<Integer> {
 		return -elem;
 	}
 
-	private static final int AUXILIARY_FLAGS = Solver.FLAG_ELIMINATE
-			| Solver.FLAG_NODECISION;
+	private static final int AUXILIARY_FLAGS = Solver.FLAG_ELIMINATE;
 
 	@Override
 	public Integer and(Integer a, Integer b) {
