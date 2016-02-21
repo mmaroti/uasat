@@ -31,7 +31,7 @@ public class TestJoinSemiQuo {
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
-		int size = 5;
+		int size = 6;
 		int[] fshape = new int[] { size, size, size, size };
 		int[] rshape = new int[] { size, size };
 

@@ -76,6 +76,9 @@ public class JniSat extends SatSolver<Integer> {
 		return -elem;
 	}
 
+	private static final int AUXILIARY_FLAGS = Solver.FLAG_ELIMINATE
+			| Solver.FLAG_NODECISION;
+
 	@Override
 	public Integer and(Integer a, Integer b) {
 		if (a == -1 || b == -1)
@@ -89,7 +92,7 @@ public class JniSat extends SatSolver<Integer> {
 		else if (a == -b)
 			return -1;
 
-		int var = solver.addVariable(Solver.FLAG_ELIMINATE);
+		int var = solver.addVariable(AUXILIARY_FLAGS);
 		solver.addClause(a, -var);
 		solver.addClause(b, -var);
 		solver.addClause(-a, -b, var);
@@ -112,7 +115,7 @@ public class JniSat extends SatSolver<Integer> {
 		else if (a == -b)
 			return 1;
 
-		int var = solver.addVariable(Solver.FLAG_ELIMINATE);
+		int var = solver.addVariable(AUXILIARY_FLAGS);
 		solver.addClause(-a, var);
 		solver.addClause(-b, var);
 		solver.addClause(a, b, -var);
@@ -133,7 +136,7 @@ public class JniSat extends SatSolver<Integer> {
 		else if (b == -1)
 			return a;
 
-		int var = solver.addVariable(Solver.FLAG_ELIMINATE);
+		int var = solver.addVariable(AUXILIARY_FLAGS);
 		solver.addClause(a, b, -var);
 		solver.addClause(a, -b, var);
 		solver.addClause(-a, b, var);
