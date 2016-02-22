@@ -256,7 +256,7 @@ public class MonoidalInt {
 			"000 001 002 010 011 012 020 022 111 222",
 			"000 001 002 010 011 012 020 022 100 101 110 111 200 202 220 222" };
 
-	public static void main(String[] args) {
+	public static void main4(String[] args) {
 		System.out.println("*** BOOLEAN ***\n");
 		for (String monoid : TWO_MONOIDS)
 			printStatistics(2, monoid);
@@ -282,6 +282,30 @@ public class MonoidalInt {
 	public static void main2(String[] args) {
 		String monoid = M719;
 		printStatistics(3, monoid);
+	}
+
+	public static void main(String[] args) {
+		long time = System.currentTimeMillis();
+
+		GeneratedOps gen = new GeneratedOps(3, 1);
+		String monoid = "000 002 012 022 200 220 222";
+		for (String m : monoid.split(" "))
+			gen.add(Operation.parse(3, 1, m));
+		gen.print();
+
+		CloneInterval clone = new CloneInterval(gen, SatSolver.getDefault());
+		clone.trace = true;
+		clone.generate(2, 4);
+		System.out.println();
+		clone.print();
+
+		// clone.printClosedOpSets(-1);
+		clone.printClosedRelSets(-1);
+		System.out.println();
+
+		time = System.currentTimeMillis() - time;
+		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
+				+ " seconds.");
 	}
 
 	public static final int LIMIT = 100000;

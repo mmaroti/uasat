@@ -21,7 +21,6 @@ package org.uasat.math;
 import java.util.*;
 
 import org.uasat.core.*;
-import org.uasat.solvers.*;
 
 public class CloneInterval {
 	private final SatSolver<?> solver;
@@ -30,6 +29,7 @@ public class CloneInterval {
 	private final List<Operation<Boolean>> operations;
 	private final List<Relation<Boolean>> relations;
 	private GaloisConn<Boolean> galois;
+	public boolean trace = false;
 
 	public CloneInterval(int size) {
 		this(size, SatSolver.getDefault());
@@ -190,6 +190,9 @@ public class CloneInterval {
 				BOOL b = op.isOperation();
 				b = alg.and(b, alg.not(op.preserves(rel)));
 
+				b = alg.and(b, op.isPermuteMinimal());
+				b = alg.and(b, rel.isPermuteMinimal());
+
 				if (interval != null) {
 					b = alg.and(b, interval.isClosedUnder(alg, op));
 					b = alg.and(b, interval.isCompatibleWith(alg, rel));
@@ -207,7 +210,11 @@ public class CloneInterval {
 		if (sol == null)
 			return false;
 
-		add(Operation.wrap(sol.get(0)));
+		Operation<Boolean> op = Operation.wrap(sol.get(0));
+		if (trace)
+			System.out.println(Operation.format(op));
+
+		add(op);
 		return true;
 	}
 
@@ -232,6 +239,9 @@ public class CloneInterval {
 				BOOL b = op.isOperation();
 				b = alg.and(b, alg.not(op.preserves(rel)));
 
+				b = alg.and(b, op.isPermuteMinimal());
+				b = alg.and(b, rel.isPermuteMinimal());
+
 				if (interval != null) {
 					b = alg.and(b, interval.isClosedUnder(alg, op));
 					b = alg.and(b, interval.isCompatibleWith(alg, rel));
@@ -249,7 +259,11 @@ public class CloneInterval {
 		if (sol == null)
 			return false;
 
-		add(Relation.wrap(sol.get(1)));
+		Relation<Boolean> rel = Relation.wrap(sol.get(1));
+		if (trace)
+			System.out.println(Relation.format(rel));
+
+		add(rel);
 		return true;
 	}
 
@@ -274,6 +288,10 @@ public class CloneInterval {
 				b = alg.and(b, op.preserves(rel1));
 				b = alg.and(b, alg.not(op.preserves(rel2)));
 
+				b = alg.and(b, op.isPermuteMinimal());
+				b = alg.and(b, rel1.isPermuteMinimal());
+				b = alg.and(b, rel2.isPermuteMinimal());
+
 				if (interval != null) {
 					b = alg.and(b, interval.isClosedUnder(alg, op));
 					b = alg.and(b, interval.isCompatibleWith(alg, rel1));
@@ -292,7 +310,11 @@ public class CloneInterval {
 		if (sol == null)
 			return false;
 
-		add(Operation.wrap(sol.get(1)));
+		Operation<Boolean> op = Operation.wrap(sol.get(1));
+		if (trace)
+			System.out.println(Operation.format(op));
+
+		add(op);
 		return true;
 	}
 
@@ -317,6 +339,10 @@ public class CloneInterval {
 				b = alg.and(b, op1.preserves(rel));
 				b = alg.and(b, alg.not(op2.preserves(rel)));
 
+				b = alg.and(b, rel.isPermuteMinimal());
+				b = alg.and(b, op1.isPermuteMinimal());
+				b = alg.and(b, op2.isPermuteMinimal());
+
 				if (interval != null) {
 					b = alg.and(b, interval.isClosedUnder(alg, op1));
 					b = alg.and(b, interval.isClosedUnder(alg, op2));
@@ -335,35 +361,46 @@ public class CloneInterval {
 		if (sol == null)
 			return false;
 
-		add(Relation.wrap(sol.get(1)));
+		Relation<Boolean> rel = Relation.wrap(sol.get(1));
+		if (trace)
+			System.out.println(Relation.format(rel));
+
+		add(rel);
 		return true;
 	}
 
 	public void generate(int opArity, int relArity) {
 		assert opArity >= 1 && relArity >= 1;
 
+		if (trace)
+			System.out.println("critical ops of type 2:");
 		for (int i = 1; i <= opArity; i++)
-			for (;;) {
-				int t = getTotalCount();
-				addCriticalOp2(i, relArity);
-				if (t == getTotalCount())
-					break;
-			}
+			while (addCriticalOp2(i, relArity))
+				;
 
+		if (trace)
+			System.out.println("critical rels of type 2:");
 		for (int i = 1; i <= relArity; i++)
-			for (;;) {
-				int t = getTotalCount();
-				addCriticalRel2(opArity, i);
-				if (t == getTotalCount())
-					break;
-			}
+			while (addCriticalRel2(opArity, i))
+				;
 
 		for (int i = 1; i <= Math.max(opArity, relArity); i++) {
+			int a = 0;
 			for (;;) {
-				int t = getTotalCount();
-				addCriticalOp(Math.min(i, opArity), Math.min(i, relArity));
-				addCriticalRel(Math.min(i, opArity), Math.min(i, relArity));
-				if (t == getTotalCount())
+				if (trace)
+					System.out.println("critical ops of type 1:");
+				while (addCriticalOp(Math.min(i, opArity),
+						Math.min(i, relArity)))
+					a = 0;
+				if (++a >= 2)
+					break;
+
+				if (trace)
+					System.out.println("critical rels of type 1:");
+				while (addCriticalRel(Math.min(i, opArity),
+						Math.min(i, relArity)))
+					a = 0;
+				if (++a >= 2)
 					break;
 			}
 		}
@@ -409,29 +446,5 @@ public class CloneInterval {
 
 		for (int i = 0; i < sets.size(); i++)
 			System.out.println(i + ":\t" + Relation.format(sets.get(i)));
-	}
-
-	public static void main(String[] args) {
-		long time = System.currentTimeMillis();
-
-		GeneratedOps gen = new GeneratedOps(3, 1);
-		// gen.add(Operation.parse(3, 1, "000"));
-		// gen.add(Operation.parse(3, 1, "002"));
-		// gen.add(Operation.parse(3, 1, "010"));
-		gen.add(Operation.parse(3, 1, "012"));
-		// gen.add(Operation.parse(3, 1, "111"));
-		// gen.add(Operation.parse(3, 1, "222"));
-		gen.print();
-
-		CloneInterval clone = new CloneInterval(gen, new MiniSat());
-		clone.generate(3, 4);
-		clone.print();
-
-		// clone.printClosedOpSets(-1);
-		clone.printClosedRelSets(-1);
-		System.out.println();
-
-		time = System.currentTimeMillis() - time;
-		System.out.println(time);
 	}
 }

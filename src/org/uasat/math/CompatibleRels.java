@@ -91,10 +91,6 @@ public class CompatibleRels {
 	}
 
 	public List<Relation<Boolean>> findUniqueRels(int arity, int limit) {
-		final List<Permutation<Boolean>> perms = Permutation
-				.symmetricGroup(arity);
-		perms.remove(Permutation.identity(arity));
-
 		SatProblem problem = new SatProblem(Util.createShape(algebra.getSize(),
 				arity)) {
 			@Override
@@ -104,8 +100,7 @@ public class CompatibleRels {
 				Algebra<BOOL> ualg = Algebra.lift(alg, algebra);
 
 				BOOL b = ualg.isSubuniverse(rel);
-				for (Permutation<Boolean> p : perms)
-					b = alg.and(b, rel.isLexLeq(rel.permute(p)));
+				b = alg.and(b, rel.isPermuteMinimal());
 
 				return b;
 			}

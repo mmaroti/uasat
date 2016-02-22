@@ -278,6 +278,21 @@ public final class Relation<BOOL> {
 		return permute(Permutation.decode(perm));
 	}
 
+	public BOOL isPermuteMinimal() {
+		List<Permutation<Boolean>> perms = Permutation
+				.symmetricGroup(getArity());
+
+		BOOL b = alg.TRUE;
+		for (Permutation<Boolean> p : perms) {
+			if (p.isIdentity())
+				continue;
+
+			b = alg.and(b, isLexLeq(permute(p)));
+		}
+
+		return b;
+	}
+
 	public Relation<BOOL> project(int... coords) {
 		assert coords.length <= getArity();
 
