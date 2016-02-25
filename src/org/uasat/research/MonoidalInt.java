@@ -294,26 +294,27 @@ public class MonoidalInt {
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
 				+ " seconds.");
 	}
-	
+
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
-		
+
 		// 7/19 possible finite
 		GeneratedOps gen = parseMonoid(3, "000 002 012 102 111 112 222");
 		Algebra<Boolean> alg = Algebra.wrap(gen.getOperations());
-		// alg.add(Operation.parse(3, 2, "012 112 222"));
+		alg.add(Operation.parse(3, 2, "012 112 222"));
 		alg.add(Operation.parse(3, 2, "112 002 222"));
 		alg.add(Operation.parse(3, 2, "002 002 222"));
-		// alg.add(Operation.parse(3, 2, "000 000 002"));
+		alg.add(Operation.parse(3, 2, "000 000 002"));
 		alg.add(Operation.parse(3, 2, "012 102 222"));
 		Algebra.print(alg);
-		
+
 		CompatibleRels com = new CompatibleRels(alg);
 		com.printCriticalRelsComplement(1);
 		com.printCriticalRelsComplement(2);
 		com.printCriticalRelsComplement(3);
 		com.printCriticalRelsComplement(4);
-		
+		com.printCriticalRelsComplement(5);
+
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
 				+ " seconds.");
