@@ -106,7 +106,7 @@ public final class Operation<BOOL> {
 	}
 
 	private static int[] createShape(int size, int arity) {
-		assert size > 1 && arity >= 0;
+		assert size >= 1 && arity >= 0;
 
 		int[] shape = new int[arity];
 		for (int i = 0; i < arity; i++)

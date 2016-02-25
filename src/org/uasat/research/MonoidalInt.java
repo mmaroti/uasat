@@ -274,23 +274,10 @@ public class MonoidalInt {
 		// printStatistics(3, monoid);
 	}
 
-	public static final String M512 = "000 002 012 111 222"; // finite
-	public static final String M616 = "000 001 012 111 112 222"; // infinite
-	public static final String M618 = "000 002 010 012 111 222"; // ?? finite
-	public static final String M719 = "000 002 012 102 111 112 222"; // ?? count
-
-	public static void main2(String[] args) {
-		String monoid = M719;
-		printStatistics(3, monoid);
-	}
-
-	public static void main(String[] args) {
+	public static void main7(String[] args) {
 		long time = System.currentTimeMillis();
 
-		GeneratedOps gen = new GeneratedOps(3, 1);
-		String monoid = "000 002 012 022 200 220 222";
-		for (String m : monoid.split(" "))
-			gen.add(Operation.parse(3, 1, m));
+		GeneratedOps gen = parseMonoid(3, "000 002 012 102 111 112 222");
 		gen.print();
 
 		CloneInterval clone = new CloneInterval(gen, SatSolver.getDefault());
@@ -299,10 +286,34 @@ public class MonoidalInt {
 		System.out.println();
 		clone.print();
 
-		// clone.printClosedOpSets(-1);
+		clone.printClosedOpSets(-1);
 		clone.printClosedRelSets(-1);
 		System.out.println();
 
+		time = System.currentTimeMillis() - time;
+		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
+				+ " seconds.");
+	}
+	
+	public static void main(String[] args) {
+		long time = System.currentTimeMillis();
+		
+		// 7/19 possible finite
+		GeneratedOps gen = parseMonoid(3, "000 002 012 102 111 112 222");
+		Algebra<Boolean> alg = Algebra.wrap(gen.getOperations());
+		// alg.add(Operation.parse(3, 2, "012 112 222"));
+		alg.add(Operation.parse(3, 2, "112 002 222"));
+		alg.add(Operation.parse(3, 2, "002 002 222"));
+		// alg.add(Operation.parse(3, 2, "000 000 002"));
+		alg.add(Operation.parse(3, 2, "012 102 222"));
+		Algebra.print(alg);
+		
+		CompatibleRels com = new CompatibleRels(alg);
+		com.printCriticalRelsComplement(1);
+		com.printCriticalRelsComplement(2);
+		com.printCriticalRelsComplement(3);
+		com.printCriticalRelsComplement(4);
+		
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
 				+ " seconds.");

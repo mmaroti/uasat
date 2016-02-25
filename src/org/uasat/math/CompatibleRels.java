@@ -370,11 +370,21 @@ public class CompatibleRels {
 		printRels("critical", arity, findCriticalRels(arity));
 	}
 
-	public void printCriticalRelsUni(int arity) {
+	public void printCriticalRelsComplement(int arity) {
+		List<Relation<Boolean>> list = findCriticalRels(arity);
+
+		ListIterator<Relation<Boolean>> iter = list.listIterator();
+		while (iter.hasNext())
+			iter.set(iter.next().complement());
+
+		printRels("critical complement", arity, list);
+	}
+
+	public void printUniqueCriticalRels(int arity) {
 		printRels("critical unique", arity, findUniqueCriticalRels(arity));
 	}
 
-	public void printCriticalRelsUniCom(int arity) {
+	public void printUniqueCriticalRelsCompement(int arity) {
 		List<Relation<Boolean>> list = findUniqueCriticalRels(arity);
 
 		ListIterator<Relation<Boolean>> iter = list.listIterator();
