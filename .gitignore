@@ -3,3 +3,6 @@
 .settings/
 /bin/
 uasat.jar
+*.txt
+*.log
+*.uas
