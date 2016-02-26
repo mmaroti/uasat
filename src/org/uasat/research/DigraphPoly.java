@@ -386,7 +386,7 @@ public class DigraphPoly {
 						b = alg.and(b, alg.not(rel.isTrichotome()));
 					else if (token.equals("non-isomorphic")) {
 						List<Permutation<Boolean>> perms = Permutation
-								.symmetricGroup(size);
+								.nontrivialPerms(size);
 						for (Permutation<Boolean> p : perms) {
 							Permutation<BOOL> perm = Permutation.lift(alg, p);
 							b = alg.and(b, rel.isLexLeq(rel.conjugate(perm)));

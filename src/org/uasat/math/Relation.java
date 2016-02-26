@@ -280,15 +280,11 @@ public final class Relation<BOOL> {
 
 	public BOOL isPermuteMinimal() {
 		List<Permutation<Boolean>> perms = Permutation
-				.symmetricGroup(getArity());
+				.nontrivialPerms(getArity());
 
 		BOOL b = alg.TRUE;
-		for (Permutation<Boolean> p : perms) {
-			if (p.isIdentity())
-				continue;
-
+		for (Permutation<Boolean> p : perms)
 			b = alg.and(b, isLexLeq(permute(p)));
-		}
 
 		return b;
 	}

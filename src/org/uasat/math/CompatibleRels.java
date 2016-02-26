@@ -312,9 +312,9 @@ public class CompatibleRels {
 		return list;
 	}
 
-	public List<Relation<Boolean>> findUniqueCriticalRels(int arity) {
+	public List<Relation<Boolean>> findUniCriticalRels(int arity) {
 		List<Relation<Boolean>> list = findCriticalRels(arity);
-		List<Permutation<Boolean>> perms = Permutation.symmetricGroup(arity);
+		List<Permutation<Boolean>> perms = Permutation.nontrivialPerms(arity);
 
 		ListIterator<Relation<Boolean>> iter = list.listIterator();
 		outer: while (iter.hasNext()) {
@@ -370,7 +370,7 @@ public class CompatibleRels {
 		printRels("critical", arity, findCriticalRels(arity));
 	}
 
-	public void printCriticalRelsComplement(int arity) {
+	public void printCriticalComps(int arity) {
 		List<Relation<Boolean>> list = findCriticalRels(arity);
 
 		ListIterator<Relation<Boolean>> iter = list.listIterator();
@@ -380,12 +380,12 @@ public class CompatibleRels {
 		printRels("critical complement", arity, list);
 	}
 
-	public void printUniqueCriticalRels(int arity) {
-		printRels("critical unique", arity, findUniqueCriticalRels(arity));
+	public void printUniCriticalRels(int arity) {
+		printRels("critical unique", arity, findUniCriticalRels(arity));
 	}
 
-	public void printUniqueCriticalRelsCompement(int arity) {
-		List<Relation<Boolean>> list = findUniqueCriticalRels(arity);
+	public void printUniCriticalComps(int arity) {
+		List<Relation<Boolean>> list = findUniCriticalRels(arity);
 
 		ListIterator<Relation<Boolean>> iter = list.listIterator();
 		while (iter.hasNext())

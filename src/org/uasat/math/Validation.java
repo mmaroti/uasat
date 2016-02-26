@@ -120,7 +120,7 @@ public class Validation {
 	}
 
 	void checkNonIsomorphicDigraphs() {
-		final List<Permutation<Boolean>> perms = Permutation.symmetricGroup(4);
+		final List<Permutation<Boolean>> perms = Permutation.nontrivialPerms(4);
 
 		SatProblem problem = new SatProblem(new int[] { 4, 4 }) {
 			@Override
@@ -142,7 +142,7 @@ public class Validation {
 	}
 
 	void checkNonIsomorphicGroupoids() {
-		final List<Permutation<Boolean>> perms = Permutation.symmetricGroup(3);
+		final List<Permutation<Boolean>> perms = Permutation.nontrivialPerms(3);
 
 		SatProblem problem = new SatProblem(new int[] { 3, 3, 3 }) {
 			@Override
@@ -241,7 +241,7 @@ public class Validation {
 	}
 
 	void checkFiniteGroups() {
-		final List<Permutation<Boolean>> perms = Permutation.symmetricGroup(4);
+		final List<Permutation<Boolean>> perms = Permutation.nontrivialPerms(4);
 
 		SatProblem problem = new SatProblem(new int[] { 4, 4, 4 }) {
 			@Override

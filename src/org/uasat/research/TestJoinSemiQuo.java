@@ -30,7 +30,7 @@ public class TestJoinSemiQuo {
 
 	public static List<Structure<Boolean>> getSDMeetFailure(int size) {
 		final List<Permutation<Boolean>> perms = Permutation
-				.symmetricGroup(size);
+				.nontrivialPerms(size);
 
 		int[] rshape = new int[] { size, size };
 		SatProblem problem = new SatProblem(rshape, rshape, rshape) {
@@ -56,9 +56,6 @@ public class TestJoinSemiQuo {
 
 				r = alg.and(r, b.isLexLeq(c));
 				for (Permutation<Boolean> p : perms) {
-					if (p.isIdentity())
-						continue;
-
 					Permutation<BOOL> q = Permutation.lift(alg, p);
 					r = alg.and(r, a.isLexLeq(a.conjugate(q)));
 				}
@@ -94,7 +91,7 @@ public class TestJoinSemiQuo {
 
 		int size = 5;
 		final List<Permutation<Boolean>> perms = Permutation
-				.symmetricGroup(size);
+				.nontrivialPerms(size);
 
 		int[] fshape = new int[] { size, size, size, size };
 		int[] rshape = new int[] { size, size };
@@ -133,9 +130,6 @@ public class TestJoinSemiQuo {
 
 				r = alg.and(r, b.isLexLeq(c));
 				for (Permutation<Boolean> p : perms) {
-					if (p.isIdentity())
-						continue;
-
 					Permutation<BOOL> q = Permutation.lift(alg, p);
 					r = alg.and(r, a.isLexLeq(a.conjugate(q)));
 				}

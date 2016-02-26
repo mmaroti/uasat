@@ -46,10 +46,10 @@ public class TestSubpowers {
 		Algebra<Boolean> alg = Algebra.wrap(2);
 		CompatibleRels subs = new CompatibleRels(alg);
 
-		subs.printUniqueCriticalRelsCompement(1);
-		subs.printUniqueCriticalRelsCompement(2);
-		subs.printUniqueCriticalRelsCompement(3);
-		subs.printUniqueCriticalRelsCompement(4);
+		subs.printUniCriticalComps(1);
+		subs.printUniCriticalComps(2);
+		subs.printUniCriticalComps(3);
+		subs.printUniCriticalComps(4);
 		// subs.printCriticalRels(5);
 
 		time = System.currentTimeMillis() - time;

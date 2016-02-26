@@ -205,15 +205,11 @@ public final class Operation<BOOL> {
 
 	public BOOL isPermuteMinimal() {
 		List<Permutation<Boolean>> perms = Permutation
-				.symmetricGroup(getArity());
+				.nontrivialPerms(getArity());
 
 		BOOL b = alg.TRUE;
-		for (Permutation<Boolean> p : perms) {
-			if (p.isIdentity())
-				continue;
-
+		for (Permutation<Boolean> p : perms)
 			b = alg.and(b, isLexLeq(permute(p)));
-		}
 
 		return b;
 	}
@@ -374,7 +370,7 @@ public final class Operation<BOOL> {
 
 	/**
 	 * Testing Taylor property (omitting type 1):
-	 * 
+	 *
 	 * p(x,x,x) = x. p(x,x,y) = p(y,x,x) = q(x,y,y). p(x,y,x) = q(x,y,x).
 	 */
 	public static <BOOL> BOOL areSiggersTerms(Operation<BOOL> p,
@@ -395,7 +391,7 @@ public final class Operation<BOOL> {
 
 	/**
 	 * Testing congruence meet semi-distributivity (omitting types 1 and 2):
-	 * 
+	 *
 	 * p(x,x,x) = x. p(x,x,y) = p(x,y,x) = p(y,x,x) = q(x,y,x). q(x,x,y) =
 	 * q(x,y,y).
 	 */
@@ -419,7 +415,7 @@ public final class Operation<BOOL> {
 	/**
 	 * Testing congruence distributivity (omitting types 1, 2 and 5 and no
 	 * tails)
-	 * 
+	 *
 	 * p_i(x,y,x) = x. x = p_0(x,x,y). p_0(x,y,y) = p_1(x,y,y). p_1(x,x,y) =
 	 * p_2(x,x,y). p_{n-1}(x,y,y) = y (for n odd). p_{n-1}(x,x,y) = y (for n
 	 * even).
@@ -458,7 +454,7 @@ public final class Operation<BOOL> {
 
 	/**
 	 * Testing congruence join semi-distributivity (omitting types 1, 2 and 5).
-	 * 
+	 *
 	 * x = d_0(x,y,y). x=d_0(x,y,x). d_0(x,x,y)=d_1(x,x,y). d_1(x,y,y) =
 	 * d_2(x,y,y). d_1(x,y,x)=d_2(x,y,x). d_{n-1}(x,x,y)=y (for n odd).
 	 * d_{n-1}(x,y,y)=y and d_{n-1}(x,y,x)=x (for n even).

@@ -164,6 +164,12 @@ public final class Permutation<BOOL> {
 		return list;
 	}
 
+	public static List<Permutation<Boolean>> nontrivialPerms(int size) {
+		List<Permutation<Boolean>> list = symmetricGroup(size);
+		list.remove(0);
+		return list;
+	}
+
 	public BOOL isPermutation() {
 		Operation<BOOL> op = asOperation();
 		return alg.and(op.isOperation(), op.isSurjective());
@@ -201,7 +207,7 @@ public final class Permutation<BOOL> {
 	public BOOL isIdentity() {
 		return asOperation().isIdempotent();
 	}
-	
+
 	public static int[] decode(Permutation<Boolean> perm) {
 		assert perm.isPermutation();
 

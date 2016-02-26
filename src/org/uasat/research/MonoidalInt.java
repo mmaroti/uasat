@@ -102,21 +102,21 @@ public class MonoidalInt {
 
 		List<Relation<Boolean>> unaryRels = crel.findUniqueRels(1, LIMIT);
 		printRels("unique unary rels", unaryRels);
-		printRels("unique critical unary rels", crel.findUniqueCriticalRels(1));
+		printRels("unique critical unary rels", crel.findUniCriticalRels(1));
 
 		List<Relation<Boolean>> binaryRels = crel.findUniqueRels(2, LIMIT);
 		printRels("unique binary rels", binaryRels);
-		printRels("unique critical binary rels", crel.findUniqueCriticalRels(2));
+		printRels("unique critical binary rels", crel.findUniCriticalRels(2));
 
 		List<Relation<Boolean>> ternaryRels = crel.findUniqueRels(3, LIMIT);
 		printRels("unique ternary rels", ternaryRels);
 		printRels("unique critical ternary rels",
-				crel.findUniqueCriticalRels(3));
+				crel.findUniCriticalRels(3));
 
 		List<Relation<Boolean>> quaternaryRels = crel.findUniqueRels(4, LIMIT);
 		printRels("unique quaternary rels", quaternaryRels);
 		printRels("unique critical quaternary rels",
-				crel.findUniqueCriticalRels(4));
+				crel.findUniCriticalRels(4));
 
 		CompatibleOps cops = new CompatibleOps(
 				Structure.trivial(ops.getSize()), ops);
@@ -309,11 +309,11 @@ public class MonoidalInt {
 		Algebra.print(alg);
 
 		CompatibleRels com = new CompatibleRels(alg);
-		com.printCriticalRelsComplement(1);
-		com.printCriticalRelsComplement(2);
-		com.printCriticalRelsComplement(3);
-		com.printCriticalRelsComplement(4);
-		com.printCriticalRelsComplement(5);
+		com.printCriticalComps(1);
+		com.printCriticalComps(2);
+		com.printCriticalComps(3);
+		com.printCriticalComps(4);
+		com.printCriticalComps(5);
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
