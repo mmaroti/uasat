@@ -295,7 +295,7 @@ public class MonoidalInt {
 				+ " seconds.");
 	}
 
-	public static void main(String[] args) {
+	public static void main3(String[] args) {
 		long time = System.currentTimeMillis();
 
 		// 7/19 possible finite
@@ -314,6 +314,20 @@ public class MonoidalInt {
 		com.printCriticalComps(3);
 		com.printCriticalComps(4);
 		com.printCriticalComps(5);
+
+		time = System.currentTimeMillis() - time;
+		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
+				+ " seconds.");
+	}
+
+	public static void main(String[] args) {
+		long time = System.currentTimeMillis();
+
+		GenCriticalRels gen = new GenCriticalRels(3, 6);
+		gen.addCriticalRel(Relation.parse(3, 2, "00 02 11 12 20 21 22"));
+		gen.addCriticalRel(Relation.parse(3, 2, "00 01 10 11 20 21 22"));
+
+		gen.printCriticalComps(4);
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
