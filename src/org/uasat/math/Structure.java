@@ -48,6 +48,14 @@ public final class Structure<BOOL> implements Iterable<Relation<BOOL>> {
 		relations.add(rel);
 	}
 
+	public Structure(BoolAlgebra<BOOL> alg, int size) {
+		assert alg != null && size >= 1;
+
+		this.alg = alg;
+		this.size = size;
+		this.relations = new ArrayList<Relation<BOOL>>();
+	}
+
 	public Structure(BoolAlgebra<BOOL> alg, int size, List<Relation<BOOL>> rels) {
 		assert alg != null;
 
@@ -68,7 +76,7 @@ public final class Structure<BOOL> implements Iterable<Relation<BOOL>> {
 			assert rels[i].getSize() == size;
 
 		this.alg = alg;
-		this.relations = Arrays.asList(rels);
+		this.relations = new ArrayList<Relation<BOOL>>(Arrays.asList(rels));
 	}
 
 	@SafeVarargs
@@ -118,7 +126,7 @@ public final class Structure<BOOL> implements Iterable<Relation<BOOL>> {
 	@SafeVarargs
 	public static Structure<Boolean> wrap(int size, Relation<Boolean>... rels) {
 		return new Structure<Boolean>(BoolAlgebra.INSTANCE, size,
-				Arrays.asList(rels));
+				new ArrayList<Relation<Boolean>>(Arrays.asList(rels)));
 	}
 
 	@SafeVarargs

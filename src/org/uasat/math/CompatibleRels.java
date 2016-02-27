@@ -351,7 +351,7 @@ public class CompatibleRels {
 	}
 
 	public void printUniqueRels(int arity) {
-		printRels("uniquel", arity, findUniqueRels(arity, -1));
+		printRels("unique", arity, findUniqueRels(arity, -1));
 	}
 
 	public void printMaximalRels(int arity) {
@@ -381,7 +381,7 @@ public class CompatibleRels {
 	}
 
 	public void printUniCriticalRels(int arity) {
-		printRels("critical unique", arity, findUniCriticalRels(arity));
+		printRels("unique critical", arity, findUniCriticalRels(arity));
 	}
 
 	public void printUniCriticalComps(int arity) {
@@ -391,6 +391,6 @@ public class CompatibleRels {
 		while (iter.hasNext())
 			iter.set(iter.next().complement());
 
-		printRels("critical unique complement", arity, list);
+		printRels("unique critical complement", arity, list);
 	}
 }

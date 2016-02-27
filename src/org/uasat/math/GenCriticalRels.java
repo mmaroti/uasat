@@ -61,7 +61,7 @@ public class GenCriticalRels {
 		return generators;
 	}
 
-	public void addCriticalRel(Relation<Boolean> rel) {
+	public void addGeneratorRel(Relation<Boolean> rel) {
 		assert rel.getSize() == size && rel.getArity() <= arity;
 
 		if (rel.getArity() < arity) {
@@ -73,21 +73,21 @@ public class GenCriticalRels {
 			generators.add(rel.permute(p));
 	}
 
-	public void addCriticalComp(Relation<Boolean> rel) {
-		addCriticalRel(rel.complement());
+	public void addGeneratorComp(Relation<Boolean> rel) {
+		addGeneratorRel(rel.complement());
 	}
 
-	private <BOOL> Relation<BOOL> getMeetProj(BoolAlgebra<BOOL> alg,
-			Tensor<BOOL> mask, int proj) {
-		assert mask.getOrder() == 1 && mask.getDim(0) == generators.size();
+	private <BOOL> Relation<BOOL> getMeetProj(Relation<BOOL> mask, int proj) {
+		assert mask.getArity() == 1 && mask.getSize() == generators.size();
 
+		BoolAlgebra<BOOL> alg = mask.getAlg();
 		Relation<BOOL> rel = Relation.constant(alg, size, arity, alg.TRUE);
 
 		int pos = 0;
 		Iterator<Relation<Boolean>> iter = generators.iterator();
 		while (iter.hasNext()) {
 			Relation<BOOL> r = Relation.constant(alg, size, arity,
-					mask.getElem(pos++));
+					mask.getValue(pos++));
 			rel = rel.intersect(r.union(Relation.lift(alg, iter.next())));
 		}
 
@@ -111,7 +111,8 @@ public class GenCriticalRels {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
-				Relation<BOOL> rel = getMeetProj(alg, tensors.get(0), proj);
+				Relation<BOOL> mask = new Relation<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> rel = getMeetProj(mask, proj);
 
 				Relation<BOOL> rel2 = Relation.lift(alg, above);
 				BOOL b = rel2.isSubsetOf(rel);
@@ -128,7 +129,7 @@ public class GenCriticalRels {
 		if (sol == null)
 			return null;
 
-		return getMeetProj(BoolAlgebra.INSTANCE, sol.get(0), proj);
+		return getMeetProj(Relation.wrap(sol.get(0)), proj);
 	}
 
 	private static <BOOL> Relation<BOOL> getMeetCover(
@@ -162,7 +163,8 @@ public class GenCriticalRels {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
-				Relation<BOOL> rel1 = getMeetProj(alg, tensors.get(0), proj);
+				Relation<BOOL> mask = new Relation<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> rel1 = getMeetProj(mask, proj);
 				Relation<BOOL> rel2 = getMeetCover(found, rel1);
 
 				return alg.not(rel2.isSubsetOf(rel1));
@@ -176,8 +178,8 @@ public class GenCriticalRels {
 			if (sol == null)
 				break;
 
-			Relation<Boolean> above = getMeetProj(BoolAlgebra.INSTANCE,
-					sol.get(0), proj);
+			Relation<Boolean> above = getMeetProj(Relation.wrap(sol.get(0)),
+					proj);
 			Relation<Boolean> notabove = getMeetCover(found, above);
 			assert above.isSubsetOf(notabove) && !notabove.isSubsetOf(above);
 
@@ -253,8 +255,8 @@ public class GenCriticalRels {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
-				Relation<BOOL> rel2 = getMeetProj(alg, tensors.get(0),
-						rel.getArity());
+				Relation<BOOL> mask = new Relation<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> rel2 = getMeetProj(mask, rel.getArity());
 				return rel2.isEqualTo(Relation.lift(alg, rel));
 			}
 		};
@@ -262,21 +264,47 @@ public class GenCriticalRels {
 		List<Tensor<Boolean>> sol = problem.solveOne(solver);
 		if (sol == null)
 			return null;
-		else {
-			Tensor<Boolean> t = sol.get(0);
-			List<Relation<Boolean>> rep = new ArrayList<Relation<Boolean>>();
 
-			int pos = 0;
-			Iterator<Relation<Boolean>> iter = generators.iterator();
-			while (iter.hasNext()) {
-				Relation<Boolean> r = iter.next();
-				if (!t.getElem(pos++)) {
-					rep.add(r);
+		Relation<Boolean> mask = Relation.wrap(sol.get(0));
+
+		for (;;) {
+			final Relation<Boolean> m0 = mask;
+			problem = new SatProblem(new int[] { generators.size() }) {
+				@Override
+				public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+						List<Tensor<BOOL>> tensors) {
+					Relation<BOOL> m1 = Relation.lift(alg, m0);
+					Relation<BOOL> mask2 = new Relation<BOOL>(alg,
+							tensors.get(0));
+					Relation<BOOL> rel2 = getMeetProj(mask2, rel.getArity());
+
+					BOOL b = rel2.isEqualTo(Relation.lift(alg, rel));
+
+					b = alg.and(b, m1.isSubsetOf(mask2));
+					b = alg.and(b, alg.not(mask2.isSubsetOf(m1)));
+
+					return b;
 				}
-			}
+			};
 
-			return rep;
+			sol = problem.solveOne(solver);
+			if (sol == null)
+				break;
+
+			mask = Relation.wrap(sol.get(0));
 		}
+
+		List<Relation<Boolean>> rep = new ArrayList<Relation<Boolean>>();
+
+		int pos = 0;
+		Iterator<Relation<Boolean>> iter = generators.iterator();
+		while (iter.hasNext()) {
+			Relation<Boolean> r = iter.next();
+			if (!mask.getValue(pos++))
+				rep.add(r);
+		}
+
+		return rep;
 	}
 
 	public void printCompRepresentation(final Relation<Boolean> comp) {

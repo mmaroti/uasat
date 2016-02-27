@@ -845,6 +845,13 @@ public final class Operation<BOOL> {
 		return encode(size, tensor);
 	}
 
+	@Override
+	public boolean equals(Object other) {
+		@SuppressWarnings("unchecked")
+		Operation<BOOL> op = (Operation<BOOL>) other;
+		return alg == op.alg && tensor.equals(op.tensor);
+	}
+
 	public static final Comparator<Operation<Boolean>> COMPARATOR = new Comparator<Operation<Boolean>>() {
 		final Comparator<Tensor<Boolean>> comp = Tensor
 				.comparator(BoolAlgebra.COMPARATOR);

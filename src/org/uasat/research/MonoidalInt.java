@@ -294,46 +294,93 @@ public class MonoidalInt {
 				+ " seconds.");
 	}
 
-	public static void main3(String[] args) {
+	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
 		// 7/19 possible finite
 		GeneratedOps gen = parseMonoid(3, "000 002 012 102 111 112 222");
 		Algebra<Boolean> alg = Algebra.wrap(gen.getOperations());
-		alg.add(Operation.parse(3, 2, "012 112 222"));
+		// alg.add(Operation.parse(3, 2, "012 112 222"));
 		alg.add(Operation.parse(3, 2, "112 002 222"));
 		alg.add(Operation.parse(3, 2, "002 002 222"));
 		alg.add(Operation.parse(3, 2, "000 000 002"));
-		alg.add(Operation.parse(3, 2, "012 102 222"));
+		//alg.add(Operation.parse(3, 2, "012 102 222"));
 		Algebra.print(alg);
 
 		CompatibleRels com = new CompatibleRels(alg);
-		com.printCriticalComps(1);
-		com.printCriticalComps(2);
-		com.printCriticalComps(3);
-		com.printCriticalComps(4);
-		com.printCriticalComps(5);
+		com.printUniCriticalComps(1);
+		com.printUniCriticalComps(2);
+		com.printUniCriticalComps(3);
+		com.printUniCriticalComps(4);
+		com.printUniCriticalComps(5);
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
 				+ " seconds.");
 	}
 
-	public static void main(String[] args) {
+	public static void main3(String[] args) {
 		long time = System.currentTimeMillis();
 
-		GenCriticalRels gen = new GenCriticalRels(3, 6);
-		gen.addCriticalComp(Relation.parse(3, 2, "01 10"));
-		gen.addCriticalComp(Relation.parse(3, 2, "20 21"));
-		gen.addCriticalComp(Relation.parse(3, 3, "100 010 101 011"));
-		gen.addCriticalComp(Relation.parse(3, 4, "1000 0100 1010 0110 1001 0101 1011 0111"));
+		GenCriticalRels gen = new GenCriticalRels(3, 3);
+		gen.addGeneratorRel(Relation.parse(3, 2, "00 11 22"));
+		gen.addGeneratorComp(Relation.parse(3, 2, "01 10"));
+		// gen.addCriticalComp(Relation.parse(3, 3, "100 010 101 011"));
+		// gen.addCriticalComp(Relation.parse(3, 2, "20 21"));
+		gen.addGeneratorComp(Relation.parse(3, 3, "200 210 201 211"));
 
 		// gen.printCriticalRels(3);
-		gen.printCriticalComps(5);
+		gen.printCriticalComps(2);
 
-		gen.printCompRepresentation(Relation.parse(3, 4,
-				"1000 0100 1010 0110 1001 0101 1011 0111"));
-		// gen.explainComp(Relation.parse(3, 3, "100 010 101 011"));
+		// gen.printCompRepresentation(Relation.parse(3, 3, "100 010 101 011"));
+		// gen.printCompRepresentation(Relation.parse(3, 4,
+		// "1000 0100 1010 0110 1001 0101 1011 0111"));
+
+		time = System.currentTimeMillis() - time;
+		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
+				+ " seconds.");
+	}
+
+	public static void main2(String[] args) {
+		long time = System.currentTimeMillis();
+
+		Relation<Boolean> rel0 = Relation.parse(3, 3,
+				"000 110 220 001 111 221 022 122 222");
+		Relation<Boolean> rel1 = Relation.parse(3, 3,
+				"000 010 110 001 101 111 222");
+		Relation<Boolean> rel2 = Relation.parse(3, 3,
+				"000 020 111 121 002 112 222");
+		Relation<Boolean> rel3 = Relation.parse(3, 3,
+				"000 200 110 020 120 220 001 111 211 021 121 221 202 212 222");
+		Relation<Boolean> rel4 = Relation.parse(3, 4,
+				"0000 1100 0200 1200 1010 0110 "
+						+ "0210 1210 0020 1020 0120 1120 0220 1220 1001 "
+						+ "0101 0201 1201 0011 1111 0211 1211 0021 1021 "
+						+ "0121 1121 0221 1221 0002 1002 0102 1102 0202 "
+						+ "1202 0012 1012 0112 1112 0212 1212 0022 1022 "
+						+ "0122 1122 0222 1222 2222");
+
+		Structure<Boolean> str = Structure.wrap(rel2,rel4,rel1,rel3);
+		Structure.print(str);
+
+		CompatibleOps com = new CompatibleOps(str);
+		List<Operation<Boolean>> ops1 = com.findTernaryOps("unique surjective",
+				1000);
+		System.out.println("first: " + ops1.size());
+		System.out.println();
+
+		str.add(rel0);
+		Structure.print(str);
+		List<Operation<Boolean>> ops2 = com.findTernaryOps("unique surjective",
+				1000);
+		System.out.println("second: " + ops2.size());
+		System.out.println();
+
+		System.out.println("difference:");
+		ops1.removeAll(ops2);
+		for (Operation<Boolean> op : ops1)
+			System.out.println(Operation.format(op));
+		System.out.println();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
