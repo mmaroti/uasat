@@ -110,8 +110,7 @@ public class MonoidalInt {
 
 		List<Relation<Boolean>> ternaryRels = crel.findUniqueRels(3, LIMIT);
 		printRels("unique ternary rels", ternaryRels);
-		printRels("unique critical ternary rels",
-				crel.findUniCriticalRels(3));
+		printRels("unique critical ternary rels", crel.findUniCriticalRels(3));
 
 		List<Relation<Boolean>> quaternaryRels = crel.findUniqueRels(4, LIMIT);
 		printRels("unique quaternary rels", quaternaryRels);
@@ -324,10 +323,17 @@ public class MonoidalInt {
 		long time = System.currentTimeMillis();
 
 		GenCriticalRels gen = new GenCriticalRels(3, 6);
-		gen.addCriticalRel(Relation.parse(3, 2, "00 02 11 12 20 21 22"));
-		gen.addCriticalRel(Relation.parse(3, 2, "00 01 10 11 20 21 22"));
+		gen.addCriticalComp(Relation.parse(3, 2, "01 10"));
+		gen.addCriticalComp(Relation.parse(3, 2, "20 21"));
+		gen.addCriticalComp(Relation.parse(3, 3, "100 010 101 011"));
+		gen.addCriticalComp(Relation.parse(3, 4, "1000 0100 1010 0110 1001 0101 1011 0111"));
 
-		gen.printCriticalComps(4);
+		// gen.printCriticalRels(3);
+		gen.printCriticalComps(5);
+
+		gen.printCompRepresentation(Relation.parse(3, 4,
+				"1000 0100 1010 0110 1001 0101 1011 0111"));
+		// gen.explainComp(Relation.parse(3, 3, "100 010 101 011"));
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

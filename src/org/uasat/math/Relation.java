@@ -292,25 +292,22 @@ public final class Relation<BOOL> {
 	public Relation<BOOL> project(int... coords) {
 		assert coords.length <= getArity();
 
-		boolean[] kept = new boolean[getArity()];
-		for (int i = 0; i < coords.length; i++) {
-			assert kept[coords[i]] == false;
-			kept[coords[i]] = true;
-		}
-
 		int[] map = new int[getArity()];
+		Arrays.fill(map, -1);
 
-		int pos = 0;
-		for (int i = 0; i < kept.length; i++)
-			if (!kept[i])
-				map[pos++] = i;
+		int pos = map.length - coords.length;
+		for (int i = 0; i < coords.length; i++)
+			map[coords[i]] = pos++;
 
-		assert pos + coords.length == map.length;
-		System.arraycopy(coords, 0, map, pos, coords.length);
+		pos = 0;
+		for (int i = 0; i < map.length; i++)
+			if (map[i] < 0)
+				map[i] = pos++;
+		assert pos == map.length - coords.length;
 
 		Tensor<BOOL> tmp;
 		tmp = Tensor.reshape(tensor, tensor.getShape(), map);
-		if (pos != 0)
+		if (map.length != coords.length)
 			tmp = Tensor.fold(alg.ANY, pos, tmp);
 
 		return new Relation<BOOL>(alg, tmp);

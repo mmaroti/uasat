@@ -57,6 +57,10 @@ public class GenCriticalRels {
 		return arity;
 	}
 
+	public Set<Relation<Boolean>> getGenerators() {
+		return generators;
+	}
+
 	public void addCriticalRel(Relation<Boolean> rel) {
 		assert rel.getSize() == size && rel.getArity() <= arity;
 
@@ -67,6 +71,10 @@ public class GenCriticalRels {
 
 		for (Permutation<Boolean> p : permutations)
 			generators.add(rel.permute(p));
+	}
+
+	public void addCriticalComp(Relation<Boolean> rel) {
+		addCriticalRel(rel.complement());
 	}
 
 	private <BOOL> Relation<BOOL> getMeetProj(BoolAlgebra<BOOL> alg,
@@ -218,6 +226,71 @@ public class GenCriticalRels {
 		}
 
 		return list;
+	}
+
+	private void printGenerator(Relation<Boolean> gen) {
+		List<Integer> coords = new ArrayList<Integer>();
+		for (int i = 0; i < gen.getArity(); i++) {
+			if (gen.isEssentialCoord(i))
+				coords.add(i);
+		}
+
+		int[] c = new int[coords.size()];
+		for (int i = 0; i < coords.size(); i++)
+			c[i] = coords.get(i);
+
+		Relation<Boolean> p = gen.project(c).complement();
+
+		System.out.println(Relation.format(p) + " complement at "
+				+ Util.formatTuple(gen.getArity(), c));
+	}
+
+	public List<Relation<Boolean>> findRepresentation(
+			final Relation<Boolean> rel) {
+		assert rel.getArity() <= arity;
+
+		SatProblem problem = new SatProblem(new int[] { generators.size() }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel2 = getMeetProj(alg, tensors.get(0),
+						rel.getArity());
+				return rel2.isEqualTo(Relation.lift(alg, rel));
+			}
+		};
+
+		List<Tensor<Boolean>> sol = problem.solveOne(solver);
+		if (sol == null)
+			return null;
+		else {
+			Tensor<Boolean> t = sol.get(0);
+			List<Relation<Boolean>> rep = new ArrayList<Relation<Boolean>>();
+
+			int pos = 0;
+			Iterator<Relation<Boolean>> iter = generators.iterator();
+			while (iter.hasNext()) {
+				Relation<Boolean> r = iter.next();
+				if (!t.getElem(pos++)) {
+					rep.add(r);
+				}
+			}
+
+			return rep;
+		}
+	}
+
+	public void printCompRepresentation(final Relation<Boolean> comp) {
+		List<Relation<Boolean>> reps = findRepresentation(comp.complement());
+		if (reps == null)
+			System.out.println("not representable " + Relation.format(comp)
+					+ " complement");
+		else {
+			System.out.println("representation of " + Relation.format(comp)
+					+ " complement:");
+			for (int i = 0; i < reps.size(); i++)
+				printGenerator(reps.get(i));
+		}
+		System.out.println();
 	}
 
 	private void printRels(String what, int proj, List<Relation<Boolean>> list) {
