@@ -245,7 +245,8 @@ public class CompatibleRels {
 	public List<Relation<Boolean>> findMeetIrredRels(int arity) {
 		assert arity >= 1;
 
-		final List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
+		final List<Permutation<Boolean>> perms = Permutation.symmetricGroup(arity);
+		final Set<Relation<Boolean>> rels = new TreeSet<Relation<Boolean>>(Relation.COMPARATOR);
 
 		int[] shape = Util.createShape(algebra.getSize(), arity);
 		SatProblem problem = new SatProblem(shape, shape) {
@@ -261,7 +262,7 @@ public class CompatibleRels {
 				b = alg.and(b, rel1.isSubsetOf(rel2));
 				b = alg.and(b, alg.not(rel2.isSubsetOf(rel1)));
 
-				for (Relation<Boolean> r : list) {
+				for (Relation<Boolean> r : rels) {
 					Relation<BOOL> irr = Relation.lift(alg, r);
 
 					BOOL c = rel1.isSubsetOf(irr);
@@ -293,10 +294,11 @@ public class CompatibleRels {
 					above = r;
 			}
 
-			list.add(above);
+			for (Permutation<Boolean> p : perms)
+				rels.add(above.permute(p));
 		}
 
-		return list;
+		return new ArrayList<Relation<Boolean>>(rels);
 	}
 
 	public List<Relation<Boolean>> findCriticalRels(int arity) {

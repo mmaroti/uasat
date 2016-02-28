@@ -40,7 +40,7 @@ public class GeneratedOps implements Iterable<Operation<Boolean>> {
 		this.operations = new TreeSet<Operation<Boolean>>(Operation.COMPARATOR);
 		this.solver = solver;
 	}
-
+	
 	public SatSolver<?> getSolver() {
 		return solver;
 	}
