@@ -847,4 +847,14 @@ public final class Relation<BOOL> {
 
 		System.out.println("members: " + Relation.format(rel));
 	}
+
+	public static void print(String message, List<Relation<Boolean>> rels) {
+		System.out.println(message + ": " + rels.size());
+
+		Collections.sort(rels, Relation.COMPARATOR);
+		for (int i = 0; i < rels.size(); i++)
+			System.out.println(i + ":\t" + Relation.format(rels.get(i)));
+
+		System.out.println();
+	}
 }

@@ -73,11 +73,16 @@ public class GenCriticalRels {
 			generators.add(rel.permute(p));
 	}
 
+	public void addSingletonRels() {
+		for (int i = 0; i < size; i++)
+			addGeneratorRel(Relation.singleton(size, i));
+	}
+
 	public void addGeneratorRels(Iterable<Relation<Boolean>> rels) {
 		for (Relation<Boolean> rel : rels)
 			addGeneratorRel(rel);
 	}
-	
+
 	public void addGeneratorComp(Relation<Boolean> rel) {
 		addGeneratorRel(rel.complement());
 	}
@@ -235,6 +240,67 @@ public class GenCriticalRels {
 		return list;
 	}
 
+	private static <ELEM> boolean haveSameElems(List<ELEM> list1,
+			List<ELEM> list2) {
+		if (list1.size() != list2.size())
+			return false;
+
+		List<ELEM> list = new ArrayList<ELEM>(list1);
+		list.removeAll(list2);
+
+		return list.isEmpty();
+	}
+
+	public static List<Relation<Boolean>> genMeetIrredRels(
+			List<Relation<Boolean>> gens, int full, int proj) {
+		assert gens.size() >= 1 && full >= proj && proj >= 1;
+
+		for (;;) {
+			GenCriticalRels gen = new GenCriticalRels(gens.get(0).getSize(),
+					full);
+			gen.addGeneratorRels(gens);
+
+			List<Relation<Boolean>> irreds = gen.findMeetIrredRels(proj);
+			if (haveSameElems(gens, irreds))
+				return irreds;
+
+			gens = irreds;
+		}
+	}
+
+	public static List<Relation<Boolean>> genCriticalRels(
+			List<Relation<Boolean>> gens, int full, int proj) {
+		List<Relation<Boolean>> list = genMeetIrredRels(gens, full, proj);
+
+		ListIterator<Relation<Boolean>> iter = list.listIterator();
+		while (iter.hasNext()) {
+			Relation<Boolean> r = iter.next();
+			if (!r.hasEssentialCoords())
+				iter.remove();
+		}
+
+		return list;
+	}
+
+	public static List<Relation<Boolean>> genUniCriticalRels(
+			List<Relation<Boolean>> gens, int full, int proj) {
+		List<Relation<Boolean>> list = genCriticalRels(gens, full, proj);
+		List<Permutation<Boolean>> perms = Permutation.nontrivialPerms(proj);
+
+		ListIterator<Relation<Boolean>> iter = list.listIterator();
+		outer: while (iter.hasNext()) {
+			Relation<Boolean> r = iter.next();
+			for (Permutation<Boolean> p : perms) {
+				if (r.permute(p).isLexLess(r)) {
+					iter.remove();
+					continue outer;
+				}
+			}
+		}
+
+		return list;
+	}
+
 	private void printGenerator(Relation<Boolean> gen) {
 		List<Integer> coords = new ArrayList<Integer>();
 		for (int i = 0; i < gen.getArity(); i++) {
@@ -326,23 +392,14 @@ public class GenCriticalRels {
 		System.out.println();
 	}
 
-	private void printRels(String what, int proj, List<Relation<Boolean>> list) {
-		System.out.println(what + " generated relations of arity " + proj
-				+ " projected from " + arity + ": " + list.size());
-
-		Collections.sort(list, Relation.COMPARATOR);
-		for (int i = 0; i < list.size(); i++)
-			System.out.println(i + ":\t" + Relation.format(list.get(i)));
-
-		System.out.println();
-	}
-
 	public void printMeetIrredRels(int proj) {
-		printRels("meet irred", proj, findMeetIrredRels(proj));
+		Relation.print("meet irreducible rels of arity " + proj
+				+ " projected from " + arity, findMeetIrredRels(proj));
 	}
 
 	public void printCriticalRels(int proj) {
-		printRels("critical", proj, findCriticalRels(proj));
+		Relation.print("critical rels of arity " + proj + " projected from "
+				+ arity, findCriticalRels(proj));
 	}
 
 	public void printCriticalComps(int proj) {
@@ -352,11 +409,13 @@ public class GenCriticalRels {
 		while (iter.hasNext())
 			iter.set(iter.next().complement());
 
-		printRels("critical complement", proj, list);
+		Relation.print("critical complements of arity " + proj
+				+ " projected from " + arity, list);
 	}
 
 	public void printUniCriticalRels(int proj) {
-		printRels("critical unique", proj, findUniCriticalRels(proj));
+		Relation.print("unique critical rels of arity " + proj
+				+ " projected from " + arity, findUniCriticalRels(proj));
 	}
 
 	public void printUniCriticalComps(int proj) {
@@ -366,6 +425,7 @@ public class GenCriticalRels {
 		while (iter.hasNext())
 			iter.set(iter.next().complement());
 
-		printRels("critical unique complement", proj, list);
+		Relation.print("unique critical complements of arity " + proj
+				+ " projected from " + arity, list);
 	}
 }
