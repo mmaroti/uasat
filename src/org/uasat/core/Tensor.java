@@ -510,9 +510,9 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 	@Override
 	public boolean equals(Object other) {
 		Tensor<?> tensor = (Tensor<?>) other;
-		assert Arrays.equals(shape, tensor.shape);
 
-		return Arrays.equals(elems, tensor.elems);
+		return Arrays.equals(shape, tensor.shape)
+				&& Arrays.equals(elems, tensor.elems);
 	}
 
 	public static <ELEM> Comparator<Tensor<ELEM>> comparator(

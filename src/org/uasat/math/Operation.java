@@ -849,7 +849,9 @@ public final class Operation<BOOL> {
 	public boolean equals(Object other) {
 		@SuppressWarnings("unchecked")
 		Operation<BOOL> op = (Operation<BOOL>) other;
-		return alg == op.alg && tensor.equals(op.tensor);
+		assert alg == op.alg;
+
+		return tensor.equals(op.tensor);
 	}
 
 	public static final Comparator<Operation<Boolean>> COMPARATOR = new Comparator<Operation<Boolean>>() {

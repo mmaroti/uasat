@@ -728,13 +728,6 @@ public final class Relation<BOOL> {
 		return Relation.wrap(tensor);
 	}
 
-	@Override
-	public boolean equals(Object other) {
-		@SuppressWarnings("unchecked")
-		Relation<BOOL> rel = (Relation<BOOL>) other;
-		return alg == rel.alg && tensor.equals(rel.tensor);
-	}
-
 	public static int cardinality(Relation<Boolean> rel) {
 		int c = 0;
 		for (Boolean b : rel.getTensor())
@@ -783,6 +776,15 @@ public final class Relation<BOOL> {
 			list.addAll(subsets(size, i));
 
 		return list;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		@SuppressWarnings("unchecked")
+		Relation<BOOL> rel = (Relation<BOOL>) other;
+		assert alg == rel.alg;
+
+		return tensor.equals(rel.tensor);
 	}
 
 	public static final Comparator<Relation<Boolean>> COMPARATOR = new Comparator<Relation<Boolean>>() {

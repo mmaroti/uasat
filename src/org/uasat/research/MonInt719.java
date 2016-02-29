@@ -162,9 +162,12 @@ public class MonInt719 {
 			return Relation.parse(3, 4,
 					"1000 0100 0010 1110 0001 1101 1011 0111").complement();
 		else if (arity == 5)
-			return Relation.parse(3, 5, "10000 01000 00100 11100 00010 11010 "
-					+ "10110 01110 10001 01001 00101 11101 00011 11011 10111 "
-					+ "01111");
+			return Relation.parse(
+					3,
+					5,
+					"10000 01000 00100 11100 00010 11010 "
+							+ "10110 01110 10001 01001 00101 11101 00011 "
+							+ "11011 10111 01111").complement();
 		else
 			return null;
 	}
@@ -243,10 +246,11 @@ public class MonInt719 {
 		else {
 			rels.removeAll(crits);
 			if (rels.isEmpty())
-				System.out.println("the two lists match");
+				System.out.println("OK: complete match");
 			else
 				System.out.println("ERROR: member mismatch");
 		}
+		System.out.println();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
@@ -303,7 +307,7 @@ public class MonInt719 {
 		// m.printMonoid();
 		// monint.printCloneInterval();
 		// m.printCriticalRels(m.CLONE1_OPS);
-		m.verifyCriticalRels(m.CLONE9_OPS, m.CLONE9_CRITS);
+		m.verifyCriticalRels(m.CLONE1_OPS, m.CLONE1_CRITS);
 		// System.out.println(Relation.format(m.getDelta(4,2).complement()));
 	}
 }
