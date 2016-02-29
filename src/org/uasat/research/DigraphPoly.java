@@ -617,7 +617,7 @@ public class DigraphPoly {
 	}
 
 	@SuppressWarnings("unused")
-	public static void main(String[] args) {
+	public static void main6(String[] args) {
 		PartialOrder<Boolean> a1 = PartialOrder.antiChain(1);
 		PartialOrder<Boolean> a2 = PartialOrder.antiChain(2);
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);

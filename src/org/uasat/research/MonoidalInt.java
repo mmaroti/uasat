@@ -273,15 +273,15 @@ public class MonoidalInt {
 		// printStatistics(3, monoid);
 	}
 
-	public static void main7(String[] args) {
+	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
-		GeneratedOps gen = parseMonoid(3, "000 002 012 102 111 112 222");
+		GeneratedOps gen = parseMonoid(3, "000 002 012 022 111 222");
 		gen.print();
 
 		CloneInterval clone = new CloneInterval(gen, SatSolver.getDefault());
 		clone.trace = true;
-		clone.generate(2, 4);
+		clone.generate(3, 4);
 		System.out.println();
 		clone.print();
 
@@ -294,7 +294,7 @@ public class MonoidalInt {
 				+ " seconds.");
 	}
 
-	public static void main(String[] args) {
+	public static void main7(String[] args) {
 		long time = System.currentTimeMillis();
 
 		// 7/19 possible finite

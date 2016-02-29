@@ -73,6 +73,11 @@ public class GenCriticalRels {
 			generators.add(rel.permute(p));
 	}
 
+	public void addGeneratorRels(Iterable<Relation<Boolean>> rels) {
+		for (Relation<Boolean> rel : rels)
+			addGeneratorRel(rel);
+	}
+	
 	public void addGeneratorComp(Relation<Boolean> rel) {
 		addGeneratorRel(rel.complement());
 	}
