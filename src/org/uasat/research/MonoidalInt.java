@@ -276,7 +276,7 @@ public class MonoidalInt {
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
-		GeneratedOps gen = parseMonoid(3, "000 002 012 022 111 222");
+		GeneratedOps gen = parseMonoid(3, "000 002 012 022 111 200 220 222");
 		gen.print();
 
 		CloneInterval clone = new CloneInterval(gen, SatSolver.getDefault());

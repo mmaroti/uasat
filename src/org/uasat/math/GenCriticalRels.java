@@ -378,6 +378,19 @@ public class GenCriticalRels {
 		return rep;
 	}
 
+	public void printRepresentation(final Relation<Boolean> rel) {
+		List<Relation<Boolean>> reps = findRepresentation(rel);
+		if (reps == null)
+			System.out.println("not representable " + Relation.format(rel));
+		else {
+			System.out.println("representation of " + Relation.format(rel)
+					+ ":");
+			for (int i = 0; i < reps.size(); i++)
+				printGenerator(reps.get(i));
+		}
+		System.out.println();
+	}
+
 	public void printCompRepresentation(final Relation<Boolean> comp) {
 		List<Relation<Boolean>> reps = findRepresentation(comp.complement());
 		if (reps == null)
