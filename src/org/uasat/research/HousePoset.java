@@ -155,6 +155,53 @@ public class HousePoset {
 		return rels;
 	}
 
+	public List<Relation<Boolean>> findTernaryCritOp2() {
+		ClonePair clone = new ClonePair(poset.getSize());
+		clone.add(poset);
+		clone.addSingletons();
+		// clone.addRels(crit1);
+		clone.addCriticalOps(2, 2);
+		clone.print();
+		// clone.addCriticalOps(2, 3);
+		// clone.print();
+
+		CompatibleRels comp = new CompatibleRels(clone.getAlgebra());
+		List<Relation<Boolean>> rels = comp.findUniCriticalRels(3);
+		Relation.print("crit3 op2", rels);
+
+		return rels;
+	}
+
+	public List<Relation<Boolean>> findTernaryCritOp3() {
+		ClonePair clone = new ClonePair(poset.getSize());
+		clone.add(poset);
+		clone.addSingletons();
+		clone.addCriticalOps(2, 2);
+		clone.print();
+		clone.addCriticalOps(3, 3);
+		clone.print();
+
+		CompatibleRels comp = new CompatibleRels(clone.getAlgebra());
+		List<Relation<Boolean>> rels = comp.findUniCriticalRels(3);
+		Relation.print("crit3 op3", rels);
+
+		return rels;
+	}
+
+	public List<Relation<Boolean>> findTernaryCritOp4() {
+		ClonePair clone = new ClonePair(poset.getSize());
+		clone.add(poset);
+		clone.addSingletons();
+		clone.addCriticalOps(4, 3);
+		clone.print();
+
+		CompatibleRels comp = new CompatibleRels(clone.getAlgebra());
+		List<Relation<Boolean>> rels = comp.findUniCriticalRels(2);
+		Relation.print("crit3 op4", rels);
+
+		return rels;
+	}
+
 	public void explain(Relation<Boolean> rel, int full) {
 		GenCriticalRels gen = new GenCriticalRels(poset.getSize(), full);
 		gen.addGeneratorRel(poset);
@@ -167,7 +214,8 @@ public class HousePoset {
 
 		HousePoset h = new HousePoset();
 		// h.explain(h.spec2_irred, 3);
-		h.findTernaryCriticals();
+		// h.findTernaryCriticals();
+		h.findTernaryCritOp2();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
