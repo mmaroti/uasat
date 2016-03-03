@@ -215,7 +215,7 @@ public class HousePoset {
 		HousePoset h = new HousePoset();
 		// h.explain(h.spec2_irred, 3);
 		// h.findTernaryCriticals();
-		h.findTernaryCritOp2();
+		h.findTernaryCritOp3();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

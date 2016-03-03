@@ -273,15 +273,23 @@ public class MonoidalInt {
 		// printStatistics(3, monoid);
 	}
 
+	public static void main6(String[] args) {
+		CloneInterval clone = new CloneInterval(3);
+		clone.trace = true;
+		clone.generate(2,2);
+		clone.print();
+		System.out.println(clone.getClosedOpSets(-1).size());
+	}
+
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
-		GeneratedOps gen = parseMonoid(3, "000 002 012 022 111 200 220 222");
+		GeneratedOps gen = parseMonoid(3, "000 002 010 012");
 		gen.print();
 
 		CloneInterval clone = new CloneInterval(gen, SatSolver.getDefault());
 		clone.trace = true;
-		clone.generate(3, 4);
+		clone.generate(3, 2);
 		System.out.println();
 		clone.print();
 
@@ -304,7 +312,7 @@ public class MonoidalInt {
 		alg.add(Operation.parse(3, 2, "112 002 222"));
 		alg.add(Operation.parse(3, 2, "002 002 222"));
 		alg.add(Operation.parse(3, 2, "000 000 002"));
-		//alg.add(Operation.parse(3, 2, "012 102 222"));
+		// alg.add(Operation.parse(3, 2, "012 102 222"));
 		Algebra.print(alg);
 
 		CompatibleRels com = new CompatibleRels(alg);
@@ -360,7 +368,7 @@ public class MonoidalInt {
 						+ "1202 0012 1012 0112 1112 0212 1212 0022 1022 "
 						+ "0122 1122 0222 1222 2222");
 
-		Structure<Boolean> str = Structure.wrap(rel2,rel4,rel1,rel3);
+		Structure<Boolean> str = Structure.wrap(rel2, rel4, rel1, rel3);
 		Structure.print(str);
 
 		CompatibleOps com = new CompatibleOps(str);
