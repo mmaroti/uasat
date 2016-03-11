@@ -116,8 +116,9 @@ public class HousePoset {
 
 	public List<Relation<Boolean>> findBinaryCritOp2() {
 		ClonePair clone = new ClonePair(poset.getSize());
+		// clone.trace = true;
 		clone.add(poset);
-		clone.addRels(crit1);
+		clone.addSingletons();
 		clone.addCriticalOps(2, 2);
 		clone.print();
 
@@ -131,7 +132,7 @@ public class HousePoset {
 	public List<Relation<Boolean>> findBinaryCritOp3() {
 		ClonePair clone = new ClonePair(poset.getSize());
 		clone.add(poset);
-		clone.addRels(crit1);
+		clone.addSingletons();
 		clone.addCriticalOps(2, 2);
 		clone.addCriticalOps(3, 2);
 		clone.print();
@@ -157,9 +158,9 @@ public class HousePoset {
 
 	public List<Relation<Boolean>> findTernaryCritOp2() {
 		ClonePair clone = new ClonePair(poset.getSize());
+		clone.trace = true;
 		clone.add(poset);
 		clone.addSingletons();
-		// clone.addRels(crit1);
 		clone.addCriticalOps(2, 2);
 		clone.print();
 		// clone.addCriticalOps(2, 3);
@@ -178,8 +179,15 @@ public class HousePoset {
 		clone.addSingletons();
 		clone.addCriticalOps(2, 2);
 		clone.print();
-		clone.addCriticalOps(3, 3);
-		clone.print();
+
+		clone.trace = true;
+		while (clone.addCriticalOp(3, 3)) {
+			clone.print();
+
+			CompatibleRels comp = new CompatibleRels(clone.getAlgebra());
+			List<Relation<Boolean>> rels = comp.findUniCriticalRels(3);
+			Relation.print("crit3 op3", rels);
+		}
 
 		CompatibleRels comp = new CompatibleRels(clone.getAlgebra());
 		List<Relation<Boolean>> rels = comp.findUniCriticalRels(3);

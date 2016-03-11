@@ -169,6 +169,9 @@ public class ClonePair {
 				for (Relation<Boolean> r : relations)
 					b = alg.and(b, op.preserves(Relation.lift(alg, r)));
 
+				b = alg.and(b, op.isPermuteMinimal());
+				b = alg.and(b, rel.isPermuteMinimal());
+
 				return b;
 			}
 		};
