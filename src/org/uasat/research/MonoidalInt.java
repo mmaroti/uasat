@@ -284,12 +284,15 @@ public class MonoidalInt {
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
-		GeneratedOps gen = parseMonoid(3, "000 002 010 012");
+		GeneratedOps gen = parseMonoid(3, "000 002 012 102 111 112");
 		gen.print();
 
+		int ops = 3;
+		int rels = 4;
+		System.out.println("finding clone interval " + ops + " " + rels);
 		CloneInterval clone = new CloneInterval(gen, SatSolver.getDefault());
 		clone.trace = true;
-		clone.generate(3, 2);
+		clone.generate(ops, rels);
 		System.out.println();
 		clone.print();
 
