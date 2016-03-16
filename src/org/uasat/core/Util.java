@@ -22,7 +22,7 @@ import java.util.*;
 
 public final class Util {
 	public static int[] createShape(int size, int arity) {
-		assert size >= 1 && arity >= 0;
+		assert size >= 0 && arity >= 0;
 
 		int[] shape = new int[arity];
 		for (int i = 0; i < arity; i++)

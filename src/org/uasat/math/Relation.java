@@ -176,7 +176,7 @@ public final class Relation<BOOL> {
 	}
 
 	public static Relation<Boolean> random(int size, int arity, double density) {
-		assert size >= 1 && arity >= 1;
+		assert size >= 0 && arity >= 1;
 		final float d = (float) density;
 
 		Func0<Boolean> rand = new Func0<Boolean>() {

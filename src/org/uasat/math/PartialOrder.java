@@ -36,6 +36,10 @@ public final class PartialOrder<BOOL> {
 		return tensor.getDim(0);
 	}
 
+	public BOOL getValue(int index1, int index2) {
+		return tensor.getElem(index1, index2);
+	}
+
 	public PartialOrder(BoolAlgebra<BOOL> alg, Tensor<BOOL> tensor) {
 		assert tensor.getOrder() == 2;
 		assert tensor.getDim(0) == tensor.getDim(1);
@@ -229,5 +233,39 @@ public final class PartialOrder<BOOL> {
 			throw new IllegalArgumentException();
 
 		return rel.asPartialOrder();
+	}
+
+	public static int[] linearize(PartialOrder<Boolean> poset) {
+		int[] order = new int[poset.getSize()];
+		int head = 0, tail = 0;
+
+		int[] smaller = new int[order.length];
+		for (int i = 0; i < smaller.length; i++) {
+			int s = 0;
+			for (int j = 0; j < smaller.length; j++) {
+				if (j != i && poset.getValue(j, i))
+					s += 1;
+			}
+
+			if (s == 0)
+				order[head++] = i;
+			else
+				smaller[i] = s;
+		}
+
+		assert head != 0;
+		while (tail < head) {
+			for (int i = 0; i < smaller.length; i++) {
+				if (tail != i && poset.getValue(tail, i)) {
+					assert smaller[i] > 0;
+					if (--smaller[i] == 0)
+						order[head++] = i;
+				}
+			}
+			tail += 1;
+		}
+		assert tail == order.length;
+
+		return order;
 	}
 }
