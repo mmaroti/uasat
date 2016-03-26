@@ -28,7 +28,7 @@ public class MeetClosedRels {
 	private final List<Permutation<Boolean>> perms;
 
 	private final List<Relation<Boolean>> gens;
-	private final List<Relation<Boolean>> covers;
+	private final List<Relation<Boolean>> covs;
 	private PartialOrder<Boolean> comp;
 	private Relation<Boolean> compcovs;
 
@@ -40,7 +40,7 @@ public class MeetClosedRels {
 
 		perms = Permutation.symmetricGroup(arity);
 		gens = new ArrayList<Relation<Boolean>>();
-		covers = new ArrayList<Relation<Boolean>>();
+		covs = new ArrayList<Relation<Boolean>>();
 		comp = PartialOrder.chain(0);
 		compcovs = null;
 	}
@@ -64,13 +64,13 @@ public class MeetClosedRels {
 			Relation<Boolean> gen = gens.get(i);
 			if (gen.isSubsetOf(rel)) {
 				assert !rel.isSubsetOf(gen);
-				covers.set(i, covers.get(i).intersect(rel));
+				covs.set(i, covs.get(i).intersect(rel));
 			} else if (rel.isSubsetOf(gen))
 				cov = cov.intersect(gen);
 		}
 
 		gens.add(rel);
-		covers.add(cov);
+		covs.add(cov);
 
 		final int last = gens.size() - 1;
 		Tensor<Boolean> poset = Tensor.generate(gens.size(), gens.size(),
@@ -104,11 +104,11 @@ public class MeetClosedRels {
 		boolean[] mask = new boolean[gens.size()];
 
 		for (int i = gens.size() - 1; i >= 0; i--) {
-			if (covers.get(i).isEqualTo(gens.get(i))) {
+			if (covs.get(i).isEqualTo(gens.get(i))) {
 
 				mask[i] = true;
 				gens.remove(i);
-				covers.remove(i);
+				covs.remove(i);
 			}
 		}
 
@@ -134,7 +134,7 @@ public class MeetClosedRels {
 		}
 	}
 
-	public <BOOL> Relation<BOOL> getSubsetMask(Relation<BOOL> rel) {
+	public <BOOL> Relation<BOOL> getGeneratorMask(Relation<BOOL> rel) {
 		assert rel.getSize() == size && rel.getArity() == arity;
 
 		BoolAlgebra<BOOL> alg = rel.getAlg();
@@ -157,57 +157,56 @@ public class MeetClosedRels {
 			}
 
 			Relation<BOOL> r = Relation.lift(alg,
-					covers.get(a).subtract(gens.get(a)));
+					covs.get(a).subtract(gens.get(a)));
 			x = alg.and(x, rel.isDisjointOf(r));
 
 			tensor.setElem(x, a);
 		}
 
-		return new Relation<BOOL>(rel.getAlg(), tensor);
+		return new Relation<BOOL>(alg, tensor);
 	}
 
-	public <BOOL> Relation<BOOL> getGenFromMask(Relation<BOOL> mask) {
+	public <BOOL> BOOL isMaskUpset(Relation<BOOL> mask) {
 		assert mask.getSize() == gens.size() && mask.getArity() == 1;
 
-		
-	}
-
-	public <BOOL> BOOL isGenerated(Relation<BOOL> rel) {
-		assert rel.getSize() == size && rel.getArity() == arity;
-
-		BoolAlgebra<BOOL> alg = rel.getAlg();
-		Tensor<BOOL> tensor = Tensor.constant(new int[] { gens.size() }, null);
-		BOOL g = alg.TRUE;
-
-		int[] order = PartialOrder.linearize(comp);
+		BoolAlgebra<BOOL> alg = mask.getAlg();
 		if (compcovs == null)
 			compcovs = comp.covers();
 
-		for (int i = order.length - 1; i >= 0; i--) {
-			int a = order[i];
-			assert tensor.getElem(a) == null;
+		BOOL b = alg.TRUE;
+		for (int i = 0; i < gens.size(); i++)
+			for (int j = 0; j < gens.size(); j++)
+				if (compcovs.getValue(i, j))
+					b = alg.and(b, alg.leq(mask.getValue(i), mask.getValue(j)));
 
-			BOOL x = alg.TRUE;
-			for (int b = 0; b < order.length; b++) {
-				if (compcovs.getValue(a, b)) {
-					assert tensor.getElem(b) != null;
-					x = alg.and(x, tensor.getElem(b));
-				}
-			}
+		return b;
+	}
 
-			Relation<BOOL> r = Relation.lift(alg,
-					covers.get(a).subtract(gens.get(a)));
-			BOOL y = rel.isDisjointOf(r);
-			BOOL z = r.isSubsetOf(rel);
+	public <BOOL> Relation<BOOL> getClosureFromMask(Relation<BOOL> mask) {
+		assert mask.getSize() == gens.size() && mask.getArity() == 1;
 
-			g = alg.and(g, alg.leq(alg.and(x, alg.not(y)), z));
-			tensor.setElem(alg.and(x, y), a);
+		BoolAlgebra<BOOL> alg = mask.getAlg();
+		Relation<BOOL> rel = Relation.constant(alg, size, arity, alg.TRUE);
 
-			System.out.println("a: " + a + ", x: " + x + ", y: " + y + ", z: "
-					+ z + ", g: " + g);
+		for (int i = 0; i < gens.size(); i++) {
+			Relation<Boolean> c = covs.get(i).subtract(gens.get(i));
+			Relation<BOOL> d = Relation.constant(alg, size, arity,
+					mask.getValue(i));
+			Relation<BOOL> e = d.intersect(Relation.lift(alg, c)).complement();
+			rel = rel.intersect(e);
 		}
 
-		return g;
+		return rel;
+	}
+
+	public <BOOL> Relation<BOOL> getClosure(Relation<BOOL> rel) {
+		return getClosureFromMask(getGeneratorMask(rel));
+	}
+
+	public <BOOL> BOOL isClosed(Relation<BOOL> rel) {
+		assert rel.getSize() == size && rel.getArity() == arity;
+
+		return getClosure(rel).isEqualTo(rel);
 	}
 
 	public List<Relation<Boolean>> findAllGenerated(SatSolver<?> solver,
@@ -218,7 +217,7 @@ public class MeetClosedRels {
 					List<Tensor<BOOL>> tensors) {
 				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
 
-				return isGenerated(rel);
+				return isClosed(rel);
 			}
 		};
 
@@ -251,7 +250,7 @@ public class MeetClosedRels {
 	}
 
 	public List<Relation<Boolean>> getCoverRels() {
-		return covers;
+		return covs;
 	}
 
 	public PartialOrder<Boolean> getComparability() {
@@ -273,9 +272,14 @@ public class MeetClosedRels {
 		mcr.addGenerator(Relation.parse(3, 1, "2"));
 		mcr.addGenerator(Relation.parse(3, 1, "0 1"));
 		// mcr.addGenerator(Relation.parse(3, 1, "0 2"));
-		System.out.println(PartialOrder.format(mcr.getComparability()));
+		// mcr.addGenerator(Relation.parse(3, 1, "1 2"));
+		// System.out.println(PartialOrder.format(mcr.getComparability()));
 
-		// Relation.print("generated", mcr.findAllGenerated());
-		System.out.println(mcr.isGenerated(Relation.parse(3, 1, "1")));
+		System.out.println(Relation.format(mcr.getGeneratorMask(Relation.parse(
+				3, 1, "0"))));
+		System.out.println(mcr.isMaskUpset(Relation.parse(4, 1, "0 1 3")));
+		System.out.println(Relation.format(mcr.getClosureFromMask(Relation
+				.parse(4, 1, "0 1 3"))));
+		Relation.print("generated", mcr.findAllGenerated());
 	}
 }
