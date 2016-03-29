@@ -90,7 +90,7 @@ public class MeetClosedRels {
 		compcovs = null;
 	}
 
-	public void addCriticalGen(Relation<Boolean> rel) {
+	public void addPermutedGen(Relation<Boolean> rel) {
 		assert rel.getSize() == size && rel.getArity() <= arity;
 
 		if (rel.getArity() < arity)

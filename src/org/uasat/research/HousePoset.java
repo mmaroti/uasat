@@ -232,10 +232,11 @@ public class HousePoset {
 		long time = System.currentTimeMillis();
 
 		HousePoset h = new HousePoset();
+		h.findTernaryCriticals();
 		// h.explain(h.spec2_irred, 3);
 		// h.findTernaryCriticals();
 		// h.findTernaryCritOp3();
-		h.findBinaryCritOp2();
+		// h.findBinaryCritOp2();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
