@@ -96,7 +96,7 @@ public class GenCriticalRels2 {
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
 				Relation<BOOL> rel2 = new Relation<BOOL>(alg, tensors.get(0));
-				Relation<BOOL> rel1 = rel2.projectTo(arity1);
+				Relation<BOOL> rel1 = rel2.projectTail(arity1);
 
 				BOOL b = alg.not(relations1.isClosed(rel1));
 				b = alg.and(b, relations2.isClosed(rel2));
@@ -114,41 +114,7 @@ public class GenCriticalRels2 {
 			return null;
 
 		Relation<Boolean> full = Relation.wrap(sol.get(0));
-		return full.projectTo(arity1);
-	}
-
-	@SuppressWarnings("unused")
-	private Relation<Boolean> findOne2(final Relation<Boolean> above) {
-		assert above == null
-				|| (above.getSize() == size && above.getArity() == arity1);
-
-		SatProblem problem = new SatProblem(
-				new int[] { relations2.getGeneratorCount() }) {
-			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
-				Relation<BOOL> mask = new Relation<BOOL>(alg, tensors.get(0));
-				BOOL b = relations2.isUpsetMask(mask);
-
-				Relation<BOOL> rel2 = relations2.getClosureFromMask(mask);
-				Relation<BOOL> rel1 = rel2.projectTo(arity1);
-
-				b = alg.and(b, alg.not(relations1.isClosed(rel1)));
-				if (above != null)
-					b = alg.and(b,
-							Relation.lift(alg, above).isProperSubsetOf(rel1));
-
-				return b;
-			}
-		};
-
-		totalSteps += 1;
-		List<Tensor<Boolean>> sol = problem.solveOne(solver);
-		if (sol == null)
-			return null;
-
-		Relation<Boolean> mask = Relation.wrap(sol.get(0));
-		return relations2.getClosureFromMask(mask).projectTo(arity1);
+		return full.projectTail(arity1);
 	}
 
 	public void generate1() {
@@ -263,5 +229,96 @@ public class GenCriticalRels2 {
 		System.out.println("total steps: " + totalSteps + ", meet irreds1: "
 				+ getMeetIrreds1().size() + ", meet irreds2: "
 				+ getMeetIrreds2().size());
+	}
+
+	private Relation<Boolean> findMask(final Relation<Boolean> rel,
+			final Relation<Boolean> below) {
+		assert rel.getSize() == size && rel.getArity() == arity1;
+		assert below == null
+				|| (below.getArity() == 1 && below.getSize() == relations2
+						.getGeneratorCount());
+
+		SatProblem problem = new SatProblem(
+				new int[] { relations2.getGeneratorCount() }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> mask = new Relation<BOOL>(alg, tensors.get(0));
+				BOOL b = relations2.isUpsetMask(mask);
+				if (below != null)
+					b = alg.and(b,
+							mask.isProperSubsetOf(Relation.lift(alg, below)));
+
+				Relation<BOOL> rel1 = relations2.getClosureFromMask(mask)
+						.projectHead(arity1);
+				b = alg.and(b, rel1.isEqualTo(Relation.lift(alg, rel)));
+
+				return b;
+			}
+		};
+
+		totalSteps += 1;
+		List<Tensor<Boolean>> sol = problem.solveOne(solver);
+		if (sol == null)
+			return null;
+
+		return Relation.wrap(sol.get(0));
+	}
+
+	public List<Relation<Boolean>> findRepresentation(Relation<Boolean> rel) {
+		assert rel.getSize() == size && rel.getArity() == arity1;
+
+		Relation<Boolean> mask = findMask(rel, null);
+		if (mask == null)
+			return null;
+
+		for (;;) {
+			Relation<Boolean> m = findMask(rel, mask);
+
+			if (m == null)
+				break;
+			else
+				mask = m;
+		}
+
+		mask = PartialOrder.minimalElems(relations2.getComparability(), mask);
+
+		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
+		for (int i = 0; i < mask.getSize(); i++)
+			if (mask.getValue(i))
+				list.add(relations2.getGenerators().get(i));
+
+		return list;
+	}
+
+	private void printGenerator(Relation<Boolean> gen) {
+		List<Integer> coords = new ArrayList<Integer>();
+		for (int i = 0; i < gen.getArity(); i++) {
+			if (gen.isEssentialCoord(i))
+				coords.add(i);
+		}
+
+		int[] c = new int[coords.size()];
+		for (int i = 0; i < coords.size(); i++)
+			c[i] = coords.get(i);
+
+		Relation<Boolean> p = gen.project(c);
+		System.out.println("at " + Util.formatTuple(gen.getArity(), c) + ":\t"
+				+ Relation.format(p));
+	}
+
+	public void printRepresentation(Relation<Boolean> rel) {
+		assert rel.getSize() == size && rel.getArity() == arity1;
+
+		List<Relation<Boolean>> reps = findRepresentation(rel);
+		if (reps == null)
+			System.out.println("not representable " + Relation.format(rel));
+		else {
+			System.out.println("representation of " + Relation.format(rel)
+					+ ":");
+			for (int i = 0; i < reps.size(); i++)
+				printGenerator(reps.get(i));
+		}
+		System.out.println();
 	}
 }

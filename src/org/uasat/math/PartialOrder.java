@@ -293,4 +293,27 @@ public final class PartialOrder<BOOL> {
 
 		return Relation.wrap(cover);
 	}
+
+	public static Relation<Boolean> minimalElems(PartialOrder<Boolean> poset,
+			Relation<Boolean> subset) {
+		assert poset.getSize() == subset.getSize() && subset.getArity() == 1;
+
+		Tensor<Boolean> tensor = Tensor.constant(subset.getTensor().getShape(),
+				Boolean.FALSE);
+
+		int size = poset.getSize();
+		outer: for (int i = 0; i < size; i++) {
+			if (!subset.getValue(i))
+				continue;
+
+			for (int j = 0; j < size; j++) {
+				if (i != j && subset.getValue(j) && poset.getValue(j, i))
+					continue outer;
+			}
+
+			tensor.setElem(Boolean.TRUE, i);
+		}
+
+		return Relation.wrap(tensor);
+	}
 }

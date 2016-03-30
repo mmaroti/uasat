@@ -263,13 +263,24 @@ public class HousePoset {
 		gen.printRepresentation(rel);
 	}
 
+	public void explain2(Relation<Boolean> rel, int arity) {
+		assert rel.getArity() <= arity && 2 <= arity;
+
+		GenCriticalRels2 gen = new GenCriticalRels2(poset.getSize(),
+				rel.getArity(), arity);
+		gen.addGenerator(poset);
+		gen.addGenerators(crit1);
+		gen.printRepresentation(rel);
+		gen.printStats();
+	}
+
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
 		HousePoset h = new HousePoset();
 		// h.findBinaryCriticals2();
-		h.findTernaryCriticals2();
-		// h.explain(h.spec2_irred, 3);
+		// h.findTernaryCriticals2();
+		h.explain2(h.crit2_rels.get(7), 7);
 		// h.findTernaryCriticals();
 		// h.findTernaryCritOp3();
 		// h.findBinaryCritOp2();

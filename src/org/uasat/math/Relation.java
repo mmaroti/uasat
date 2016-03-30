@@ -313,11 +313,16 @@ public final class Relation<BOOL> {
 		return new Relation<BOOL>(alg, tmp);
 	}
 
-	public Relation<BOOL> projectTo(int coords) {
-		assert 1 <= coords && coords <= getArity();
+	public Relation<BOOL> projectTail(int coords) {
+		assert 0 <= coords && coords <= getArity();
 
 		return new Relation<BOOL>(alg, Tensor.fold(alg.ANY,
 				getArity() - coords, tensor));
+	}
+
+	public Relation<BOOL> projectHead(int coords) {
+		assert 0 <= coords && coords <= getArity();
+		return rotate(-coords).projectTail(coords);
 	}
 
 	private Tensor<BOOL> combine(Relation<BOOL> rel) {
