@@ -313,6 +313,13 @@ public final class Relation<BOOL> {
 		return new Relation<BOOL>(alg, tmp);
 	}
 
+	public Relation<BOOL> projectTo(int coords) {
+		assert 1 <= coords && coords <= getArity();
+
+		return new Relation<BOOL>(alg, Tensor.fold(alg.ANY,
+				getArity() - coords, tensor));
+	}
+
 	private Tensor<BOOL> combine(Relation<BOOL> rel) {
 		checkSize(rel);
 		assert getArity() + rel.getArity() >= 3;
@@ -518,6 +525,11 @@ public final class Relation<BOOL> {
 		return tmp.get();
 	}
 
+	// TODO: this is probably not optimal
+	public BOOL isProperSubsetOf(Relation<BOOL> rel) {
+		return alg.and(isSubsetOf(rel), alg.not(rel.isSubsetOf(this)));
+	}
+
 	public BOOL isDisjointOf(Relation<BOOL> rel) {
 		return isSubsetOf(rel.complement());
 	}
@@ -614,6 +626,31 @@ public final class Relation<BOOL> {
 			b = alg.and(b, isEssentialCoord(i));
 
 		return b;
+	}
+
+	public static Relation<Boolean> removeNonessentialCoords(
+			Relation<Boolean> rel) {
+		BoolAlgebra<Boolean> alg = rel.getAlg();
+		Tensor<Boolean> tensor = rel.tensor;
+
+		int a = rel.getArity();
+		for (int i = 0; i < a; i++) {
+			if (tensor.getOrder() <= 1)
+				break;
+
+			Tensor<Boolean> t = Tensor.fold(alg.EQS, 1, tensor);
+			Boolean nonessential = Tensor.fold(alg.ALL, t.getOrder(), t).get();
+
+			int[] map = new int[tensor.getOrder()];
+			for (int j = 1; j < map.length; j++)
+				map[j] = j - 1;
+			map[0] = nonessential ? 0 : map.length - 1;
+
+			tensor = Tensor.reshape(tensor,
+					(nonessential ? t : tensor).getShape(), map);
+		}
+
+		return Relation.wrap(tensor);
 	}
 
 	public PartialOrder<BOOL> asPartialOrder() {
@@ -793,8 +830,10 @@ public final class Relation<BOOL> {
 
 		@Override
 		public int compare(Relation<Boolean> o1, Relation<Boolean> o2) {
-			assert o1.getSize() == o2.getSize()
-					&& o1.getArity() == o2.getArity();
+			assert o1.getSize() == o2.getSize();
+
+			if (o1.getArity() != o2.getArity())
+				return o1.getArity() - o2.getArity();
 
 			int c1 = cardinality(o1);
 			int c2 = cardinality(o2);

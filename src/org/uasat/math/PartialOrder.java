@@ -47,7 +47,7 @@ public final class PartialOrder<BOOL> {
 		this.alg = alg;
 		this.tensor = tensor;
 
-		if (alg == BoolAlgebra.INSTANCE)
+		if (alg == BoolAlgebra.INSTANCE && getSize() <= 10)
 			assert (Boolean) isPartialOrder();
 	}
 
@@ -256,7 +256,7 @@ public final class PartialOrder<BOOL> {
 		assert head != 0;
 		while (tail < head) {
 			for (int i = 0; i < smaller.length; i++) {
-				if (tail != i && poset.getValue(tail, i)) {
+				if (order[tail] != i && poset.getValue(order[tail], i)) {
 					assert smaller[i] > 0;
 					if (--smaller[i] == 0)
 						order[head++] = i;
@@ -267,5 +267,43 @@ public final class PartialOrder<BOOL> {
 		assert tail == order.length;
 
 		return order;
+	}
+
+	public static int[] hightmap(PartialOrder<Boolean> poset, int[] linearize) {
+		assert linearize.length == poset.getSize();
+
+		int[] hightmap = new int[poset.getSize()];
+		for (int i = 0; i < linearize.length; i++) {
+			int h = -1;
+			for (int j = 0; j < i; j++) {
+				if (poset.getValue(linearize[j], linearize[i]))
+					h = Math.max(h, hightmap[linearize[j]]);
+			}
+			assert hightmap[linearize[i]] == 0;
+			hightmap[linearize[i]] = h + 1;
+		}
+
+		return hightmap;
+	}
+
+	public static Relation<Boolean> covers(final PartialOrder<Boolean> poset,
+			final int[] hightmap) {
+		assert hightmap.length == poset.getSize();
+
+		int size = poset.getSize();
+		Tensor<Boolean> tensor = Tensor.generate(size, size,
+				new Func2<Boolean, Integer, Integer>() {
+					@Override
+					public Boolean call(Integer elem1, Integer elem2) {
+						if (poset.getValue(elem1, elem2)) {
+							assert elem1 == elem2
+									|| hightmap[elem1] < hightmap[elem2];
+							return hightmap[elem1] + 1 == hightmap[elem2];
+						} else
+							return Boolean.FALSE;
+					}
+				});
+
+		return Relation.wrap(tensor);
 	}
 }

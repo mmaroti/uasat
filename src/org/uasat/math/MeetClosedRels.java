@@ -29,8 +29,10 @@ public class MeetClosedRels {
 
 	private final List<Relation<Boolean>> gens;
 	private final List<Relation<Boolean>> covs;
-	private PartialOrder<Boolean> comp;
-	private Relation<Boolean> compcovs;
+
+	private PartialOrder<Boolean> poset;
+	private int[] posetLinearized;
+	private Relation<Boolean> posetCovers;
 
 	public MeetClosedRels(int size, int arity) {
 		assert size >= 1 && arity >= 1;
@@ -41,8 +43,10 @@ public class MeetClosedRels {
 		perms = Permutation.symmetricGroup(arity);
 		gens = new ArrayList<Relation<Boolean>>();
 		covs = new ArrayList<Relation<Boolean>>();
-		comp = PartialOrder.chain(0);
-		compcovs = null;
+
+		poset = PartialOrder.chain(0);
+		posetLinearized = null;
+		posetCovers = null;
 	}
 
 	public int getSize() {
@@ -73,7 +77,7 @@ public class MeetClosedRels {
 		covs.add(cov);
 
 		final int last = gens.size() - 1;
-		Tensor<Boolean> poset = Tensor.generate(gens.size(), gens.size(),
+		Tensor<Boolean> poset2 = Tensor.generate(gens.size(), gens.size(),
 				new Func2<Boolean, Integer, Integer>() {
 					@Override
 					public Boolean call(Integer elem1, Integer elem2) {
@@ -82,12 +86,13 @@ public class MeetClosedRels {
 						else if (elem1 == last)
 							return rel.isSubsetOf(gens.get(elem2));
 						else
-							return comp.getValue(elem1, elem2);
+							return poset.getValue(elem1, elem2);
 					}
 				});
 
-		comp = PartialOrder.wrap(poset);
-		compcovs = null;
+		poset = PartialOrder.wrap(poset2);
+		posetLinearized = null;
+		posetCovers = null;
 	}
 
 	public void addPermutedGen(Relation<Boolean> rel) {
@@ -121,36 +126,54 @@ public class MeetClosedRels {
 					m[j++] = i;
 			assert j == gens.size();
 
-			Tensor<Boolean> poset = Tensor.generate(gens.size(), gens.size(),
+			Tensor<Boolean> poset2 = Tensor.generate(gens.size(), gens.size(),
 					new Func2<Boolean, Integer, Integer>() {
 						@Override
 						public Boolean call(Integer elem1, Integer elem2) {
-							return comp.getValue(m[elem1], m[elem2]);
+							return poset.getValue(m[elem1], m[elem2]);
 						}
 					});
 
-			comp = PartialOrder.wrap(poset);
-			compcovs = null;
+			poset = PartialOrder.wrap(poset2);
+			posetLinearized = null;
+			posetCovers = null;
+		}
+	}
+
+	private void calculateCovers() {
+		if (posetLinearized == null)
+			posetLinearized = PartialOrder.linearize(poset);
+
+		if (posetCovers == null) {
+			/*
+			int[] hightmap = PartialOrder.hightmap(poset, posetLinearized);
+
+			for (int i = 0; i < hightmap.length; i++)
+				System.out.print(", " + hightmap[i]);
+			System.out.println();
+			System.out.println(PartialOrder.format(poset));
+			
+			posetCovers = PartialOrder.covers(poset, hightmap);
+			System.out.println(Relation.format(posetCovers));
+			*/
+			posetCovers = poset.covers();
 		}
 	}
 
 	public <BOOL> Relation<BOOL> getGeneratorMask(Relation<BOOL> rel) {
 		assert rel.getSize() == size && rel.getArity() == arity;
+		calculateCovers();
 
 		BoolAlgebra<BOOL> alg = rel.getAlg();
 		Tensor<BOOL> tensor = Tensor.constant(new int[] { gens.size() }, null);
 
-		int[] order = PartialOrder.linearize(comp);
-		if (compcovs == null)
-			compcovs = comp.covers();
-
-		for (int i = order.length - 1; i >= 0; i--) {
-			int a = order[i];
+		for (int i = posetLinearized.length - 1; i >= 0; i--) {
+			int a = posetLinearized[i];
 			assert tensor.getElem(a) == null;
 
 			BOOL x = alg.TRUE;
-			for (int b = 0; b < order.length; b++) {
-				if (compcovs.getValue(a, b)) {
+			for (int b = 0; b < posetLinearized.length; b++) {
+				if (posetCovers.getValue(a, b)) {
 					assert tensor.getElem(b) != null;
 					x = alg.and(x, tensor.getElem(b));
 				}
@@ -166,17 +189,16 @@ public class MeetClosedRels {
 		return new Relation<BOOL>(alg, tensor);
 	}
 
-	public <BOOL> BOOL isMaskUpset(Relation<BOOL> mask) {
+	public <BOOL> BOOL isUpsetMask(Relation<BOOL> mask) {
 		assert mask.getSize() == gens.size() && mask.getArity() == 1;
+		calculateCovers();
 
 		BoolAlgebra<BOOL> alg = mask.getAlg();
-		if (compcovs == null)
-			compcovs = comp.covers();
 
 		BOOL b = alg.TRUE;
 		for (int i = 0; i < gens.size(); i++)
 			for (int j = 0; j < gens.size(); j++)
-				if (compcovs.getValue(i, j))
+				if (posetCovers.getValue(i, j))
 					b = alg.and(b, alg.leq(mask.getValue(i), mask.getValue(j)));
 
 		return b;
@@ -229,7 +251,7 @@ public class MeetClosedRels {
 		return findAllGenerated(SatSolver.getDefault(), -1);
 	}
 
-	public Relation<Boolean> getCoverRel(Relation<Boolean> rel) {
+	public Relation<Boolean> getClosure2(Relation<Boolean> rel) {
 		assert rel.getSize() == size && rel.getArity() == arity;
 
 		Relation<Boolean> cov = Relation.full(size, arity);
@@ -241,8 +263,8 @@ public class MeetClosedRels {
 		return cov;
 	}
 
-	public boolean isMeetIrreducible(Relation<Boolean> rel) {
-		return !getCoverRel(rel).isEqualTo(rel);
+	public boolean isClosed2(Relation<Boolean> rel) {
+		return !getClosure2(rel).isEqualTo(rel);
 	}
 
 	public List<Relation<Boolean>> getGenerators() {
@@ -254,7 +276,7 @@ public class MeetClosedRels {
 	}
 
 	public PartialOrder<Boolean> getComparability() {
-		return comp;
+		return poset;
 	}
 
 	public int getGeneratorCount() {
@@ -263,23 +285,5 @@ public class MeetClosedRels {
 
 	public <BOOL> BOOL isMemberOf(BoolAlgebra<BOOL> alg, Relation<BOOL> rel) {
 		return null;
-	}
-
-	public static void main(String[] args) {
-		MeetClosedRels mcr = new MeetClosedRels(3, 1);
-		mcr.addGenerator(Relation.parse(3, 1, "0"));
-		mcr.addGenerator(Relation.parse(3, 1, "1"));
-		mcr.addGenerator(Relation.parse(3, 1, "2"));
-		mcr.addGenerator(Relation.parse(3, 1, "0 1"));
-		// mcr.addGenerator(Relation.parse(3, 1, "0 2"));
-		// mcr.addGenerator(Relation.parse(3, 1, "1 2"));
-		// System.out.println(PartialOrder.format(mcr.getComparability()));
-
-		System.out.println(Relation.format(mcr.getGeneratorMask(Relation.parse(
-				3, 1, "0"))));
-		System.out.println(mcr.isMaskUpset(Relation.parse(4, 1, "0 1 3")));
-		System.out.println(Relation.format(mcr.getClosureFromMask(Relation
-				.parse(4, 1, "0 1 3"))));
-		Relation.print("generated", mcr.findAllGenerated());
 	}
 }
