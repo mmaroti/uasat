@@ -201,7 +201,7 @@ public class HousePoset {
 
 		return gen.getUniCriticals1();
 	}
-	
+
 	public List<Relation<Boolean>> findTernaryCritOp2() {
 		ClonePair clone = new ClonePair(poset.getSize());
 		clone.trace = true;
@@ -267,8 +267,8 @@ public class HousePoset {
 		long time = System.currentTimeMillis();
 
 		HousePoset h = new HousePoset();
-		h.findBinaryCriticals2();
-		//h.findTernaryCriticals2();
+		// h.findBinaryCriticals2();
+		h.findTernaryCriticals2();
 		// h.explain(h.spec2_irred, 3);
 		// h.findTernaryCriticals();
 		// h.findTernaryCritOp3();

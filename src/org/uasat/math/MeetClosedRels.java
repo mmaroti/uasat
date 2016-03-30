@@ -140,29 +140,14 @@ public class MeetClosedRels {
 		}
 	}
 
-	private void calculateCovers() {
+	public <BOOL> Relation<BOOL> getGeneratorMask(Relation<BOOL> rel) {
+		assert rel.getSize() == size && rel.getArity() == arity;
+
 		if (posetLinearized == null)
 			posetLinearized = PartialOrder.linearize(poset);
 
-		if (posetCovers == null) {
-			/*
-			int[] hightmap = PartialOrder.hightmap(poset, posetLinearized);
-
-			for (int i = 0; i < hightmap.length; i++)
-				System.out.print(", " + hightmap[i]);
-			System.out.println();
-			System.out.println(PartialOrder.format(poset));
-			
-			posetCovers = PartialOrder.covers(poset, hightmap);
-			System.out.println(Relation.format(posetCovers));
-			*/
-			posetCovers = poset.covers();
-		}
-	}
-
-	public <BOOL> Relation<BOOL> getGeneratorMask(Relation<BOOL> rel) {
-		assert rel.getSize() == size && rel.getArity() == arity;
-		calculateCovers();
+		if (posetCovers == null)
+			posetCovers = PartialOrder.covers(poset);
 
 		BoolAlgebra<BOOL> alg = rel.getAlg();
 		Tensor<BOOL> tensor = Tensor.constant(new int[] { gens.size() }, null);
@@ -191,7 +176,9 @@ public class MeetClosedRels {
 
 	public <BOOL> BOOL isUpsetMask(Relation<BOOL> mask) {
 		assert mask.getSize() == gens.size() && mask.getArity() == 1;
-		calculateCovers();
+
+		if (posetCovers == null)
+			posetCovers = PartialOrder.covers(poset);
 
 		BoolAlgebra<BOOL> alg = mask.getAlg();
 

@@ -117,6 +117,7 @@ public class GenCriticalRels2 {
 		return full.projectTo(arity1);
 	}
 
+	@SuppressWarnings("unused")
 	private Relation<Boolean> findOne2(final Relation<Boolean> above) {
 		assert above == null
 				|| (above.getSize() == size && above.getArity() == arity1);
@@ -176,12 +177,12 @@ public class GenCriticalRels2 {
 
 	public void generate2() {
 		for (;;) {
-			Relation<Boolean> rel = findOne2(null);
+			Relation<Boolean> rel = findOne(null);
 			if (rel == null)
 				break;
 
 			for (;;) {
-				Relation<Boolean> r = findOne2(rel);
+				Relation<Boolean> r = findOne(rel);
 
 				if (r == null)
 					break;
