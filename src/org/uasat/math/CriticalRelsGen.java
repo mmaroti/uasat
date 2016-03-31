@@ -22,7 +22,7 @@ import java.util.*;
 
 import org.uasat.core.*;
 
-public class GenCriticalRels {
+public class CriticalRelsGen {
 	private final int size;
 	private final int arity1;
 	private final int arity2;
@@ -33,11 +33,11 @@ public class GenCriticalRels {
 	public boolean trace = false;
 	public int totalSteps = 0;
 
-	public GenCriticalRels(int size, int arity1, int arity2) {
+	public CriticalRelsGen(int size, int arity1, int arity2) {
 		this(size, arity1, arity2, SatSolver.getDefault());
 	}
 
-	public GenCriticalRels(int size, int arity1, int arity2,
+	public CriticalRelsGen(int size, int arity1, int arity2,
 			SatSolver<?> solver) {
 		assert 1 <= size && 1 <= arity1 && arity1 <= arity2 && solver != null;
 
@@ -170,39 +170,19 @@ public class GenCriticalRels {
 	}
 
 	public List<Relation<Boolean>> getMeetIrreds1() {
-		return relations1.getGenerators();
+		return relations1.getMeetIrreds();
 	}
 
 	public List<Relation<Boolean>> getMeetIrreds2() {
-		return relations2.getGenerators();
+		return relations2.getMeetIrreds();
 	}
 
 	public List<Relation<Boolean>> getUniCriticals1() {
-		List<Relation<Boolean>> irreds = getMeetIrreds1();
-		List<Relation<Boolean>> crits = new ArrayList<Relation<Boolean>>();
-
-		for (Relation<Boolean> rel : irreds) {
-			if (!rel.isPermuteMinimal())
-				continue;
-
-			crits.add(Relation.removeNonessentialCoords(rel));
-		}
-
-		return crits;
+		return relations1.getUniCriticals();
 	}
 
 	public List<Relation<Boolean>> getUniCriticals2() {
-		List<Relation<Boolean>> irreds = getMeetIrreds2();
-		List<Relation<Boolean>> crits = new ArrayList<Relation<Boolean>>();
-
-		for (Relation<Boolean> rel : irreds) {
-			if (!rel.isPermuteMinimal())
-				continue;
-
-			crits.add(Relation.removeNonessentialCoords(rel));
-		}
-
-		return crits;
+		return relations2.getUniCriticals();
 	}
 
 	public void printMeetIrreds1() {
@@ -286,7 +266,7 @@ public class GenCriticalRels {
 		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
 		for (int i = 0; i < mask.getSize(); i++)
 			if (mask.getValue(i))
-				list.add(relations2.getGenerators().get(i));
+				list.add(relations2.getMeetIrreds().get(i));
 
 		return list;
 	}

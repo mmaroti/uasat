@@ -333,7 +333,7 @@ public class MonoidalInt {
 	public static void main3(String[] args) {
 		long time = System.currentTimeMillis();
 
-		GenCriticalRels gen = new GenCriticalRels(3, 2, 3);
+		CriticalRelsGen gen = new CriticalRelsGen(3, 2, 3);
 		gen.addGenerator(Relation.parse(3, 2, "00 11 22"));
 		gen.addGenerator(Relation.parse(3, 2, "01 10").complement());
 		gen.addGenerator(Relation.parse(3, 3, "200 210 201 211").complement());

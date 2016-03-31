@@ -29,13 +29,13 @@ public class HousePoset {
 	public final Relation<Boolean> poset;
 	public final List<Relation<Boolean>> crit1;
 
-	public final List<Relation<Boolean>> crit2_rels;
-	public final List<Operation<Boolean>> crit2_ops;
+	public final List<Relation<Boolean>> crit2_gen3;
 
 	public final List<Relation<Boolean>> crit2_op2;
-	public final Relation<Boolean> spec2_cover;
+	public final List<Operation<Boolean>> crit2_ops2;
 
 	// public final List<Relation<Boolean>> crit2_op3;
+	// public final List<Operation<Boolean>> crit2_ops3;
 
 	public HousePoset() {
 		poset = PartialOrder.crown(4).plus(PartialOrder.antiChain(1))
@@ -45,8 +45,8 @@ public class HousePoset {
 		crit1 = parseRels(1, "2 4", "3 4", "0 1 2", "0 1 3", "0 2 3 4",
 				"1 2 3 4");
 
-		// crit2_gen = findBinaryCriticals();
-		crit2_rels = parseRels(2, "21 41 02 22 32 42 23 43 04 24 34 44",
+		// crit2_gen3 = findBinaryCriticals();
+		crit2_gen3 = parseRels(2, "21 41 02 22 32 42 23 43 04 24 34 44",
 				"21 41 22 42 03 23 33 43 04 24 34 44",
 				"31 41 02 22 32 42 33 43 04 24 34 44",
 				"31 41 32 42 03 23 33 43 04 24 34 44",
@@ -60,13 +60,8 @@ public class HousePoset {
 				"11 21 31 41 02 12 22 32 42 13 23 33 43 04 14 24 34 44",
 				"11 21 31 41 12 22 32 42 03 13 23 33 43 04 14 24 34 44",
 				"00 20 30 40 11 21 31 41 02 12 22 32 42 03 13 23 33 43 04 14 24 34 44");
-		crit2_ops = parseOps(2, "01234 11111 22244 33434 44444",
-				"01234 11112 22244 33434 44444",
-				"00234 11111 22244 33434 44444",
-				"01234 11111 21244 33434 44444",
-				"01234 11212 21244 33434 44444");
 
-		// crit2_op2 = findBinaryCritOp2();
+		// crit2_ops2 = findBinaryCritOp2();
 		crit2_op2 = parseRels(2, "21 41 02 22 32 42 23 43 04 24 34 44",
 				"21 41 22 42 03 23 33 43 04 24 34 44",
 				"31 41 02 22 32 42 33 43 04 24 34 44",
@@ -81,9 +76,12 @@ public class HousePoset {
 				"11 21 31 41 02 12 22 32 42 13 23 33 43 04 14 24 34 44",
 				"11 21 31 41 12 22 32 42 03 13 23 33 43 04 14 24 34 44",
 				"00 20 30 40 01 11 21 31 41 02 12 22 32 42 03 13 23 33 43 04 14 24 34 44");
-		spec2_cover = crit2_op2.get(crit2_op2.size() - 1);
 
-		// crit2_op3 = findBinaryCritOp3();
+		crit2_ops2 = parseOps(2, "01234 11111 22244 33434 44444",
+				"01234 11112 22244 33434 44444",
+				"00234 11111 22244 33434 44444",
+				"01234 11111 21244 33434 44444",
+				"01234 11212 21244 33434 44444");
 	}
 
 	public List<Relation<Boolean>> parseRels(int arity, String... rels) {
@@ -101,7 +99,7 @@ public class HousePoset {
 	}
 
 	public List<Relation<Boolean>> findUnaryCriticals() {
-		GenCriticalRels gen = new GenCriticalRels(poset.getSize(), 1, 2);
+		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(), 1, 2);
 
 		gen.addGenerator(poset);
 		gen.addSingletons();
@@ -112,13 +110,13 @@ public class HousePoset {
 	}
 
 	public List<Relation<Boolean>> findBinaryCriticals() {
-		GenCriticalRels gen = new GenCriticalRels(poset.getSize(), 2, 3);
+		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(), 2, 3);
 
 		gen.addGenerator(poset);
 		gen.addGenerators(crit1);
 		gen.generate2();
 		gen.printUniCriticals1();
-		gen.printStats();
+		// gen.printStats();
 
 		return gen.getUniCriticals1();
 	}
@@ -154,11 +152,11 @@ public class HousePoset {
 	}
 
 	public List<Relation<Boolean>> findTernaryCriticals() {
-		GenCriticalRels gen = new GenCriticalRels(poset.getSize(), 3, 4);
+		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(), 3, 4);
 		gen.trace = true;
 
 		gen.addGenerators(crit1);
-		gen.addGenerators(crit2_rels);
+		gen.addGenerators(crit2_gen3);
 		gen.generate2();
 		gen.printUniCriticals1();
 
@@ -222,7 +220,7 @@ public class HousePoset {
 	public void explain(Relation<Boolean> rel, int arity) {
 		assert rel.getArity() <= arity && 2 <= arity;
 
-		GenCriticalRels gen = new GenCriticalRels(poset.getSize(),
+		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(),
 				rel.getArity(), arity);
 		gen.addGenerator(poset);
 		gen.addGenerators(crit1);
@@ -235,11 +233,10 @@ public class HousePoset {
 
 		HousePoset h = new HousePoset();
 		// h.findBinaryCriticals();
+		// h.findBinaryCritOp3();
 		// h.findTernaryCriticals();
-		h.explain(h.crit2_rels.get(13), 3);
-		// h.findTernaryCriticals();
-		// h.findTernaryCritOp3();
-		// h.findBinaryCritOp2();
+		h.findTernaryCritOp3();
+		// h.explain(h.crit2_gen3.get(13), 3);
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

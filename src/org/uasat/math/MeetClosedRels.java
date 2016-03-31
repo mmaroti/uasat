@@ -254,11 +254,24 @@ public class MeetClosedRels {
 		return !getClosure2(rel).isEqualTo(rel);
 	}
 
-	public List<Relation<Boolean>> getGenerators() {
+	public List<Relation<Boolean>> getMeetIrreds() {
 		return gens;
 	}
 
-	public List<Relation<Boolean>> getCoverRels() {
+	public List<Relation<Boolean>> getUniCriticals() {
+		List<Relation<Boolean>> crits = new ArrayList<Relation<Boolean>>();
+
+		for (Relation<Boolean> rel : gens) {
+			if (!rel.isPermuteMinimal())
+				continue;
+
+			crits.add(Relation.removeNonessentialCoords(rel));
+		}
+
+		return crits;
+	}
+
+	public List<Relation<Boolean>> getIrredCovers() {
 		return covs;
 	}
 

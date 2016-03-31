@@ -1,0 +1,94 @@
+/**
+ *	Copyright (C) Miklos Maroti, 2015-2016
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+
+package org.uasat.math;
+
+import java.util.*;
+
+import org.uasat.core.*;
+
+public class CriticalRelsComp {
+	private final int size;
+	private final int arity;
+
+	private final MeetClosedRels relations;
+	private final SatSolver<?> solver;
+
+	public CriticalRelsComp(int size, int arity) {
+		this(size, arity, SatSolver.getDefault());
+	}
+
+	public CriticalRelsComp(int size, int arity, SatSolver<?> solver) {
+		assert size >= 0 && arity >= 1;
+
+		this.size = size;
+		this.arity = arity;
+
+		this.relations = new MeetClosedRels(size, arity);
+		this.solver = solver;
+	}
+
+	public int getSize() {
+		return size;
+	}
+
+	public int getArity() {
+		return arity;
+	}
+
+	public List<Relation<Boolean>> getMeetIrreds() {
+		return relations.getMeetIrreds();
+	}
+
+	public List<Relation<Boolean>> getUniCriticals() {
+		return relations.getUniCriticals();
+	}
+
+	public Operation<Boolean> findOperation(int opArity,
+			final List<Relation<Boolean>> compatibles) {
+
+		SatProblem problem = new SatProblem(Util.createShape(size, opArity + 1)) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
+				BOOL b = op.isOperation();
+
+				for (Relation<Boolean> rel : compatibles) {
+					Relation<BOOL> r = Relation.lift(alg, rel);
+					b = alg.and(b, op.preserves(r));
+				}
+
+				BOOL c = alg.TRUE;
+				List<Relation<Boolean>> irreds = relations.getMeetIrreds();
+				for (Relation<Boolean> rel : irreds) {
+					Relation<BOOL> r = Relation.lift(alg, rel);
+					c = alg.and(c, op.preserves(r));
+				}
+
+				return alg.and(b, alg.not(c));
+			}
+		};
+
+		List<Tensor<Boolean>> sol = problem.solveOne(solver);
+		if (sol == null)
+			return null;
+
+		return Operation.wrap(sol.get(0));
+	}
+}
