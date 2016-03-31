@@ -24,25 +24,29 @@ import org.uasat.core.*;
 
 public class GenCriticalRels {
 	private final int size;
-	private final int arity;
+	private final int arity1;
+	private final int arity2;
+	private MeetClosedRels relations1;
+	private MeetClosedRels relations2;
 	private final SatSolver<?> solver;
 
-	private final List<Permutation<Boolean>> permutations;
-	private final TreeSet<Relation<Boolean>> generators;
+	public boolean trace = false;
+	public int totalSteps = 0;
 
-	public GenCriticalRels(int size, int arity) {
-		this(size, arity, SatSolver.getDefault());
+	public GenCriticalRels(int size, int arity1, int arity2) {
+		this(size, arity1, arity2, SatSolver.getDefault());
 	}
 
-	public GenCriticalRels(int size, int arity, SatSolver<?> solver) {
-		assert size >= 1 && arity >= 1 && solver != null;
+	public GenCriticalRels(int size, int arity1, int arity2,
+			SatSolver<?> solver) {
+		assert 1 <= size && 1 <= arity1 && arity1 <= arity2 && solver != null;
 
 		this.size = size;
-		this.arity = arity;
+		this.arity1 = arity1;
+		this.arity2 = arity2;
+		this.relations1 = new MeetClosedRels(size, arity1);
+		this.relations2 = new MeetClosedRels(size, arity2);
 		this.solver = solver;
-
-		permutations = Permutation.symmetricGroup(arity);
-		generators = new TreeSet<Relation<Boolean>>(Relation.COMPARATOR);
 	}
 
 	public SatSolver<?> getSolver() {
@@ -53,250 +57,236 @@ public class GenCriticalRels {
 		return size;
 	}
 
-	public int getArity() {
-		return arity;
+	public int getArity1() {
+		return arity1;
 	}
 
-	public Set<Relation<Boolean>> getGenerators() {
-		return generators;
+	public int getArity2() {
+		return arity2;
 	}
 
-	public void addGeneratorRel(Relation<Boolean> rel) {
-		assert rel.getSize() == size && rel.getArity() <= arity;
+	public void addGenerator(Relation<Boolean> rel) {
+		assert rel.getSize() == size && rel.getArity() <= arity2;
 
-		if (rel.getArity() < arity) {
-			int a = arity - rel.getArity();
-			rel = rel.cartesian(Relation.full(rel.getSize(), a));
+		if (rel.getArity() <= arity1) {
+			relations1.addPermutedGen(rel);
+			relations1.removeMeetReducibles();
 		}
 
-		for (Permutation<Boolean> p : permutations)
-			generators.add(rel.permute(p));
+		relations2.addPermutedGen(rel);
+		relations2.removeMeetReducibles();
 	}
 
-	public void addSingletonRels() {
+	public void addSingletons() {
 		for (int i = 0; i < size; i++)
-			addGeneratorRel(Relation.singleton(size, i));
+			addGenerator(Relation.singleton(size, i));
 	}
 
-	public void addGeneratorRels(Iterable<Relation<Boolean>> rels) {
+	public void addGenerators(Iterable<Relation<Boolean>> rels) {
 		for (Relation<Boolean> rel : rels)
-			addGeneratorRel(rel);
+			addGenerator(rel);
 	}
 
-	public void addGeneratorComp(Relation<Boolean> rel) {
-		addGeneratorRel(rel.complement());
-	}
+	private Relation<Boolean> findOne(final Relation<Boolean> above) {
+		assert above == null
+				|| (above.getSize() == size && above.getArity() == arity1);
 
-	private <BOOL> Relation<BOOL> getMeetProj(Relation<BOOL> mask, int proj) {
-		assert mask.getArity() == 1 && mask.getSize() == generators.size();
-
-		BoolAlgebra<BOOL> alg = mask.getAlg();
-		Relation<BOOL> rel = Relation.constant(alg, size, arity, alg.TRUE);
-
-		int pos = 0;
-		Iterator<Relation<Boolean>> iter = generators.iterator();
-		while (iter.hasNext()) {
-			Relation<BOOL> r = Relation.constant(alg, size, arity,
-					mask.getValue(pos++));
-			rel = rel.intersect(r.union(Relation.lift(alg, iter.next())));
-		}
-
-		assert 1 <= proj && proj <= arity;
-		if (proj < arity) {
-			int[] p = new int[proj];
-			for (int i = 0; i < proj; i++)
-				p[i] = i;
-			rel = rel.project(p);
-		}
-
-		return rel;
-	}
-
-	private Relation<Boolean> findOneRel(final Relation<Boolean> above,
-			final Relation<Boolean> notabove, final int proj) {
-		assert above.getSize() == size && above.getArity() == proj;
-		assert notabove.getSize() == size && notabove.getArity() == proj;
-
-		SatProblem problem = new SatProblem(new int[] { generators.size() }) {
+		SatProblem problem = new SatProblem(Util.createShape(size, arity2)) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
-				Relation<BOOL> mask = new Relation<BOOL>(alg, tensors.get(0));
-				Relation<BOOL> rel = getMeetProj(mask, proj);
+				Relation<BOOL> rel2 = new Relation<BOOL>(alg, tensors.get(0));
+				Relation<BOOL> rel1 = rel2.projectTail(arity1);
 
-				Relation<BOOL> rel2 = Relation.lift(alg, above);
-				BOOL b = rel2.isSubsetOf(rel);
-				b = alg.and(b, alg.not(rel.isSubsetOf(rel2)));
-
-				rel2 = Relation.lift(alg, notabove);
-				b = alg.and(b, alg.not(rel2.isSubsetOf(rel)));
+				BOOL b = alg.not(relations1.isClosed(rel1));
+				b = alg.and(b, relations2.isClosed(rel2));
+				if (above != null)
+					b = alg.and(b,
+							Relation.lift(alg, above).isProperSubsetOf(rel1));
 
 				return b;
 			}
 		};
 
+		totalSteps += 1;
 		List<Tensor<Boolean>> sol = problem.solveOne(solver);
 		if (sol == null)
 			return null;
 
-		return getMeetProj(Relation.wrap(sol.get(0)), proj);
+		Relation<Boolean> full = Relation.wrap(sol.get(0));
+		return full.projectTail(arity1);
 	}
 
-	private static <BOOL> Relation<BOOL> getMeetCover(
-			Iterable<Relation<Boolean>> irreds, Relation<BOOL> rel) {
-		int size = rel.getSize();
-		int arity = rel.getArity();
-
-		BoolAlgebra<BOOL> alg = rel.getAlg();
-		Relation<BOOL> rel2 = Relation.constant(alg, size, arity, alg.TRUE);
-
-		Iterator<Relation<Boolean>> iter = irreds.iterator();
-		while (iter.hasNext()) {
-			Relation<BOOL> r = Relation.lift(alg, iter.next());
-			assert r.getSize() == size && r.getArity() == arity;
-
-			BOOL b = alg.not(rel.isSubsetOf(r));
-			Relation<BOOL> m = Relation.constant(alg, size, arity, b);
-			rel2 = rel2.intersect(r.union(m));
-		}
-
-		return rel2;
-	}
-
-	public List<Relation<Boolean>> findMeetIrredRels(final int proj) {
-		assert 1 <= proj && proj <= arity;
-
-		final TreeSet<Relation<Boolean>> found = new TreeSet<Relation<Boolean>>(
-				Relation.COMPARATOR);
-
-		SatProblem problem = new SatProblem(new int[] { generators.size() }) {
-			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
-				Relation<BOOL> mask = new Relation<BOOL>(alg, tensors.get(0));
-				Relation<BOOL> rel1 = getMeetProj(mask, proj);
-				Relation<BOOL> rel2 = getMeetCover(found, rel1);
-
-				return alg.not(rel2.isSubsetOf(rel1));
-			}
-		};
-
-		List<Permutation<Boolean>> perms = Permutation.symmetricGroup(proj);
-
+	public void generate1() {
 		for (;;) {
-			List<Tensor<Boolean>> sol = problem.solveOne(solver);
-			if (sol == null)
+			Relation<Boolean> rel = findOne(null);
+			if (rel == null)
 				break;
 
-			Relation<Boolean> above = getMeetProj(Relation.wrap(sol.get(0)),
-					proj);
-			Relation<Boolean> notabove = getMeetCover(found, above);
-			assert above.isSubsetOf(notabove) && !notabove.isSubsetOf(above);
-
 			for (;;) {
-				Relation<Boolean> r = findOneRel(above, notabove, proj);
+				Relation<Boolean> r = findOne(rel);
 
 				if (r == null)
 					break;
 				else
-					above = r;
+					rel = r;
 			}
 
-			for (Permutation<Boolean> p : perms)
-				found.add(above.permute(p));
-		}
+			relations1.addPermutedGen(rel);
+			relations1.removeMeetReducibles();
 
-		return new ArrayList<Relation<Boolean>>(found);
+			if (trace)
+				System.out.println("found (" + relations1.getGeneratorCount()
+						+ "):\t" + Relation.format(rel));
+		}
 	}
 
-	public List<Relation<Boolean>> findCriticalRels(int proj) {
-		List<Relation<Boolean>> list = findMeetIrredRels(proj);
+	public void generate2() {
+		for (;;) {
+			Relation<Boolean> rel = findOne(null);
+			if (rel == null)
+				break;
 
-		ListIterator<Relation<Boolean>> iter = list.listIterator();
-		while (iter.hasNext()) {
-			Relation<Boolean> r = iter.next();
-			if (!r.hasEssentialCoords())
-				iter.remove();
-		}
+			for (;;) {
+				Relation<Boolean> r = findOne(rel);
 
-		return list;
-	}
-
-	public List<Relation<Boolean>> findUniCriticalRels(int proj) {
-		List<Relation<Boolean>> list = findCriticalRels(proj);
-		List<Permutation<Boolean>> perms = Permutation.nontrivialPerms(proj);
-
-		ListIterator<Relation<Boolean>> iter = list.listIterator();
-		outer: while (iter.hasNext()) {
-			Relation<Boolean> r = iter.next();
-			for (Permutation<Boolean> p : perms) {
-				if (r.permute(p).isLexLess(r)) {
-					iter.remove();
-					continue outer;
-				}
+				if (r == null)
+					break;
+				else
+					rel = r;
 			}
+
+			relations1.addPermutedGen(rel);
+			relations1.removeMeetReducibles();
+
+			if (trace)
+				System.out.println("found (" + relations1.getGeneratorCount()
+						+ "," + relations2.getGeneratorCount() + "):\t"
+						+ Relation.format(rel));
+
+			relations2.addPermutedGen(rel);
+			relations2.removeMeetReducibles();
+		}
+	}
+
+	public List<Relation<Boolean>> getMeetIrreds1() {
+		return relations1.getGenerators();
+	}
+
+	public List<Relation<Boolean>> getMeetIrreds2() {
+		return relations2.getGenerators();
+	}
+
+	public List<Relation<Boolean>> getUniCriticals1() {
+		List<Relation<Boolean>> irreds = getMeetIrreds1();
+		List<Relation<Boolean>> crits = new ArrayList<Relation<Boolean>>();
+
+		for (Relation<Boolean> rel : irreds) {
+			if (!rel.isPermuteMinimal())
+				continue;
+
+			crits.add(Relation.removeNonessentialCoords(rel));
 		}
 
-		return list;
+		return crits;
 	}
 
-	private static <ELEM> boolean haveSameElems(List<ELEM> list1,
-			List<ELEM> list2) {
-		if (list1.size() != list2.size())
-			return false;
+	public List<Relation<Boolean>> getUniCriticals2() {
+		List<Relation<Boolean>> irreds = getMeetIrreds2();
+		List<Relation<Boolean>> crits = new ArrayList<Relation<Boolean>>();
 
-		List<ELEM> list = new ArrayList<ELEM>(list1);
-		list.removeAll(list2);
+		for (Relation<Boolean> rel : irreds) {
+			if (!rel.isPermuteMinimal())
+				continue;
 
-		return list.isEmpty();
+			crits.add(Relation.removeNonessentialCoords(rel));
+		}
+
+		return crits;
 	}
 
-	public static List<Relation<Boolean>> genMeetIrredRels(
-			List<Relation<Boolean>> gens, int full, int proj) {
-		assert gens.size() >= 1 && full >= proj && proj >= 1;
+	public void printMeetIrreds1() {
+		Relation.print("meet irreducible rels of arity " + arity1,
+				getMeetIrreds1());
+	}
+
+	public void printMeetIrreds2() {
+		Relation.print("meet irreducible rels of arity " + arity2,
+				getMeetIrreds2());
+	}
+
+	public void printUniCriticals1() {
+		Relation.print("unique critical rels of arity " + arity1,
+				getUniCriticals1());
+	}
+
+	public void printUniCriticals2() {
+		Relation.print("unique critical rels of arity " + arity2,
+				getUniCriticals2());
+	}
+
+	public void printStats() {
+		System.out.println("total steps: " + totalSteps + ", meet irreds1: "
+				+ getMeetIrreds1().size() + ", meet irreds2: "
+				+ getMeetIrreds2().size());
+	}
+
+	private Relation<Boolean> findMask(final Relation<Boolean> rel,
+			final Relation<Boolean> below) {
+		assert rel.getSize() == size && rel.getArity() == arity1;
+		assert below == null
+				|| (below.getArity() == 1 && below.getSize() == relations2
+						.getGeneratorCount());
+
+		SatProblem problem = new SatProblem(
+				new int[] { relations2.getGeneratorCount() }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> mask = new Relation<BOOL>(alg, tensors.get(0));
+				BOOL b = relations2.isUpsetMask(mask);
+				if (below != null)
+					b = alg.and(b,
+							mask.isProperSubsetOf(Relation.lift(alg, below)));
+
+				Relation<BOOL> rel1 = relations2.getClosureFromMask(mask)
+						.projectHead(arity1);
+				b = alg.and(b, rel1.isEqualTo(Relation.lift(alg, rel)));
+
+				return b;
+			}
+		};
+
+		totalSteps += 1;
+		List<Tensor<Boolean>> sol = problem.solveOne(solver);
+		if (sol == null)
+			return null;
+
+		return Relation.wrap(sol.get(0));
+	}
+
+	public List<Relation<Boolean>> findRepresentation(Relation<Boolean> rel) {
+		assert rel.getSize() == size && rel.getArity() == arity1;
+
+		Relation<Boolean> mask = findMask(rel, null);
+		if (mask == null)
+			return null;
 
 		for (;;) {
-			GenCriticalRels gen = new GenCriticalRels(gens.get(0).getSize(),
-					full);
-			gen.addGeneratorRels(gens);
+			Relation<Boolean> m = findMask(rel, mask);
 
-			List<Relation<Boolean>> irreds = gen.findMeetIrredRels(proj);
-			if (haveSameElems(gens, irreds))
-				return irreds;
-
-			gens = irreds;
-		}
-	}
-
-	public static List<Relation<Boolean>> genCriticalRels(
-			List<Relation<Boolean>> gens, int full, int proj) {
-		List<Relation<Boolean>> list = genMeetIrredRels(gens, full, proj);
-
-		ListIterator<Relation<Boolean>> iter = list.listIterator();
-		while (iter.hasNext()) {
-			Relation<Boolean> r = iter.next();
-			if (!r.hasEssentialCoords())
-				iter.remove();
+			if (m == null)
+				break;
+			else
+				mask = m;
 		}
 
-		return list;
-	}
+		mask = PartialOrder.minimalElems(relations2.getComparability(), mask);
 
-	public static List<Relation<Boolean>> genUniCriticalRels(
-			List<Relation<Boolean>> gens, int full, int proj) {
-		List<Relation<Boolean>> list = genCriticalRels(gens, full, proj);
-		List<Permutation<Boolean>> perms = Permutation.nontrivialPerms(proj);
-
-		ListIterator<Relation<Boolean>> iter = list.listIterator();
-		outer: while (iter.hasNext()) {
-			Relation<Boolean> r = iter.next();
-			for (Permutation<Boolean> p : perms) {
-				if (r.permute(p).isLexLess(r)) {
-					iter.remove();
-					continue outer;
-				}
-			}
-		}
+		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
+		for (int i = 0; i < mask.getSize(); i++)
+			if (mask.getValue(i))
+				list.add(relations2.getGenerators().get(i));
 
 		return list;
 	}
@@ -312,73 +302,14 @@ public class GenCriticalRels {
 		for (int i = 0; i < coords.size(); i++)
 			c[i] = coords.get(i);
 
-		Relation<Boolean> p = gen.project(c).complement();
-
-		System.out.println(Relation.format(p) + " complement at "
-				+ Util.formatTuple(gen.getArity(), c));
+		Relation<Boolean> p = gen.project(c);
+		System.out.println("at " + Util.formatTuple(gen.getArity(), c) + ":\t"
+				+ Relation.format(p));
 	}
 
-	public List<Relation<Boolean>> findRepresentation(
-			final Relation<Boolean> rel) {
-		assert rel.getArity() <= arity;
+	public void printRepresentation(Relation<Boolean> rel) {
+		assert rel.getSize() == size && rel.getArity() == arity1;
 
-		SatProblem problem = new SatProblem(new int[] { generators.size() }) {
-			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
-				Relation<BOOL> mask = new Relation<BOOL>(alg, tensors.get(0));
-				Relation<BOOL> rel2 = getMeetProj(mask, rel.getArity());
-				return rel2.isEqualTo(Relation.lift(alg, rel));
-			}
-		};
-
-		List<Tensor<Boolean>> sol = problem.solveOne(solver);
-		if (sol == null)
-			return null;
-
-		Relation<Boolean> mask = Relation.wrap(sol.get(0));
-
-		for (;;) {
-			final Relation<Boolean> m0 = mask;
-			problem = new SatProblem(new int[] { generators.size() }) {
-				@Override
-				public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-						List<Tensor<BOOL>> tensors) {
-					Relation<BOOL> m1 = Relation.lift(alg, m0);
-					Relation<BOOL> mask2 = new Relation<BOOL>(alg,
-							tensors.get(0));
-					Relation<BOOL> rel2 = getMeetProj(mask2, rel.getArity());
-
-					BOOL b = rel2.isEqualTo(Relation.lift(alg, rel));
-
-					b = alg.and(b, m1.isSubsetOf(mask2));
-					b = alg.and(b, alg.not(mask2.isSubsetOf(m1)));
-
-					return b;
-				}
-			};
-
-			sol = problem.solveOne(solver);
-			if (sol == null)
-				break;
-
-			mask = Relation.wrap(sol.get(0));
-		}
-
-		List<Relation<Boolean>> rep = new ArrayList<Relation<Boolean>>();
-
-		int pos = 0;
-		Iterator<Relation<Boolean>> iter = generators.iterator();
-		while (iter.hasNext()) {
-			Relation<Boolean> r = iter.next();
-			if (!mask.getValue(pos++))
-				rep.add(r);
-		}
-
-		return rep;
-	}
-
-	public void printRepresentation(final Relation<Boolean> rel) {
 		List<Relation<Boolean>> reps = findRepresentation(rel);
 		if (reps == null)
 			System.out.println("not representable " + Relation.format(rel));
@@ -389,56 +320,5 @@ public class GenCriticalRels {
 				printGenerator(reps.get(i));
 		}
 		System.out.println();
-	}
-
-	public void printCompRepresentation(final Relation<Boolean> comp) {
-		List<Relation<Boolean>> reps = findRepresentation(comp.complement());
-		if (reps == null)
-			System.out.println("not representable " + Relation.format(comp)
-					+ " complement");
-		else {
-			System.out.println("representation of " + Relation.format(comp)
-					+ " complement:");
-			for (int i = 0; i < reps.size(); i++)
-				printGenerator(reps.get(i));
-		}
-		System.out.println();
-	}
-
-	public void printMeetIrredRels(int proj) {
-		Relation.print("meet irreducible rels of arity " + proj
-				+ " projected from " + arity, findMeetIrredRels(proj));
-	}
-
-	public void printCriticalRels(int proj) {
-		Relation.print("critical rels of arity " + proj + " projected from "
-				+ arity, findCriticalRels(proj));
-	}
-
-	public void printCriticalComps(int proj) {
-		List<Relation<Boolean>> list = findCriticalRels(proj);
-
-		ListIterator<Relation<Boolean>> iter = list.listIterator();
-		while (iter.hasNext())
-			iter.set(iter.next().complement());
-
-		Relation.print("critical complements of arity " + proj
-				+ " projected from " + arity, list);
-	}
-
-	public void printUniCriticalRels(int proj) {
-		Relation.print("unique critical rels of arity " + proj
-				+ " projected from " + arity, findUniCriticalRels(proj));
-	}
-
-	public void printUniCriticalComps(int proj) {
-		List<Relation<Boolean>> list = findUniCriticalRels(proj);
-
-		ListIterator<Relation<Boolean>> iter = list.listIterator();
-		while (iter.hasNext())
-			iter.set(iter.next().complement());
-
-		Relation.print("unique critical complements of arity " + proj
-				+ " projected from " + arity, list);
 	}
 }

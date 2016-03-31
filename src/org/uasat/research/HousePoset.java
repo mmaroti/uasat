@@ -101,20 +101,7 @@ public class HousePoset {
 	}
 
 	public List<Relation<Boolean>> findUnaryCriticals() {
-		List<Relation<Boolean>> rels = new ArrayList<Relation<Boolean>>();
-
-		rels.add(poset);
-		for (int i = 0; i < poset.getSize(); i++)
-			rels.add(Relation.singleton(poset.getSize(), i));
-
-		rels = GenCriticalRels.genUniCriticalRels(rels, 2, 1);
-		Relation.print("crit1", rels);
-
-		return rels;
-	}
-
-	public List<Relation<Boolean>> findUnaryCriticals2() {
-		GenCriticalRels2 gen = new GenCriticalRels2(poset.getSize(), 1, 2);
+		GenCriticalRels gen = new GenCriticalRels(poset.getSize(), 1, 2);
 
 		gen.addGenerator(poset);
 		gen.addSingletons();
@@ -125,19 +112,7 @@ public class HousePoset {
 	}
 
 	public List<Relation<Boolean>> findBinaryCriticals() {
-		List<Relation<Boolean>> rels = new ArrayList<Relation<Boolean>>();
-
-		rels.add(poset);
-		rels.addAll(crit1);
-
-		rels = GenCriticalRels.genUniCriticalRels(rels, 3, 2);
-		Relation.print("crit2 gen", rels);
-
-		return rels;
-	}
-
-	public List<Relation<Boolean>> findBinaryCriticals2() {
-		GenCriticalRels2 gen = new GenCriticalRels2(poset.getSize(), 2, 3);
+		GenCriticalRels gen = new GenCriticalRels(poset.getSize(), 2, 3);
 
 		gen.addGenerator(poset);
 		gen.addGenerators(crit1);
@@ -179,19 +154,7 @@ public class HousePoset {
 	}
 
 	public List<Relation<Boolean>> findTernaryCriticals() {
-		List<Relation<Boolean>> rels = new ArrayList<Relation<Boolean>>();
-
-		rels.addAll(crit1);
-		rels.addAll(crit2_rels);
-
-		rels = GenCriticalRels.genUniCriticalRels(rels, 4, 3);
-		Relation.print("crit3 gen", rels);
-
-		return rels;
-	}
-
-	public List<Relation<Boolean>> findTernaryCriticals2() {
-		GenCriticalRels2 gen = new GenCriticalRels2(poset.getSize(), 3, 4);
+		GenCriticalRels gen = new GenCriticalRels(poset.getSize(), 3, 4);
 		gen.trace = true;
 
 		gen.addGenerators(crit1);
@@ -256,17 +219,10 @@ public class HousePoset {
 		return rels;
 	}
 
-	public void explain(Relation<Boolean> rel, int full) {
-		GenCriticalRels gen = new GenCriticalRels(poset.getSize(), full);
-		gen.addGeneratorRel(poset);
-		gen.addGeneratorRels(crit1);
-		gen.printRepresentation(rel);
-	}
-
-	public void explain2(Relation<Boolean> rel, int arity) {
+	public void explain(Relation<Boolean> rel, int arity) {
 		assert rel.getArity() <= arity && 2 <= arity;
 
-		GenCriticalRels2 gen = new GenCriticalRels2(poset.getSize(),
+		GenCriticalRels gen = new GenCriticalRels(poset.getSize(),
 				rel.getArity(), arity);
 		gen.addGenerator(poset);
 		gen.addGenerators(crit1);
@@ -278,9 +234,9 @@ public class HousePoset {
 		long time = System.currentTimeMillis();
 
 		HousePoset h = new HousePoset();
-		// h.findBinaryCriticals2();
-		// h.findTernaryCriticals2();
-		h.explain2(h.crit2_rels.get(7), 7);
+		// h.findBinaryCriticals();
+		// h.findTernaryCriticals();
+		h.explain(h.crit2_rels.get(13), 3);
 		// h.findTernaryCriticals();
 		// h.findTernaryCritOp3();
 		// h.findBinaryCritOp2();

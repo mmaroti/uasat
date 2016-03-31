@@ -276,7 +276,7 @@ public class MonoidalInt {
 	public static void main6(String[] args) {
 		CloneInterval clone = new CloneInterval(3);
 		clone.trace = true;
-		clone.generate(2,2);
+		clone.generate(2, 2);
 		clone.print();
 		System.out.println(clone.getClosedOpSets(-1).size());
 	}
@@ -333,19 +333,12 @@ public class MonoidalInt {
 	public static void main3(String[] args) {
 		long time = System.currentTimeMillis();
 
-		GenCriticalRels gen = new GenCriticalRels(3, 3);
-		gen.addGeneratorRel(Relation.parse(3, 2, "00 11 22"));
-		gen.addGeneratorComp(Relation.parse(3, 2, "01 10"));
-		// gen.addCriticalComp(Relation.parse(3, 3, "100 010 101 011"));
-		// gen.addCriticalComp(Relation.parse(3, 2, "20 21"));
-		gen.addGeneratorComp(Relation.parse(3, 3, "200 210 201 211"));
-
-		// gen.printCriticalRels(3);
-		gen.printCriticalComps(2);
-
-		// gen.printCompRepresentation(Relation.parse(3, 3, "100 010 101 011"));
-		// gen.printCompRepresentation(Relation.parse(3, 4,
-		// "1000 0100 1010 0110 1001 0101 1011 0111"));
+		GenCriticalRels gen = new GenCriticalRels(3, 2, 3);
+		gen.addGenerator(Relation.parse(3, 2, "00 11 22"));
+		gen.addGenerator(Relation.parse(3, 2, "01 10").complement());
+		gen.addGenerator(Relation.parse(3, 3, "200 210 201 211").complement());
+		gen.generate2();
+		gen.printUniCriticals1();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
