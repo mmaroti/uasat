@@ -105,6 +105,25 @@ public class MeetClosedRels {
 			addGenerator(rel.permute(p));
 	}
 
+	public void addAllRelations() {
+		gens.clear();
+		covs.clear();
+
+		Relation<Boolean> full = Relation.full(size, arity);
+		Iterator<int[]> iter = Util.cubeIterator(size, arity);
+
+		while (iter.hasNext()) {
+			int[] pos = iter.next();
+			Relation<Boolean> rel = Relation.singleton(size, pos);
+			gens.add(rel);
+			covs.add(full);
+		}
+
+		poset = PartialOrder.antiChain(gens.size());
+		posetLinearized = null;
+		posetCovers = null;
+	}
+
 	public void removeMeetReducibles() {
 		boolean[] mask = new boolean[gens.size()];
 
@@ -212,10 +231,23 @@ public class MeetClosedRels {
 		return getClosureFromMask(getGeneratorMask(rel));
 	}
 
-	public <BOOL> BOOL isClosed(Relation<BOOL> rel) {
+	public <BOOL> BOOL isGenerated(Relation<BOOL> rel) {
 		assert rel.getSize() == size && rel.getArity() == arity;
 
 		return getClosure(rel).isEqualTo(rel);
+	}
+
+	public <BOOL> BOOL isCompatible(Operation<BOOL> op) {
+		assert op.getSize() == size;
+		BoolAlgebra<BOOL> alg = op.getAlg();
+
+		BOOL b = alg.TRUE;
+		for (Relation<Boolean> rel : gens) {
+			Relation<BOOL> r = Relation.lift(alg, rel);
+			b = alg.and(b, op.preserves(r));
+		}
+
+		return b;
 	}
 
 	public List<Relation<Boolean>> findAllGenerated(SatSolver<?> solver,
@@ -226,7 +258,7 @@ public class MeetClosedRels {
 					List<Tensor<BOOL>> tensors) {
 				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
 
-				return isClosed(rel);
+				return isGenerated(rel);
 			}
 		};
 
@@ -250,12 +282,16 @@ public class MeetClosedRels {
 		return cov;
 	}
 
-	public boolean isClosed2(Relation<Boolean> rel) {
+	public boolean isGenerated2(Relation<Boolean> rel) {
 		return !getClosure2(rel).isEqualTo(rel);
 	}
 
 	public List<Relation<Boolean>> getMeetIrreds() {
 		return gens;
+	}
+
+	public List<Relation<Boolean>> getIrredCovers() {
+		return covs;
 	}
 
 	public List<Relation<Boolean>> getUniCriticals() {
@@ -271,19 +307,11 @@ public class MeetClosedRels {
 		return crits;
 	}
 
-	public List<Relation<Boolean>> getIrredCovers() {
-		return covs;
-	}
-
 	public PartialOrder<Boolean> getComparability() {
 		return poset;
 	}
 
 	public int getGeneratorCount() {
 		return gens.size();
-	}
-
-	public <BOOL> BOOL isMemberOf(BoolAlgebra<BOOL> alg, Relation<BOOL> rel) {
-		return null;
 	}
 }

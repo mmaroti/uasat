@@ -59,7 +59,7 @@ public class TestClonePair {
 
 		ClonePair clone = new ClonePair(str.getSize(), solver);
 		clone.trace = false;
-		clone.addRels(str);
+		clone.addRelations(str);
 		clone.addSingletons();
 		// clone.print();
 

@@ -253,7 +253,7 @@ public final class PartialOrder<BOOL> {
 				smaller[i] = s;
 		}
 
-		assert head != 0;
+		assert poset.getSize() == 0 || head != 0;
 		while (tail < head) {
 			for (int i = 0; i < smaller.length; i++) {
 				if (order[tail] != i && poset.getValue(order[tail], i)) {

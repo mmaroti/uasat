@@ -26,8 +26,12 @@ public class CriticalRelsComp {
 	private final int size;
 	private final int arity;
 
+	private final List<Operation<Boolean>> operations;
 	private final MeetClosedRels relations;
 	private final SatSolver<?> solver;
+
+	public boolean trace = false;
+	public int totalSteps = 0;
 
 	public CriticalRelsComp(int size, int arity) {
 		this(size, arity, SatSolver.getDefault());
@@ -39,6 +43,7 @@ public class CriticalRelsComp {
 		this.size = size;
 		this.arity = arity;
 
+		this.operations = new ArrayList<Operation<Boolean>>();
 		this.relations = new MeetClosedRels(size, arity);
 		this.solver = solver;
 	}
@@ -57,6 +62,86 @@ public class CriticalRelsComp {
 
 	public List<Relation<Boolean>> getUniCriticals() {
 		return relations.getUniCriticals();
+	}
+
+	public void addRelation(Relation<Boolean> rel) {
+		assert rel.getSize() == size && rel.getArity() <= arity;
+		relations.addPermutedGen(rel);
+	}
+
+	public void addRelations(Iterable<Relation<Boolean>> rels) {
+		for (Relation<Boolean> rel : rels)
+			addRelation(rel);
+	}
+
+	public void addOperation(Operation<Boolean> op) {
+		assert op.getSize() == size;
+		operations.add(op);
+	}
+
+	public void addOperations(Iterable<Operation<Boolean>> ops) {
+		for (Operation<Boolean> op : ops)
+			addOperation(op);
+	}
+
+	private Relation<Boolean> findOne(final Relation<Boolean> above) {
+		assert above == null
+				|| (above.getSize() == size && above.getArity() == arity);
+
+		SatProblem problem = new SatProblem(Util.createShape(size, arity)) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
+
+				BOOL b = alg.not(relations.isGenerated(rel));
+				if (above != null) {
+					Relation<BOOL> ab = Relation.lift(alg, above);
+					b = alg.and(b, ab.isProperSubsetOf(rel));
+				}
+
+				for (Operation<Boolean> op : operations) {
+					Operation<BOOL> op2 = Operation.lift(alg, op);
+					b = alg.and(b, op2.preserves(rel));
+				}
+
+				return b;
+			}
+		};
+
+		totalSteps += 1;
+		List<Tensor<Boolean>> sol = problem.solveOne(solver);
+		if (sol == null)
+			return null;
+
+		return Relation.wrap(sol.get(0));
+	}
+
+	public void generate() {
+		for (;;) {
+			Relation<Boolean> rel = findOne(null);
+			if (rel == null)
+				break;
+
+			for (;;) {
+				Relation<Boolean> r = findOne(rel);
+
+				if (r == null)
+					break;
+				else
+					rel = r;
+			}
+
+			relations.addPermutedGen(rel);
+			relations.removeMeetReducibles();
+
+			if (trace)
+				System.out.println("found (" + relations.getGeneratorCount()
+						+ "):\t" + Relation.format(rel));
+		}
+		
+		if (trace)
+			System.out.println();
 	}
 
 	public Operation<Boolean> findOperation(int opArity,
@@ -90,5 +175,21 @@ public class CriticalRelsComp {
 			return null;
 
 		return Operation.wrap(sol.get(0));
+	}
+
+	public void printMeetIrreds() {
+		Relation.print("meet irreducible rels of arity " + arity,
+				getMeetIrreds());
+	}
+
+	public void printUniCriticals() {
+		Relation.print("unique critical rels of arity " + arity,
+				getUniCriticals());
+	}
+
+	public void printStats() {
+		System.out.println("total steps: " + totalSteps + ", meet irreds: "
+				+ getMeetIrreds().size() + ", uniqie criticals: "
+				+ getUniCriticals().size());
 	}
 }

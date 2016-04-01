@@ -71,7 +71,7 @@ public class ClonePair {
 		relations.clear();
 	}
 
-	public void add(final Operation<Boolean> op) {
+	public void addOperation(final Operation<Boolean> op) {
 		assert op.getSize() == size;
 		for (Relation<Boolean> rel : relations)
 			assert op.preserves(rel);
@@ -79,12 +79,12 @@ public class ClonePair {
 		operations.add(op);
 	}
 
-	public void addOps(Iterable<Operation<Boolean>> ops) {
+	public void addOperations(Iterable<Operation<Boolean>> ops) {
 		for (Operation<Boolean> op : ops)
-			add(op);
+			addOperation(op);
 	}
 
-	public void add(final Relation<Boolean> rel) {
+	public void addRelation(Relation<Boolean> rel) {
 		assert rel.getSize() == size;
 		for (Operation<Boolean> op : operations)
 			assert op.preserves(rel);
@@ -92,14 +92,14 @@ public class ClonePair {
 		relations.add(rel);
 	}
 
-	public void addRels(Iterable<Relation<Boolean>> rels) {
+	public void addRelations(Iterable<Relation<Boolean>> rels) {
 		for (Relation<Boolean> rel : rels)
-			add(rel);
+			addRelation(rel);
 	}
 
 	public void addSingletons() {
 		for (int i = 0; i < size; i++)
-			add(Relation.singleton(size, i));
+			addRelation(Relation.singleton(size, i));
 	}
 
 	public <BOOL> Relation<BOOL> preservedOps(final BoolAlgebra<BOOL> alg,
@@ -197,7 +197,7 @@ public class ClonePair {
 		if (pair == null)
 			return false;
 
-		add(pair.getOperation());
+		addOperation(pair.getOperation());
 		return true;
 	}
 

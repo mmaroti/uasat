@@ -37,8 +37,7 @@ public class CriticalRelsGen {
 		this(size, arity1, arity2, SatSolver.getDefault());
 	}
 
-	public CriticalRelsGen(int size, int arity1, int arity2,
-			SatSolver<?> solver) {
+	public CriticalRelsGen(int size, int arity1, int arity2, SatSolver<?> solver) {
 		assert 1 <= size && 1 <= arity1 && arity1 <= arity2 && solver != null;
 
 		this.size = size;
@@ -98,11 +97,12 @@ public class CriticalRelsGen {
 				Relation<BOOL> rel2 = new Relation<BOOL>(alg, tensors.get(0));
 				Relation<BOOL> rel1 = rel2.projectTail(arity1);
 
-				BOOL b = alg.not(relations1.isClosed(rel1));
-				b = alg.and(b, relations2.isClosed(rel2));
-				if (above != null)
-					b = alg.and(b,
-							Relation.lift(alg, above).isProperSubsetOf(rel1));
+				BOOL b = alg.not(relations1.isGenerated(rel1));
+				b = alg.and(b, relations2.isGenerated(rel2));
+				if (above != null) {
+					Relation<BOOL> ab = Relation.lift(alg, above);
+					b = alg.and(b, ab.isProperSubsetOf(rel1));
+				}
 
 				return b;
 			}
@@ -139,6 +139,9 @@ public class CriticalRelsGen {
 				System.out.println("found (" + relations1.getGeneratorCount()
 						+ "):\t" + Relation.format(rel));
 		}
+
+		if (trace)
+			System.out.println();
 	}
 
 	public void generate2() {
@@ -167,6 +170,9 @@ public class CriticalRelsGen {
 			relations2.addPermutedGen(rel);
 			relations2.removeMeetReducibles();
 		}
+
+		if (trace)
+			System.out.println();
 	}
 
 	public List<Relation<Boolean>> getMeetIrreds1() {
