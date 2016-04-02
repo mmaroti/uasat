@@ -308,10 +308,23 @@ public class HousePoset {
 		gen.addRelations(crit3_gen4);
 		gen.trace = true;
 
-		gen.generate(3);
+		gen.generate(2);
 		gen.printUniCriticals();
 
 		return gen.getUniCriticals();
+	}
+
+	public List<Relation<Boolean>> findQuaternaryCriticals() {
+		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(), 4, 5);
+		gen.trace = true;
+
+		gen.addGenerators(crit1);
+		gen.addGenerators(crit2_gen3);
+		gen.addGenerators(crit3_gen4);
+		gen.generate2();
+		gen.printUniCriticals1();
+
+		return gen.getUniCriticals1();
 	}
 
 	public void explain(Relation<Boolean> rel, int arity) {
@@ -333,8 +346,9 @@ public class HousePoset {
 		// h.findBinaryCritOp2();
 		// h.findTernaryCriticals();
 		// h.findTernaryCritOp3();
-		h.findTernaryCritOpX();
+		// h.findTernaryCritOpX();
 		// h.explain(h.crit2_gen3.get(13), 3);
+		h.findQuaternaryCriticals();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
