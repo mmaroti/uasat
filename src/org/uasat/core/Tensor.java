@@ -97,6 +97,10 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		elems[pos] = elem;
 	}
 
+	public ELEM[] getElems() {
+		return elems;
+	}
+
 	public ELEM get() {
 		assert elems.length == 1;
 		return elems[0];

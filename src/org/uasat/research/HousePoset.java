@@ -229,6 +229,18 @@ public class HousePoset {
 		return rels;
 	}
 
+	public List<Relation<Boolean>> findBinaryCritOpX() {
+		CriticalRelsGen2 gen = new CriticalRelsGen2(poset.getSize(), 2);
+		gen.addRelations(crit1);
+		gen.addRelations(crit2_gen3);
+		gen.trace = true;
+
+		gen.generate(2);
+		gen.printUniCriticals();
+
+		return gen.getUniCriticals();
+	}
+
 	public List<Relation<Boolean>> findTernaryCriticals() {
 		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(), 3, 4);
 		gen.trace = true;
@@ -289,18 +301,17 @@ public class HousePoset {
 		return rels;
 	}
 
-	public List<Relation<Boolean>> findTernaryCritOp4() {
-		ClonePair clone = new ClonePair(poset.getSize());
-		clone.addRelation(poset);
-		clone.addSingletons();
-		clone.addCriticalOps(4, 3);
-		clone.print();
+	public List<Relation<Boolean>> findTernaryCritOpX() {
+		CriticalRelsGen2 gen = new CriticalRelsGen2(poset.getSize(), 3);
+		gen.addRelations(crit1);
+		gen.addRelations(crit2_gen3);
+		gen.addRelations(crit3_gen4);
+		gen.trace = true;
 
-		CompatibleRels comp = new CompatibleRels(clone.getAlgebra());
-		List<Relation<Boolean>> rels = comp.findUniCriticalRels(2);
-		Relation.print("crit3 op4", rels);
+		gen.generate(3);
+		gen.printUniCriticals();
 
-		return rels;
+		return gen.getUniCriticals();
 	}
 
 	public void explain(Relation<Boolean> rel, int arity) {
@@ -321,7 +332,8 @@ public class HousePoset {
 		// h.findBinaryCriticals();
 		// h.findBinaryCritOp2();
 		// h.findTernaryCriticals();
-		h.findTernaryCritOp3();
+		// h.findTernaryCritOp3();
+		h.findTernaryCritOpX();
 		// h.explain(h.crit2_gen3.get(13), 3);
 
 		time = System.currentTimeMillis() - time;
