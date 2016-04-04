@@ -320,8 +320,10 @@ public class HousePoset {
 
 		gen.addGenerators(crit1);
 		gen.addGenerators(crit2_gen3);
+		System.out.println("done adding 2-criticals");
 		gen.addGenerators(crit3_gen4);
-		gen.generate2();
+		System.out.println("done adding 3-criticals");
+		gen.generate1();
 		gen.printUniCriticals1();
 
 		return gen.getUniCriticals1();
