@@ -340,17 +340,53 @@ public class HousePoset {
 		gen.printStats();
 	}
 
+	public List<Relation<Boolean>> findNIUnaryCriticals() {
+		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(), 1, 2);
+
+		gen.addGenerator(poset);
+		gen.addGenerator(Relation.empty(poset.getSize(), 1));
+		gen.generate2();
+		gen.printUniCriticals1();
+
+		return gen.getUniCriticals1();
+	}
+
+	public List<Relation<Boolean>> findNIBinaryCriticals() {
+		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(), 2, 3);
+
+		gen.addGenerator(poset);
+		gen.addGenerator(Relation.empty(poset.getSize(), 2));
+		gen.generate2();
+		gen.printUniCriticals1();
+
+		return gen.getUniCriticals1();
+	}
+
+	
+	public List<Relation<Boolean>> findNITernaryCriticals() {
+		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(), 3, 6);
+
+		gen.addGenerator(poset);
+		gen.addGenerator(Relation.empty(poset.getSize(), 3));
+		gen.generate2();
+		gen.printUniCriticals1();
+
+		return gen.getUniCriticals1();
+	}
+
+	
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
 		HousePoset h = new HousePoset();
+		h.findNITernaryCriticals();
 		// h.findBinaryCriticals();
 		// h.findBinaryCritOp2();
 		// h.findTernaryCriticals();
 		// h.findTernaryCritOp3();
 		// h.findTernaryCritOpX();
 		// h.explain(h.crit2_gen3.get(13), 3);
-		h.findQuaternaryCriticals();
+		// h.findQuaternaryCriticals();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
