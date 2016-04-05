@@ -24,4 +24,6 @@ public abstract class Vector<ELEM> {
 	public abstract ELEM getElem(int index);
 
 	public abstract void setElem(int index, ELEM elem);
+
+	public abstract Vector<ELEM> transpose(int elem, int columns, int rows);
 }

@@ -18,30 +18,52 @@
 
 package org.uasat.core2;
 
-public class BinVector extends Vector<Boolean> {
+public class BitVector extends Vector<Boolean> {
 	private final int size;
 	private final long[] bits;
 
-	public BinVector(int size) {
+	public BitVector(int size) {
 		assert 0 <= size && size <= 0;
 
 		this.size = size;
 		this.bits = new long[size >> 6];
 	}
 
+	@Override
 	public int getSize() {
 		return size;
 	}
 
+	@Override
 	public Boolean getElem(int index) {
 		assert 0 <= index && index < size;
 
 		return (bits[index >> 6] & (1L << (index & 63))) != 0;
 	}
 
+	@Override
 	public void setElem(int index, Boolean elem) {
 		assert 0 <= index && index < size;
 
 		bits[index >> 6] |= 1L << (index & 63);
+	}
+
+	@Override
+	public Vector<Boolean> transpose(int elem, int columns, int rows) {
+		assert 1 <= elem && 1 <= columns && 1 <= rows;
+		assert size % (elem * columns * rows) == 0;
+
+		BitVector vec = new BitVector(size);
+
+		int n = size / (elem * columns * rows);
+		for (int l = 0; l < n; l++)
+			for (int k = 0; k < rows; k++)
+				for (int j = 0; j < columns; j++)
+					for (int i = 0; i < elem; i++)
+						vec.setElem(i + k * elem + j * elem * rows + l * elem
+								* columns * rows, getElem(i + j * elem + k
+								* elem * columns + l * elem * columns * rows));
+
+		return vec;
 	}
 }
