@@ -849,6 +849,13 @@ public final class Relation<BOOL> {
 		}
 	};
 
+	public static List<Relation<Boolean>> sort(List<Relation<Boolean>> list) {
+		ArrayList<Relation<Boolean>> list2 = new ArrayList<Relation<Boolean>>(
+				list);
+		Collections.sort(list2, COMPARATOR);
+		return list2;
+	}
+
 	public static void print(Relation<Boolean> rel) {
 		System.out.println("relation of size " + rel.getSize() + " arity "
 				+ rel.getArity() + " cardinality " + Relation.cardinality(rel));
