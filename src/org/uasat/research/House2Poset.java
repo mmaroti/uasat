@@ -186,6 +186,18 @@ public class House2Poset {
 				rel.getArity(), arity);
 		gen.addGenerator(poset);
 		gen.addGenerators(icrit1);
+
+		if (true) {
+			gen.addGenerator(icrit2.get(3));
+			gen.addGenerator(icrit2.get(4));
+			gen.addGenerator(icrit2.get(5));
+			gen.addGenerator(icrit2.get(6));
+			gen.addGenerator(icrit2.get(19));
+			gen.addGenerator(icrit2.get(20));
+			gen.addGenerator(icrit2.get(21));
+			gen.addGenerator(icrit2.get(22));
+		}
+
 		return gen.printRepresentation(rel);
 	}
 
@@ -193,7 +205,7 @@ public class House2Poset {
 		for (int i = 0; i < icrit2.size(); i++) {
 			Relation<Boolean> rel = icrit2.get(i);
 			System.out.println(i);
-			for (int j = 3; j <= 6; j++)
+			for (int j = 2; j <= 6; j++)
 				if (iExplain(rel, j))
 					break;
 		}
