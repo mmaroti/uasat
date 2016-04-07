@@ -293,7 +293,7 @@ public class CriticalRelsGen {
 				+ Relation.format(p));
 	}
 
-	public void printRepresentation(Relation<Boolean> rel) {
+	public boolean printRepresentation(Relation<Boolean> rel) {
 		assert rel.getSize() == size && rel.getArity() == arity1;
 
 		List<Relation<Boolean>> reps = findRepresentation(rel);
@@ -306,5 +306,7 @@ public class CriticalRelsGen {
 				printGenerator(reps.get(i));
 		}
 		System.out.println();
+
+		return reps != null;
 	}
 }

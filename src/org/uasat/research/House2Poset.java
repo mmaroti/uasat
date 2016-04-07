@@ -179,24 +179,33 @@ public class House2Poset {
 		assert list.equals(gen.getUniCriticals1());
 	}
 
-	public void iExplain(Relation<Boolean> rel, int arity) {
+	public boolean iExplain(Relation<Boolean> rel, int arity) {
 		assert rel.getArity() <= arity && 2 <= arity;
 
 		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(),
 				rel.getArity(), arity);
 		gen.addGenerator(poset);
 		gen.addGenerators(icrit1);
-		gen.printRepresentation(rel);
+		return gen.printRepresentation(rel);
 	}
 
-	public void uExplain(Relation<Boolean> rel, int arity) {
+	public void iExplainRel2() {
+		for (int i = 0; i < icrit2.size(); i++) {
+			Relation<Boolean> rel = icrit2.get(i);
+			System.out.println(i);
+			for (int j = 3; j <= 6; j++)
+				if (iExplain(rel, j))
+					break;
+		}
+	}
+
+	public boolean uExplain(Relation<Boolean> rel, int arity) {
 		assert rel.getArity() <= arity && 2 <= arity;
 
 		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(),
 				rel.getArity(), arity);
 		gen.addGenerator(poset);
-		gen.printRepresentation(rel);
-		gen.printStats();
+		return gen.printRepresentation(rel);
 	}
 
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
@@ -208,7 +217,7 @@ public class House2Poset {
 		// p.iFindUnaryCriticals();
 		// p.uFindUnaryCriticals();
 		// p.iFindBinaryCriticals();
-		p.iExplain(p.icrit2.get(0), 6);
+		p.iExplainRel2();
 		// p.uFindBinaryCriticals();
 
 		time = System.currentTimeMillis() - time;
