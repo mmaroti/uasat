@@ -202,8 +202,21 @@ public class CriticalRelsGen {
 	}
 
 	public void printUniCriticals1() {
-		Relation.print("unique critical rels of arity " + arity1,
-				getUniCriticals1());
+		List<Relation<Boolean>> rels = relations1.getUniCriticals();
+		Collections.sort(rels, Relation.COMPARATOR);
+
+		Relation.print("unique critical rels of arity " + arity1, rels);
+
+		System.out.println("corresponding critical tuples:");
+		for (int i = 0; i < rels.size(); i++) {
+			Relation<Boolean> rel = rels.get(i);
+			if (rel.getArity() == arity1) {
+				Relation<Boolean> cov = relations1.getIrredCover(rel);
+				System.out.println(i + ":\t"
+						+ Relation.format(cov.subtract(rel)));
+			}
+		}
+		System.out.println();
 	}
 
 	public void printUniCriticals2() {

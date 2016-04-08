@@ -286,6 +286,16 @@ public class MeetClosedRels {
 		return !getClosure2(rel).isEqualTo(rel);
 	}
 
+	public Relation<Boolean> getIrredCover(Relation<Boolean> rel) {
+		assert rel.getSize() == size && rel.getArity() == arity;
+
+		for (int i = 0; i < gens.size(); i++)
+			if (rel.equals(gens.get(i)))
+				return covs.get(i);
+
+		return null;
+	}
+
 	public List<Relation<Boolean>> getMeetIrreds() {
 		return gens;
 	}
@@ -295,16 +305,16 @@ public class MeetClosedRels {
 	}
 
 	public List<Relation<Boolean>> getUniCriticals() {
-		List<Relation<Boolean>> crits = new ArrayList<Relation<Boolean>>();
+		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
 
 		for (Relation<Boolean> rel : gens) {
 			if (!rel.isPermuteMinimal())
 				continue;
 
-			crits.add(Relation.removeNonessentialCoords(rel));
+			list.add(Relation.removeNonessentialCoords(rel));
 		}
 
-		return crits;
+		return list;
 	}
 
 	public PartialOrder<Boolean> getComparability() {
