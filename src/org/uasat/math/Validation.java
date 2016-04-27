@@ -83,7 +83,7 @@ public class Validation {
 		};
 
 		int count = problem.solveAll(solver).get(0).getLastDim();
-		verify("A114714 the number of linear extensions of 2x2x4", count, 2452);
+		verify("A114714 the number of linear extensions of 2x2x3", count, 2452);
 	}
 
 	void checkAlternations() {
