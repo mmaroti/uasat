@@ -23,53 +23,39 @@ import java.util.*;
 
 import org.uasat.math.*;
 
-public class Crown4Poset {
+public class Crown6Poset {
 	public final Relation<Boolean> poset;
-	public final List<Relation<Boolean>> icrit1;
 	public final List<Relation<Boolean>> ucrit1;
-	public final List<Relation<Boolean>> icrit2;
 	public final List<Relation<Boolean>> ucrit2;
-	public final List<Relation<Boolean>> icrit3;
 	public final List<Relation<Boolean>> ucrit3;
 	public final List<Relation<Boolean>> ucrit4;
 	public final List<Relation<Boolean>> ucrit5;
 	public final List<Relation<Boolean>> ucrit6;
 
-	public Crown4Poset() {
-		poset = PartialOrder.crown(4).asRelation();
+	public Crown6Poset() {
+		poset = PartialOrder.crown(6).asRelation();
 
-		icrit1 = parseRels(1, "0 1 2", "0 1 3", "0 2 3", "1 2 3");
 		ucrit1 = parseRels(1, "");
-
-		icrit2 = parseRelComps(2, "33", "32", "22", "31", "21", "11", "30",
-				"20", "10", "00");
 
 		ucrit2 = concat(
 				ucrit1,
-				parseRels(2, "00 11 02 12 22 03 13 33",
-						"00 10 20 30 01 11 21 31 02 12 22 03 13 33",
-						"00 20 30 11 21 31 02 12 22 32 03 13 23 33"));
+				parseRels(
+						2,
+						"00 11 22 03 23 33 04 14 44 15 25 55",
+						"00 10 20 30 40 01 11 21 41 51 02 12 22 32 52 03 23 33 04 14 44 15 25 55",
+						"00 30 40 11 41 51 22 32 52 03 23 33 43 53 04 14 34 44 54 15 25 35 45 55",
+						"00 10 20 30 40 01 11 21 41 51 02 12 22 32 52 03 13 23 33 43 53 04 14 24 34 44 54 05 15 25 35 45 55"));
 
-		ucrit3 = ucrit2;
-
-		icrit3 = parseRelComps(3, "333", "332", "322", "222", "331", "321",
-				"221", "311", "211", "111", "330", "320", "220", "310", "210",
-				"110", "300", "200", "100", "000");
-
-		ucrit4 = concat(ucrit2, parseRelComps(4, "3210 2310 3201 2301"));
-
-		ucrit5 = concat(
+		ucrit3 = concat(
 				ucrit2,
-				parseRelComps(5, "32210 23310 32201 23301",
-						"32100 23100 32011 23011"));
+				parseRelComps(3, "543 453 534 354 435 345",
+						"210 120 201 021 102 012"));
 
-		ucrit6 = concat(
-				ucrit2,
-				parseRelComps(6, "332210 223310 332201 223301",
-						"322210 233310 322201 233301",
-						"322100 233100 322011 233011",
-						"321100 231100 320011 230011",
-						"321000 231000 320111 230111"));
+		ucrit4 = concat(ucrit2, parseRelComps(4));
+
+		ucrit5 = concat(ucrit2, parseRelComps(5));
+
+		ucrit6 = concat(ucrit2, parseRelComps(5));
 	}
 
 	public List<Relation<Boolean>> parseRels(int arity, String... rels) {
@@ -102,23 +88,6 @@ public class Crown4Poset {
 		return list;
 	}
 
-	public void iFindUnaryCriticals() {
-		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(), 1, 2);
-
-		gen.addGenerator(poset);
-		gen.addSingletons();
-		gen.generate2();
-		gen.printUniCriticals1();
-
-		List<Relation<Boolean>> list = gen.getUniCriticals1();
-		assert Relation.sort(list).equals(icrit1);
-
-		gen = new CriticalRelsGen(poset.getSize(), 1, 3);
-		gen.addGenerators(list);
-		gen.generate1();
-		assert list.equals(gen.getUniCriticals1());
-	}
-
 	public void uFindUnaryCriticals() {
 		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(), 1, 2);
 
@@ -136,23 +105,6 @@ public class Crown4Poset {
 		assert list.equals(gen.getUniCriticals1());
 	}
 
-	public void iFindBinaryCriticals() {
-		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(), 2, 3);
-
-		gen.addGenerator(poset);
-		gen.addGenerators(icrit1);
-		gen.generate2();
-		gen.printUniCriticals1();
-
-		List<Relation<Boolean>> list = gen.getUniCriticals1();
-		assert Relation.sort(list).equals(icrit2);
-
-		gen = new CriticalRelsGen(poset.getSize(), 2, 4);
-		gen.addGenerators(list);
-		gen.generate1();
-		assert list.equals(gen.getUniCriticals1());
-	}
-
 	public void uFindBinaryCriticals() {
 		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(), 2, 3);
 
@@ -165,22 +117,6 @@ public class Crown4Poset {
 		assert Relation.sort(list).equals(ucrit2);
 
 		gen = new CriticalRelsGen(poset.getSize(), 2, 4);
-		gen.addGenerators(list);
-		gen.generate1();
-		assert list.equals(gen.getUniCriticals1());
-	}
-
-	public void iFindTernaryCriticals() {
-		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(), 3, 4);
-
-		gen.addGenerators(icrit2);
-		gen.generate2();
-		gen.printUniCriticals1();
-
-		List<Relation<Boolean>> list = gen.getUniCriticals1();
-		assert Relation.sort(list).equals(icrit3);
-
-		gen = new CriticalRelsGen(poset.getSize(), 3, 5);
 		gen.addGenerators(list);
 		gen.generate1();
 		assert list.equals(gen.getUniCriticals1());
@@ -252,24 +188,21 @@ public class Crown4Poset {
 		// assert list.equals(gen.getUniCriticals1());
 	}
 
-	public boolean iExplain(Relation<Boolean> rel, int arity) {
+	public boolean uExplain1(Relation<Boolean> rel, int arity) {
 		assert rel.getArity() <= arity && 2 <= arity;
 
 		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(),
 				rel.getArity(), arity);
 		gen.addGenerator(poset);
-		gen.addGenerators(icrit1);
-
 		return gen.printRepresentation(rel);
 	}
 
-	public boolean uExplain(Relation<Boolean> rel, int arity) {
+	public boolean uExplain2(Relation<Boolean> rel, int arity) {
 		assert rel.getArity() <= arity && 2 <= arity;
 
 		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(),
 				rel.getArity(), arity);
 		gen.addGenerators(ucrit2);
-		// gen.addGenerator(poset);
 		return gen.printRepresentation(rel);
 	}
 
@@ -278,24 +211,17 @@ public class Crown4Poset {
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
-		Crown4Poset p = new Crown4Poset();
-		// p.iFindUnaryCriticals();
+		Crown6Poset p = new Crown6Poset();
+		// System.out.println(Relation.format(p.poset));
 		// p.uFindUnaryCriticals();
-		// p.iFindBinaryCriticals();
-		// p.iExplain(p.icrit2.get(9), 7);
-		// p.iExplain(p.icrit2.get(8), 7);
-		// p.iExplain(p.icrit2.get(7), 5);
 		// p.uFindBinaryCriticals();
-		// p.iFindTernaryCriticals();
+		// p.uExplain1(p.ucrit2.get(4), 4);
 		// p.uFindTernaryCriticals();
-		// p.uFindQuaternaryCriticals();
+		p.uFindQuaternaryCriticals();
 		// p.uExplain(p.ucrit4.get(4), 5);
 		// p.uFindPentaryCriticals();
-		p.uExplain(p.ucrit5.get(5), 7);
+		// p.uExplain(p.ucrit5.get(4), 7);
 		// p.uFindSixaryCriticals();
-		// TODO: speed up the addition of smallary rels
-		// p.uExplain(p.ucrit6.get(5), 9);
-		// p.uExplain(p.ucrit6.get(6), 9);
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
