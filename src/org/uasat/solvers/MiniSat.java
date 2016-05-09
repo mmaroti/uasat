@@ -19,6 +19,7 @@
 package org.uasat.solvers;
 
 import java.io.*;
+import java.text.*;
 import java.util.*;
 
 import org.uasat.core.*;
@@ -28,16 +29,12 @@ public class MiniSat extends SatSolver<Integer> {
 	protected List<int[]> clauses = new ArrayList<int[]>();
 
 	public String options;
-
-	public MiniSat(String options) {
-		super(-1, 1);
-		this.options = options;
-		clear();
-	}
+	public String logfile;
 
 	public MiniSat() {
 		super(-1, 1);
 		this.options = null;
+		this.logfile = null;
 		clear();
 	}
 
@@ -85,8 +82,12 @@ public class MiniSat extends SatSolver<Integer> {
 	// variable indices in clauses and solution start at 1
 	protected boolean[] solution;
 
+	protected static final DateFormat DATEFORMAT = new SimpleDateFormat(
+			"HH-mm-ss-SSS");
+
 	@Override
 	public boolean solve() {
+		totalSolves += 1;
 		solution = null;
 
 		File input = null;
@@ -96,8 +97,14 @@ public class MiniSat extends SatSolver<Integer> {
 		File output = null;
 
 		try {
-			input = File.createTempFile("minisat_input_", ".tmp");
-			output = File.createTempFile("minisat_output_", ".tmp");
+			if (logfile == null) {
+				input = File.createTempFile("minisat_input_", ".tmp");
+				output = File.createTempFile("minisat_output_", ".tmp");
+			} else {
+				String base = logfile + "-" + DATEFORMAT.format(new Date());
+				input = new File(base + ".cnf");
+				output = new File(base + ".out");
+			}
 
 			stream = new PrintStream(input);
 			dimacs(stream);
@@ -164,7 +171,7 @@ public class MiniSat extends SatSolver<Integer> {
 			if (stream != null)
 				stream.close();
 
-			if (input != null)
+			if (input != null && logfile == null)
 				input.delete();
 
 			if (reader != null)
@@ -173,7 +180,7 @@ public class MiniSat extends SatSolver<Integer> {
 				} catch (IOException e) {
 				}
 
-			if (output != null)
+			if (output != null && logfile == null)
 				output.delete();
 		}
 	}

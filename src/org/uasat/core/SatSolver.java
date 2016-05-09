@@ -23,10 +23,22 @@ import java.util.*;
 import org.uasat.solvers.*;
 
 public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
+	private static String defaultSolver = "jni-minisat";
+
+	public static void setDefault(String solver) {
+		defaultSolver = solver;
+	}
+
 	public static SatSolver<?> getDefault() {
-		try {
-			return new JniSat("minisat");
-		} catch (LinkageError e) {
+		if (defaultSolver.equals("jni-minisat")) {
+			try {
+				return new JniSat("minisat");
+			} catch (LinkageError e) {
+			}
+		} else if (defaultSolver.equals("logging")) {
+			MiniSat solver = new MiniSat();
+			solver.logfile = "logging";
+			return solver;
 		}
 
 		return new Sat4J();
@@ -35,6 +47,7 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 	public boolean debugging = false;
 	public int totalLiterals = 0;
 	public int totalClauses = 0;
+	public int totalSolves = 0;
 
 	public SatSolver(BOOL FALSE, BOOL TRUE) {
 		super(FALSE, TRUE);

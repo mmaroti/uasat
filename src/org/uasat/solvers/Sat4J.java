@@ -50,6 +50,8 @@ public class Sat4J extends SatSolver<Integer> {
 
 	@Override
 	public boolean solve() {
+		totalSolves += 1;
+
 		if (solution == null)
 			return false;
 

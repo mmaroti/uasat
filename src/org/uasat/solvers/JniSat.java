@@ -62,6 +62,7 @@ public class JniSat extends SatSolver<Integer> {
 
 	@Override
 	public boolean solve() {
+		totalSolves += 1;
 		return solver.solve();
 	}
 

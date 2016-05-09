@@ -21,6 +21,7 @@ package org.uasat.research;
 import java.text.*;
 import java.util.*;
 
+import org.uasat.core.*;
 import org.uasat.math.*;
 
 public class PosetCriticals {
@@ -312,15 +313,15 @@ public class PosetCriticals {
 		p.crit4 = HOUSE5_CRIT4;
 		p.crit5 = HOUSE5_CRIT5;
 
-		// p.findUnaryCriticals();
-		// p.findBinaryCriticals();
-		// p.findTernaryCriticals();
-		// p.findQuaternaryCriticals(false);
-		// p.explain1(p.crit4.get(3), 8);
-		// p.explain2(p.crit4.get(3), 5);
-		// p.findPentaryCriticals(false);
-		// p.explain2(p.crit5.get(4), 7);
-		// p.explain2(p.crit5.get(5), 8);
+		p.findUnaryCriticals();
+		p.findBinaryCriticals();
+		p.findTernaryCriticals();
+		p.findQuaternaryCriticals(false);
+		p.explain1(p.crit4.get(3), 8);
+		p.explain2(p.crit4.get(3), 5);
+		p.findPentaryCriticals(false);
+		p.explain2(p.crit5.get(4), 7);
+		p.explain2(p.crit5.get(5), 8);
 		// p.findSixaryCriticals(false);
 	}
 
@@ -354,10 +355,11 @@ public class PosetCriticals {
 
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
+		SatSolver.setDefault("logging");
 
-		crown4();
+		// crown4();
 		// crown6();
-		// house5();
+		house5();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

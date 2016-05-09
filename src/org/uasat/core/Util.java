@@ -198,6 +198,15 @@ public final class Util {
 		}
 	}
 
+	/**
+	 * Given a shape (an array of dimensions) of tensors it returns an iterator
+	 * for the set of element indexes.
+	 *
+	 * @param shape
+	 *            the shape of a tensor
+	 * @return an iterator for the set of indices in increasing order (first
+	 *         index increases the fastest)
+	 */
 	public static Iterator<int[]> cubeIterator(int[] shape) {
 		assert shape != null;
 
@@ -261,6 +270,17 @@ public final class Util {
 		}
 	}
 
+	/**
+	 * Given a regular shape (with size and arity) it returns an iterator for
+	 * the set of indexes starting in increasing order (first index increases
+	 * the fastest).
+	 *
+	 * @param size
+	 *            the shared size of all arities
+	 * @param arity
+	 *            the number of dimension (order)
+	 * @return an iterator for the set of indices in increasing order
+	 */
 	public static Iterator<int[]> cubeIterator(int size, int arity) {
 		assert size >= 0 && arity >= 0;
 
@@ -344,6 +364,17 @@ public final class Util {
 		}
 	}
 
+	/**
+	 * Given a regular shape (with size and arity) it returns an iterator for
+	 * the set of indexes starting in order where the maximum component grows
+	 * (onion layers)
+	 *
+	 * @param size
+	 *            the shared size of all arities
+	 * @param arity
+	 *            the number of dimension (order)
+	 * @return an iterator for the set of indices
+	 */
 	public static Iterator<int[]> hullIterator(int radius, int arity) {
 		assert 0 <= radius && 0 < arity;
 		return new HullIterator(radius, arity);
