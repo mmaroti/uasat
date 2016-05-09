@@ -106,7 +106,9 @@ public class MiniSat extends SatSolver<Integer> {
 				output = new File(base + ".out");
 			}
 
-			stream = new PrintStream(input);
+			stream = new PrintStream(new BufferedOutputStream(
+					new FileOutputStream(input, false), 4096));
+
 			dimacs(stream);
 			stream.close();
 			stream = null;

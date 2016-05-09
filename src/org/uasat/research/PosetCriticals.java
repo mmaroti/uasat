@@ -313,10 +313,10 @@ public class PosetCriticals {
 		p.crit4 = HOUSE5_CRIT4;
 		p.crit5 = HOUSE5_CRIT5;
 
-		p.findUnaryCriticals();
-		p.findBinaryCriticals();
-		p.findTernaryCriticals();
-		p.findQuaternaryCriticals(false);
+		// p.findUnaryCriticals();
+		// p.findBinaryCriticals();
+		// p.findTernaryCriticals();
+		p.findQuaternaryCriticals(true);
 		p.explain1(p.crit4.get(3), 8);
 		p.explain2(p.crit4.get(3), 5);
 		p.findPentaryCriticals(false);
