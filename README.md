@@ -22,8 +22,8 @@ A006117 the number of subspaces of Z_3^4 is 212.
 A023815 the number of commutative semigroups on 4 is 1140.
 A084279 the number of 3-colorable 5-element simple graphs is 958.
 A114714 the number of linear extensions of 2x2x3 is 2452.
-Total literals: 27699, clauses: 224874.
-Finished in 7.00 seconds.
+Total literals: 19791, clauses: 83123.
+Finished in 1.98 seconds.
 ```
 
 I have also included a few small programs used for my research, you can
