@@ -29,12 +29,10 @@ public class MiniSat extends SatSolver<Integer> {
 	protected List<int[]> clauses = new ArrayList<int[]>();
 
 	public String options = "-no-pre";
-	public String logfile;
+	public String logfile = null;
 
 	public MiniSat() {
 		super(-1, 1);
-		this.options = null;
-		this.logfile = null;
 		clear();
 	}
 
