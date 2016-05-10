@@ -35,12 +35,20 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 				return new JniSat("minisat");
 			} catch (LinkageError e) {
 			}
+		} else if (defaultSolver.equals("jni-cominisatps")) {
+			try {
+				return new JniSat("cominisatps");
+			} catch (LinkageError e) {
+			}
 		} else if (defaultSolver.equals("logging")) {
 			MiniSat solver = new MiniSat();
 			solver.logfile = "logging";
 			return solver;
+		} else if (defaultSolver.equals("minisat")) {
+			return new MiniSat();
 		}
 
+		System.err.println("WARNING: using Sat4J, which is slow");
 		return new Sat4J();
 	}
 

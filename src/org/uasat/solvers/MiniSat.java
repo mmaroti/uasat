@@ -28,7 +28,7 @@ public class MiniSat extends SatSolver<Integer> {
 	protected int variables;
 	protected List<int[]> clauses = new ArrayList<int[]>();
 
-	public String options;
+	public String options = "-no-pre";
 	public String logfile;
 
 	public MiniSat() {
@@ -114,7 +114,7 @@ public class MiniSat extends SatSolver<Integer> {
 			stream = null;
 
 			List<String> args = new ArrayList<String>();
-			args.add("minisat");
+			args.add("cominisatps");
 			if (options != null)
 				args.addAll(Arrays.asList(options.split(" ")));
 			args.add(input.getAbsolutePath());

@@ -171,19 +171,23 @@ public class PosetCriticals {
 
 	public boolean explain1(Relation<Boolean> rel, int arity) {
 		assert rel.getArity() <= arity && 2 <= arity;
+		System.out.println("Explaining " + Relation.format(rel));
 
 		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(),
 				rel.getArity(), arity);
 		gen.addGenerator(poset);
+		
 		return gen.printRepresentation(rel);
 	}
 
 	public boolean explain2(Relation<Boolean> rel, int arity) {
 		assert rel.getArity() <= arity && 2 <= arity;
+		System.out.println("Explaining " + Relation.format(rel));
 
 		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(),
 				rel.getArity(), arity);
 		gen.addGenerators(crit2);
+
 		return gen.printRepresentation(rel);
 	}
 
@@ -316,12 +320,12 @@ public class PosetCriticals {
 		// p.findUnaryCriticals();
 		// p.findBinaryCriticals();
 		// p.findTernaryCriticals();
-		p.findQuaternaryCriticals(true);
+		// p.findQuaternaryCriticals(true);
 		p.explain1(p.crit4.get(3), 8);
-		p.explain2(p.crit4.get(3), 5);
-		p.findPentaryCriticals(false);
-		p.explain2(p.crit5.get(4), 7);
-		p.explain2(p.crit5.get(5), 8);
+		// p.explain2(p.crit4.get(3), 5);
+		// p.findPentaryCriticals(true);
+		// p.explain2(p.crit5.get(4), 7);
+		// p.explain2(p.crit5.get(5), 8);
 		// p.findSixaryCriticals(false);
 	}
 
@@ -355,6 +359,9 @@ public class PosetCriticals {
 
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
+		// SatSolver.setDefault("jni-cominisatps");
+		// SatSolver.setDefault("jni-minisat");
+		// SatSolver.setDefault("minisat");
 		SatSolver.setDefault("logging");
 
 		// crown4();
