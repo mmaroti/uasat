@@ -361,8 +361,8 @@ public class PosetCriticals {
 		long time = System.currentTimeMillis();
 		// SatSolver.setDefault("jni-cominisatps");
 		// SatSolver.setDefault("jni-minisat");
-		SatSolver.setDefault("minisat");
-		// SatSolver.setDefault("logging");
+		// SatSolver.setDefault("minisat");
+		SatSolver.setDefault("logging");
 
 		// crown4();
 		// crown6();
