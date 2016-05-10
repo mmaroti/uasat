@@ -114,7 +114,7 @@ public class MiniSat extends SatSolver<Integer> {
 			stream = null;
 
 			List<String> args = new ArrayList<String>();
-			args.add("cominisatps");
+			args.add("minisat");
 			if (options != null)
 				args.addAll(Arrays.asList(options.split(" ")));
 			args.add(input.getAbsolutePath());

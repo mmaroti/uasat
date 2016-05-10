@@ -176,7 +176,7 @@ public class PosetCriticals {
 		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(),
 				rel.getArity(), arity);
 		gen.addGenerator(poset);
-		
+
 		return gen.printRepresentation(rel);
 	}
 
@@ -321,9 +321,9 @@ public class PosetCriticals {
 		// p.findBinaryCriticals();
 		// p.findTernaryCriticals();
 		// p.findQuaternaryCriticals(true);
-		p.explain1(p.crit4.get(3), 8);
+		// p.explain1(p.crit4.get(3), 8);
 		// p.explain2(p.crit4.get(3), 5);
-		// p.findPentaryCriticals(true);
+		p.findPentaryCriticals(false);
 		// p.explain2(p.crit5.get(4), 7);
 		// p.explain2(p.crit5.get(5), 8);
 		// p.findSixaryCriticals(false);
@@ -361,8 +361,8 @@ public class PosetCriticals {
 		long time = System.currentTimeMillis();
 		// SatSolver.setDefault("jni-cominisatps");
 		// SatSolver.setDefault("jni-minisat");
-		// SatSolver.setDefault("minisat");
-		SatSolver.setDefault("logging");
+		SatSolver.setDefault("minisat");
+		// SatSolver.setDefault("logging");
 
 		// crown4();
 		// crown6();
