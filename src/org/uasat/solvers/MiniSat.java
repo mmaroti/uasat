@@ -112,7 +112,7 @@ public class MiniSat extends SatSolver<Integer> {
 			stream = null;
 
 			List<String> args = new ArrayList<String>();
-			args.add("minisat");
+			args.add("cominisatps");
 			if (options != null)
 				args.addAll(Arrays.asList(options.split(" ")));
 			args.add(input.getAbsolutePath());
@@ -120,6 +120,15 @@ public class MiniSat extends SatSolver<Integer> {
 
 			Process proc = Runtime.getRuntime().exec(
 					args.toArray(new String[args.size()]));
+
+			BufferedReader eater = new BufferedReader(new InputStreamReader(
+					proc.getInputStream()));
+
+			// eat the standard output
+			while (eater.readLine() != null)
+				;
+
+			eater.close();
 
 			int result = -1;
 			try {
@@ -129,25 +138,30 @@ public class MiniSat extends SatSolver<Integer> {
 			}
 
 			if (result != 10 && result != 20)
-				throw new RuntimeException("Minisat failed with error code "
+				throw new RuntimeException("MiniSat failed with error code "
 						+ result);
-
-			if (result == 20)
-				return false;
 
 			reader = new BufferedReader(new InputStreamReader(
 					new FileInputStream(output)));
 
 			String line = reader.readLine();
+
+			if (result == 20) {
+				if (line == null || !line.equals("UNSAT"))
+					throw new RuntimeException("MiniSat failed with UNSAT");
+
+				return false;
+			}
+
 			if (line == null || !line.equals("SAT"))
-				throw new RuntimeException("Minisat failed to produce output");
+				throw new RuntimeException("MiniSat failed with SAT");
 
 			line = reader.readLine();
 			assert line != null;
 
 			String[] sol = line.split("\\s+");
 			if (sol.length > variables + 1 || !sol[sol.length - 1].equals("0"))
-				throw new RuntimeException("Minisat produced unexpected output");
+				throw new RuntimeException("MiniSat produced unexpected output");
 
 			solution = new boolean[variables + 1];
 
@@ -156,7 +170,7 @@ public class MiniSat extends SatSolver<Integer> {
 				if (!sol[i].equals(Integer.toString(n))
 						|| Math.abs(n) > variables)
 					throw new RuntimeException(
-							"Minisat produced unexpected literal");
+							"MiniSat produced unexpected literal");
 
 				if (n > 0)
 					solution[n] = true;

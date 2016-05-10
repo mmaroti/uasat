@@ -320,10 +320,10 @@ public class PosetCriticals {
 		// p.findUnaryCriticals();
 		// p.findBinaryCriticals();
 		// p.findTernaryCriticals();
-		// p.findQuaternaryCriticals(true);
+		p.findQuaternaryCriticals(true);
 		// p.explain1(p.crit4.get(3), 8);
 		// p.explain2(p.crit4.get(3), 5);
-		p.findPentaryCriticals(false);
+		// p.findPentaryCriticals(false);
 		// p.explain2(p.crit5.get(4), 7);
 		// p.explain2(p.crit5.get(5), 8);
 		// p.findSixaryCriticals(false);
