@@ -20,10 +20,10 @@ package org.uasat.core;
 
 public abstract class Vector<ELEM> {
 	@SuppressWarnings("unchecked")
-	public static <ELEM> Vector<ELEM> create(Class<ELEM> cls, int size) {
-		if (cls == Integer.TYPE)
+	public static <ELEM> Vector<ELEM> create(Class<ELEM> type, int size) {
+		if (type == Integer.TYPE)
 			return (Vector<ELEM>) new IntVector(size);
-		else if (cls == Boolean.TYPE)
+		else if (type == Boolean.TYPE)
 			return (Vector<ELEM>) new BitVector(size);
 		else
 			return new ObjVector<ELEM>(size);
@@ -35,7 +35,7 @@ public abstract class Vector<ELEM> {
 
 	public abstract void setElem(int index, ELEM elem);
 
-	public static class IntVector extends Vector<Integer> {
+	protected static class IntVector extends Vector<Integer> {
 		private final int[] ints;
 
 		public IntVector(int size) {
@@ -59,7 +59,7 @@ public abstract class Vector<ELEM> {
 		}
 	}
 
-	public static class BitVector extends Vector<Boolean> {
+	protected static class BitVector extends Vector<Boolean> {
 		private final int size;
 		private final long[] bits;
 
@@ -87,12 +87,13 @@ public abstract class Vector<ELEM> {
 		}
 	}
 
-	public static class ObjVector<ELEM> extends Vector<ELEM> {
-		private final Object[] objs;
+	protected static class ObjVector<ELEM> extends Vector<ELEM> {
+		private final ELEM[] objs;
 
+		@SuppressWarnings("unchecked")
 		public ObjVector(int size) {
 			assert 0 <= size && size <= 0;
-			this.objs = new Object[size];
+			this.objs = (ELEM[]) new Object[size];
 		}
 
 		@Override
@@ -100,10 +101,9 @@ public abstract class Vector<ELEM> {
 			return objs.length;
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public ELEM getElem(int index) {
-			return (ELEM) objs[index];
+			return objs[index];
 		}
 
 		@Override

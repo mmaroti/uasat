@@ -77,6 +77,7 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		int pos = 0;
 		int size = 1;
 		for (int i = 0; i < shape.length; i++) {
+			assert 0 <= index[i] && index[i] < shape[i];
 			pos += size * index[i];
 			size *= shape[i];
 		}
@@ -90,6 +91,7 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		int pos = 0;
 		int size = 1;
 		for (int i = 0; i < shape.length; i++) {
+			assert 0 <= index[i] && index[i] < shape[i];
 			pos += size * index[i];
 			size *= shape[i];
 		}
@@ -97,10 +99,18 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		elems[pos] = elem;
 	}
 
-	public ELEM[] getElems() {
-		return elems;
+	public int getElemCount() {
+		return getSize(shape);
 	}
-
+	
+	public ELEM getElemAt(int pos) {
+		return elems[pos];
+	}
+	
+	public void setElemAt(int pos, ELEM elem) {
+		elems[pos] = elem;
+	}
+	
 	public ELEM get() {
 		assert elems.length == 1;
 		return elems[0];
@@ -237,31 +247,6 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 						return defval;
 
 				return tensor.getElem(index);
-			}
-		});
-	}
-
-	public static <ELEM> Tensor<ELEM> reshape_old(final Tensor<ELEM> arg,
-			final int[] shape, final int[] map) {
-		assert arg.getOrder() == map.length;
-
-		if (Arrays.equals(arg.shape, shape) && map.length == shape.length) {
-			boolean b = true;
-			for (int i = 0; i < map.length; i++)
-				b &= map[i] == i;
-
-			if (b)
-				return arg;
-		}
-
-		final int[] index = new int[map.length];
-
-		return Tensor.generate(shape, new Func1<ELEM, int[]>() {
-			@Override
-			public ELEM call(int[] elem) {
-				for (int i = 0; i < index.length; i++)
-					index[i] = elem[map[i]];
-				return arg.getElem(index);
 			}
 		});
 	}

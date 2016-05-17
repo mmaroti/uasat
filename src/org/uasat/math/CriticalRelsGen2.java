@@ -78,10 +78,11 @@ public class CriticalRelsGen2 {
 		BOOL b = alg.TRUE;
 
 		Relation<Boolean> sel = Relation.empty(size, arity);
-		Object[] elems = sel.getTensor().getElems();
+		Tensor<Boolean> tensor = sel.getTensor();
+		int count = tensor.getElemCount();
 
-		for (int i = 0; i < elems.length; i++) {
-			elems[i] = Boolean.TRUE;
+		for (int i = 0; i < count; i++) {
+			tensor.setElemAt(i, Boolean.TRUE);
 
 			Relation<Boolean> gen = relations.getClosure2(sel);
 			gen = gen.subtract(sel);
@@ -92,7 +93,7 @@ public class CriticalRelsGen2 {
 				b = alg.and(b, alg.leq(c, d));
 			}
 
-			elems[i] = Boolean.FALSE;
+			tensor.setElemAt(i, Boolean.FALSE);
 		}
 
 		return b;
@@ -104,12 +105,13 @@ public class CriticalRelsGen2 {
 		BOOL b = alg.TRUE;
 
 		Relation<Boolean> sel = Relation.empty(size, arity);
-		Object[] elems = sel.getTensor().getElems();
+		Tensor<Boolean> tensor = sel.getTensor();
+		int count = tensor.getElemCount();
 
-		for (int i = 0; i < elems.length; i++) {
-			elems[i] = Boolean.TRUE;
-			for (int j = i; j < elems.length; j++) {
-				elems[j] = Boolean.TRUE;
+		for (int i = 0; i < count; i++) {
+			tensor.setElemAt(i, Boolean.TRUE);
+			for (int j = i; j < count; j++) {
+				tensor.setElemAt(j, Boolean.TRUE);
 
 				Relation<Boolean> gen = relations.getClosure2(sel);
 				gen = gen.subtract(sel);
@@ -121,9 +123,9 @@ public class CriticalRelsGen2 {
 				}
 
 				if (j != i)
-					elems[j] = Boolean.FALSE;
+					tensor.setElemAt(j, Boolean.FALSE);
 			}
-			elems[i] = Boolean.FALSE;
+			tensor.setElemAt(i, Boolean.FALSE);
 		}
 
 		return b;
@@ -135,14 +137,15 @@ public class CriticalRelsGen2 {
 		BOOL b = alg.TRUE;
 
 		Relation<Boolean> sel = Relation.empty(size, arity);
-		Object[] elems = sel.getTensor().getElems();
+		Tensor<Boolean> tensor = sel.getTensor();
+		int count = tensor.getElemCount();
 
-		for (int i = 0; i < elems.length; i++) {
-			elems[i] = Boolean.TRUE;
-			for (int j = i; j < elems.length; j++) {
-				elems[j] = Boolean.TRUE;
-				for (int k = j; k < elems.length; k++) {
-					elems[k] = Boolean.TRUE;
+		for (int i = 0; i < count; i++) {
+			tensor.setElemAt(i, Boolean.TRUE);
+			for (int j = i; j < count; j++) {
+				tensor.setElemAt(j, Boolean.TRUE);
+				for (int k = j; k < count; k++) {
+					tensor.setElemAt(k, Boolean.TRUE);
 
 					Relation<Boolean> gen = relations.getClosure2(sel);
 					gen = gen.subtract(sel);
@@ -154,12 +157,12 @@ public class CriticalRelsGen2 {
 					}
 
 					if (k != j)
-						elems[k] = Boolean.FALSE;
+						tensor.setElemAt(k, Boolean.FALSE);
 				}
 				if (j != i)
-					elems[j] = Boolean.FALSE;
+					tensor.setElemAt(j, Boolean.FALSE);
 			}
-			elems[i] = Boolean.FALSE;
+			tensor.setElemAt(i, Boolean.FALSE);
 		}
 
 		return b;
