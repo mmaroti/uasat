@@ -32,7 +32,7 @@ public class Sat4J extends SatSolver<Integer> {
 	protected boolean[] solution;
 
 	public Sat4J() {
-		super(-1, 1);
+		super(Integer.TYPE, -1, 1);
 		clear();
 	}
 

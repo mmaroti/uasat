@@ -51,7 +51,7 @@ public final class GaloisConn<BOOL> {
 
 	public static <BOOL> GaloisConn<BOOL> lift(BoolAlgebra<BOOL> alg,
 			GaloisConn<Boolean> galois) {
-		Tensor<BOOL> tensor = Tensor.map(alg.LIFT, galois.tensor);
+		Tensor<BOOL> tensor = Tensor.map(alg.type, alg.LIFT, galois.tensor);
 		return new GaloisConn<BOOL>(alg, tensor);
 	}
 
@@ -62,7 +62,7 @@ public final class GaloisConn<BOOL> {
 	public static <BOOL> GaloisConn<BOOL> compatibility(
 			final BoolAlgebra<BOOL> alg, final List<Operation<BOOL>> ops,
 			final List<Relation<BOOL>> rels) {
-		Tensor<BOOL> t = Tensor.generate(ops.size(), rels.size(),
+		Tensor<BOOL> t = Tensor.generate(alg.type, ops.size(), rels.size(),
 				new Func2<BOOL, Integer, Integer>() {
 					@Override
 					public BOOL call(Integer a, Integer b) {

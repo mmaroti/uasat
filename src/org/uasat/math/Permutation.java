@@ -55,7 +55,7 @@ public final class Permutation<BOOL> {
 
 	public static <BOOL> Permutation<BOOL> lift(BoolAlgebra<BOOL> alg,
 			Permutation<Boolean> perm) {
-		Tensor<BOOL> tensor = Tensor.map(alg.LIFT, perm.tensor);
+		Tensor<BOOL> tensor = Tensor.map(alg.type, alg.LIFT, perm.tensor);
 		return new Permutation<BOOL>(alg, tensor);
 	}
 

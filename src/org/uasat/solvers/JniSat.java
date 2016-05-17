@@ -28,7 +28,7 @@ public class JniSat extends SatSolver<Integer> {
 	private final Solver solver;
 
 	public JniSat(String what) {
-		super(-1, 1);
+		super(Integer.TYPE, -1, 1);
 		solver = Solver.create(what);
 		int a = solver.addVariable();
 		if (a != 1)

@@ -70,7 +70,7 @@ public final class Relation<BOOL> {
 
 	public static <BOOL> Relation<BOOL> lift(BoolAlgebra<BOOL> alg,
 			Relation<Boolean> rel) {
-		Tensor<BOOL> tensor = Tensor.map(alg.LIFT, rel.tensor);
+		Tensor<BOOL> tensor = Tensor.map(alg.type, alg.LIFT, rel.tensor);
 		return new Relation<BOOL>(alg, tensor);
 	}
 
@@ -85,7 +85,7 @@ public final class Relation<BOOL> {
 	public static <BOOL> Relation<BOOL> constant(BoolAlgebra<BOOL> alg,
 			int size, int arity, BOOL value) {
 		int[] shape = Util.createShape(size, arity);
-		Tensor<BOOL> tensor = Tensor.constant(shape, value);
+		Tensor<BOOL> tensor = Tensor.constant(alg.type, shape, value);
 		return new Relation<BOOL>(alg, tensor);
 	}
 
@@ -368,8 +368,8 @@ public final class Relation<BOOL> {
 	public Relation<BOOL> diagonal(int arity) {
 		assert getArity() == 1;
 
-		Tensor<BOOL> tmp = Tensor.constant(Util.createShape(getSize(), arity),
-				alg.FALSE);
+		Tensor<BOOL> tmp = Tensor.constant(alg.type,
+				Util.createShape(getSize(), arity), alg.FALSE);
 
 		int[] index = new int[arity];
 		for (int i = 0; i < getSize(); i++) {
@@ -415,17 +415,18 @@ public final class Relation<BOOL> {
 
 		final int[] idx1 = new int[getArity()];
 		final int[] idx2 = new int[getArity()];
-		Tensor<BOOL> tmp = Tensor.generate(shape, new Func1<BOOL, int[]>() {
-			@Override
-			public BOOL call(int[] elem) {
-				for (int i = 0; i < elem.length; i++) {
-					idx1[i] = elem[i] % a;
-					idx2[i] = elem[i] / a;
-				}
+		Tensor<BOOL> tmp = Tensor.generate(alg.type, shape,
+				new Func1<BOOL, int[]>() {
+					@Override
+					public BOOL call(int[] elem) {
+						for (int i = 0; i < elem.length; i++) {
+							idx1[i] = elem[i] % a;
+							idx2[i] = elem[i] / a;
+						}
 
-				return alg.and(t1.getElem(idx1), t2.getElem(idx2));
-			}
-		});
+						return alg.and(t1.getElem(idx1), t2.getElem(idx2));
+					}
+				});
 
 		return new Relation<BOOL>(alg, tmp);
 	}
@@ -714,23 +715,28 @@ public final class Relation<BOOL> {
 		int[] shape = new int[getArity()];
 		Arrays.fill(shape, subsets.size());
 
-		Tensor<BOOL> tensor = Tensor.generate(shape, new Func1<BOOL, int[]>() {
-			@Override
-			public BOOL call(int[] elem) {
-				Relation<BOOL> r = subsets.get(elem[0]);
-				for (int i = 1; i < elem.length; i++)
-					r = r.cartesian(subsets.get(elem[i]));
+		Tensor<BOOL> tensor = Tensor.generate(alg.type, shape,
+				new Func1<BOOL, int[]>() {
+					@Override
+					public BOOL call(int[] elem) {
+						Relation<BOOL> r = subsets.get(elem[0]);
+						assert r.getAlg() == alg;
 
-				r = intersect(r); // with this
+						for (int i = 1; i < elem.length; i++)
+							r = r.cartesian(subsets.get(elem[i]));
 
-				BOOL b = alg.TRUE;
-				for (int i = 0; i < elem.length; i++)
-					b = alg.and(b, subsets.get(elem[i])
-							.isSubsetOf(r.project(i)));
+						r = intersect(r); // with this
 
-				return b;
-			}
-		});
+						BOOL b = alg.TRUE;
+						for (int i = 0; i < elem.length; i++)
+							b = alg.and(
+									b,
+									subsets.get(elem[i]).isSubsetOf(
+											r.project(i)));
+
+						return b;
+					}
+				});
 
 		return new Relation<BOOL>(alg, tensor);
 	}
@@ -756,8 +762,8 @@ public final class Relation<BOOL> {
 	public static Relation<Boolean> parse(int size, int arity, String str) {
 		assert arity >= 1;
 
-		Tensor<Boolean> tensor;
-		tensor = Tensor.constant(Util.createShape(size, arity), Boolean.FALSE);
+		Tensor<Boolean> tensor = Tensor.constant(Util.createShape(size, arity),
+				Boolean.FALSE);
 
 		for (String s : str.split(" ")) {
 			if (s.isEmpty())

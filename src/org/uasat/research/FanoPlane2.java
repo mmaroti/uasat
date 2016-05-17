@@ -38,7 +38,7 @@ public class FanoPlane2 {
 		public <ELEM> ELEM compute(BoolAlgebra<ELEM> alg,
 				List<Tensor<ELEM>> tensors) {
 			Tensor<ELEM> g = tensors.get(0);
-			Tensor<ELEM> p = Tensor.map(alg.LIFT, pts);
+			Tensor<ELEM> p = Tensor.map(alg.type, alg.LIFT, pts);
 
 			Contract<ELEM> c = Contract.linear(alg);
 			c.add(g, "ij");

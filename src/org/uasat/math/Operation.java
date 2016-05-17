@@ -70,7 +70,7 @@ public final class Operation<BOOL> {
 
 	public static <BOOL> Operation<BOOL> lift(BoolAlgebra<BOOL> alg,
 			Operation<Boolean> op) {
-		Tensor<BOOL> tensor = Tensor.map(alg.LIFT, op.tensor);
+		Tensor<BOOL> tensor = Tensor.map(alg.type, alg.LIFT, op.tensor);
 		return new Operation<BOOL>(alg, tensor);
 	}
 
@@ -370,7 +370,7 @@ public final class Operation<BOOL> {
 
 	/**
 	 * Testing Taylor property (omitting type 1):
-	 *
+	 * 
 	 * p(x,x,x) = x. p(x,x,y) = p(y,x,x) = q(x,y,y). p(x,y,x) = q(x,y,x).
 	 */
 	public static <BOOL> BOOL areSiggersTerms(Operation<BOOL> p,
@@ -391,7 +391,7 @@ public final class Operation<BOOL> {
 
 	/**
 	 * Testing congruence meet semi-distributivity (omitting types 1 and 2):
-	 *
+	 * 
 	 * p(x,x,x) = x. p(x,x,y) = p(x,y,x) = p(y,x,x) = q(x,y,x). q(x,x,y) =
 	 * q(x,y,y).
 	 */
@@ -415,7 +415,7 @@ public final class Operation<BOOL> {
 	/**
 	 * Testing congruence distributivity (omitting types 1, 2 and 5 and no
 	 * tails)
-	 *
+	 * 
 	 * p_i(x,y,x) = x. x = p_0(x,x,y). p_0(x,y,y) = p_1(x,y,y). p_1(x,x,y) =
 	 * p_2(x,x,y). p_{n-1}(x,y,y) = y (for n odd). p_{n-1}(x,x,y) = y (for n
 	 * even).
@@ -454,7 +454,7 @@ public final class Operation<BOOL> {
 
 	/**
 	 * Testing congruence join semi-distributivity (omitting types 1, 2 and 5).
-	 *
+	 * 
 	 * x = d_0(x,y,y). x=d_0(x,y,x). d_0(x,x,y)=d_1(x,x,y). d_1(x,y,y) =
 	 * d_2(x,y,y). d_1(x,y,x)=d_2(x,y,x). d_{n-1}(x,x,y)=y (for n odd).
 	 * d_{n-1}(x,y,y)=y and d_{n-1}(x,y,x)=x (for n even).
@@ -560,7 +560,8 @@ public final class Operation<BOOL> {
 
 	private Relation<BOOL> evaluate_op0(int arity) {
 		assert getArity() == 0;
-		Tensor<BOOL> t = Tensor.diagonal(tensor, new int[arity], alg.FALSE);
+		Tensor<BOOL> t = Tensor.diagonal(alg.type, tensor, new int[arity],
+				alg.FALSE);
 		return new Relation<BOOL>(alg, t);
 	}
 
@@ -772,7 +773,7 @@ public final class Operation<BOOL> {
 			}
 		};
 
-		return Tensor.fold(lookup, 1, op.tensor);
+		return Tensor.fold(Integer.TYPE, lookup, 1, op.tensor);
 	}
 
 	public static Operation<Boolean> encode(int size,
@@ -823,8 +824,8 @@ public final class Operation<BOOL> {
 	public static Operation<Boolean> parse(int size, int arity, String str) {
 		assert size >= 1 && arity >= 0;
 
-		Tensor<Integer> tensor = Tensor.constant(Util.createShape(size, arity),
-				null);
+		Tensor<Integer> tensor = Tensor.constant(Integer.TYPE,
+				Util.createShape(size, arity), null);
 
 		if (arity == 0)
 			tensor.setElem(Util.parseElement(size, str));

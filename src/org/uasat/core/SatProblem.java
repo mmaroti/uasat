@@ -65,7 +65,8 @@ public abstract class SatProblem {
 
 		List<Tensor<BOOL>> tensors = new ArrayList<Tensor<BOOL>>();
 		for (Tensor<Boolean> mask : masks)
-			tensors.add(Tensor.generate(mask.getShape(), solver.VARIABLE));
+			tensors.add(Tensor.generate(solver.type, mask.getShape(),
+					solver.VARIABLE));
 
 		solver.clause(Arrays.asList(compute(solver, tensors)));
 
@@ -77,7 +78,8 @@ public abstract class SatProblem {
 
 		List<Tensor<BOOL>> tensors = new ArrayList<Tensor<BOOL>>();
 		for (Tensor<Boolean> mask : masks)
-			tensors.add(Tensor.generate(mask.getShape(), solver.VARIABLE));
+			tensors.add(Tensor.generate(solver.type, mask.getShape(),
+					solver.VARIABLE));
 
 		solver.clause(Arrays.asList(compute(solver, tensors)));
 
@@ -86,7 +88,7 @@ public abstract class SatProblem {
 
 		List<Tensor<Boolean>> solution = new ArrayList<Tensor<Boolean>>();
 		for (Tensor<BOOL> tensor : tensors)
-			solution.add(Tensor.map(solver.DECODE, tensor));
+			solution.add(Tensor.map(Boolean.TYPE, solver.DECODE, tensor));
 
 		assert check(solution);
 		return solution;
@@ -98,7 +100,8 @@ public abstract class SatProblem {
 
 		List<Tensor<BOOL>> tensors = new ArrayList<Tensor<BOOL>>();
 		for (Tensor<Boolean> mask : masks)
-			tensors.add(Tensor.generate(mask.getShape(), solver.VARIABLE));
+			tensors.add(Tensor.generate(solver.type, mask.getShape(),
+					solver.VARIABLE));
 
 		solver.clause(Arrays.asList(compute(solver, tensors)));
 
@@ -109,10 +112,11 @@ public abstract class SatProblem {
 			List<Tensor<Boolean>> solution = new ArrayList<Tensor<Boolean>>();
 			for (int key = 0; key < masks.size(); key++) {
 				Tensor<BOOL> t = tensors.get(key);
-				Tensor<Boolean> s = Tensor.map(solver.DECODE, t);
+				Tensor<Boolean> s = Tensor.map(Boolean.TYPE, solver.DECODE, t);
 				solution.add(s);
 
-				t = Tensor.map2(solver.ADD, Tensor.map(solver.LIFT, s), t);
+				t = Tensor.map2(solver.ADD,
+						Tensor.map(solver.type, solver.LIFT, s), t);
 
 				Iterator<Boolean> iter = masks.get(key).iterator();
 				for (BOOL b : t) {
@@ -145,7 +149,7 @@ public abstract class SatProblem {
 				list.add(solution.get(key));
 
 			int[] shape = masks.get(key).getShape();
-			result.add(Tensor.stack(shape, list));
+			result.add(Tensor.stack(Boolean.TYPE, shape, list));
 		}
 
 		return result;

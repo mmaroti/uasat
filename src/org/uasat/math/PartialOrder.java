@@ -150,8 +150,8 @@ public final class PartialOrder<BOOL> {
 		assert alg == ord.alg;
 
 		final int s = getSize();
-		Tensor<BOOL> t = Tensor.generate(s + ord.getSize(), s + ord.getSize(),
-				new Func2<BOOL, Integer, Integer>() {
+		Tensor<BOOL> t = Tensor.generate(alg.type, s + ord.getSize(),
+				s + ord.getSize(), new Func2<BOOL, Integer, Integer>() {
 					@Override
 					public BOOL call(Integer elem1, Integer elem2) {
 						if (elem1 < s && elem2 < s)
@@ -172,8 +172,8 @@ public final class PartialOrder<BOOL> {
 		assert alg == ord.alg;
 
 		final int s = getSize();
-		Tensor<BOOL> t = Tensor.generate(s + ord.getSize(), s + ord.getSize(),
-				new Func2<BOOL, Integer, Integer>() {
+		Tensor<BOOL> t = Tensor.generate(alg.type, s + ord.getSize(),
+				s + ord.getSize(), new Func2<BOOL, Integer, Integer>() {
 					@Override
 					public BOOL call(Integer elem1, Integer elem2) {
 						if (elem1 < s && elem2 < s)
@@ -217,7 +217,7 @@ public final class PartialOrder<BOOL> {
 
 	public static <BOOL> PartialOrder<BOOL> lift(BoolAlgebra<BOOL> alg,
 			PartialOrder<Boolean> rel) {
-		Tensor<BOOL> tensor = Tensor.map(alg.LIFT, rel.tensor);
+		Tensor<BOOL> tensor = Tensor.map(alg.type, alg.LIFT, rel.tensor);
 		return new PartialOrder<BOOL>(alg, tensor);
 	}
 

@@ -155,6 +155,8 @@ public class Contract<ELEM> {
 	}
 
 	private Entry<ELEM> join(Entry<ELEM> arg1, Entry<ELEM> arg2) {
+		assert arg1.tensor.type == arg2.tensor.type;
+
 		Set<Object> set = new HashSet<Object>();
 		set.addAll(arg1.vars);
 		set.addAll(arg2.vars);
@@ -172,7 +174,8 @@ public class Contract<ELEM> {
 		Tensor<ELEM> t2 = map2 != null ? Tensor.reshape(arg2.tensor, shape,
 				map2) : arg2.tensor;
 
-		return new Entry<ELEM>(Tensor.map2(prod, t1, t2), vars);
+		return new Entry<ELEM>(Tensor.map2(arg1.tensor.type, prod, t1, t2),
+				vars);
 	}
 
 	private Entry<ELEM> fold(Entry<ELEM> entry) {
@@ -201,7 +204,7 @@ public class Contract<ELEM> {
 		Tensor<ELEM> tensor = map != null ? Tensor.reshape(entry.tensor, shape,
 				map) : entry.tensor;
 
-		tensor = Tensor.fold(sum, count, tensor);
+		tensor = Tensor.fold(entry.tensor.type, sum, count, tensor);
 		return new Entry<ELEM>(tensor, rest);
 	}
 
@@ -266,7 +269,8 @@ public class Contract<ELEM> {
 	}
 
 	public static void main(String[] args) {
-		Tensor<Integer> a = Tensor.matrix(2, 2, Arrays.asList(1, 2, 3, 4));
+		Tensor<Integer> a = Tensor.matrix(Integer.TYPE, 2, 2,
+				Arrays.asList(1, 2, 3, 4));
 		Tensor.print(a);
 
 		Contract<Integer> contract = new Contract<Integer>(Func1.INT_SUM,

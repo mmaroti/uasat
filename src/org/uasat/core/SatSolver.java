@@ -57,8 +57,8 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 	public int totalClauses = 0;
 	public int totalSolves = 0;
 
-	public SatSolver(BOOL FALSE, BOOL TRUE) {
-		super(FALSE, TRUE);
+	public SatSolver(Class<BOOL> TYPE, BOOL FALSE, BOOL TRUE) {
+		super(TYPE, FALSE, TRUE);
 	}
 
 	public abstract void clear();

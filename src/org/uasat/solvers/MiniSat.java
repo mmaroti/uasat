@@ -32,7 +32,7 @@ public class MiniSat extends SatSolver<Integer> {
 	public String logfile = null;
 
 	public MiniSat() {
-		super(-1, 1);
+		super(Integer.TYPE, -1, 1);
 		clear();
 	}
 

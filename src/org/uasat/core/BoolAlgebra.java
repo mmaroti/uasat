@@ -21,6 +21,7 @@ package org.uasat.core;
 import java.util.*;
 
 public abstract class BoolAlgebra<BOOL> {
+	public final Class<BOOL> type;
 	public final BOOL FALSE;
 	public final BOOL TRUE;
 
@@ -141,7 +142,8 @@ public abstract class BoolAlgebra<BOOL> {
 	public final Func1<BOOL, Iterable<BOOL>> MANY;
 	public final Func1<BOOL, Iterable<BOOL>> EQS;
 
-	public BoolAlgebra(final BOOL FALSE, final BOOL TRUE) {
+	public BoolAlgebra(final Class<BOOL> type, final BOOL FALSE, final BOOL TRUE) {
+		this.type = type;
 		this.FALSE = FALSE;
 		this.TRUE = TRUE;
 
@@ -262,7 +264,7 @@ public abstract class BoolAlgebra<BOOL> {
 	}
 
 	public static BoolAlgebra<Boolean> INSTANCE = new BoolAlgebra<Boolean>(
-			Boolean.FALSE, Boolean.TRUE) {
+			Boolean.TYPE, Boolean.FALSE, Boolean.TRUE) {
 		@Override
 		public Boolean not(Boolean elem) {
 			return !elem.booleanValue();
