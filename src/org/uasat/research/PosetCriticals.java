@@ -227,12 +227,12 @@ public class PosetCriticals {
 		p.crit5 = CROWN4_CRIT5;
 		p.crit6 = CROWN4_CRIT6;
 
-		// p.findUnaryCriticals();
-		// p.findBinaryCriticals();
-		// p.findTernaryCriticals();
-		// p.findQuaternaryCriticals(true);
+		p.findUnaryCriticals();
+		p.findBinaryCriticals();
+		p.findTernaryCriticals();
+		p.findQuaternaryCriticals(true);
 		// p.findPentaryCriticals(false);
-		p.explain2(p.crit5.get(4), 7);
+		// p.explain2(p.crit5.get(4), 7);
 		// p.findSixaryCriticals(false);
 	}
 
@@ -402,10 +402,10 @@ public class PosetCriticals {
 		SatSolver.setDefault("minisat");
 		// SatSolver.setDefault("logging");
 
-		// crown4();
+		crown4();
 		// crown6();
 		// house5();
-		house7();
+		// house7();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

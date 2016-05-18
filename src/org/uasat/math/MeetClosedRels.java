@@ -170,7 +170,7 @@ public class MeetClosedRels {
 
 		BoolAlgebra<BOOL> alg = rel.getAlg();
 		Tensor<BOOL> tensor = Tensor.constant(rel.getTensor().type,
-				new int[] { gens.size() }, null);
+				new int[] { gens.size() }, rel.getAlg().FALSE);
 
 		for (int i = posetLinearized.length - 1; i >= 0; i--) {
 			int a = posetLinearized[i];
