@@ -825,7 +825,7 @@ public final class Operation<BOOL> {
 		assert size >= 1 && arity >= 0;
 
 		Tensor<Integer> tensor = Tensor.constant(Integer.TYPE,
-				Util.createShape(size, arity), null);
+				Util.createShape(size, arity), 0);
 
 		if (arity == 0)
 			tensor.setElem(Util.parseElement(size, str));

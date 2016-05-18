@@ -25,8 +25,8 @@ public abstract class Vector<ELEM> implements Iterable<ELEM> {
 	public static <ELEM> Vector<ELEM> create(Class<ELEM> type, int size) {
 		if (type == Integer.TYPE)
 			return (Vector<ELEM>) new IntVector(size);
-		// else if (type == Boolean.TYPE)
-		//	return (Vector<ELEM>) new BitVector(size);
+		else if (type == Boolean.TYPE)
+			return (Vector<ELEM>) new BoolVector(size);
 		else
 			return new ObjVector<ELEM>(size);
 	}
@@ -39,11 +39,15 @@ public abstract class Vector<ELEM> implements Iterable<ELEM> {
 
 	public abstract void fill(ELEM elem);
 
+	public abstract void copy(int srcPos, Vector<ELEM> dst, int dstPos,
+			int length);
+
 	private class Iter implements Iterator<ELEM> {
 		private int pos;
 		private final int end;
 
 		Iter(int start, int length) {
+			assert 0 <= start && 0 <= length && start + length <= size();
 			pos = start;
 			end = start + length;
 		}
@@ -79,38 +83,86 @@ public abstract class Vector<ELEM> implements Iterable<ELEM> {
 	}
 
 	protected static class IntVector extends Vector<Integer> {
-		private final int[] ints;
+		private final int[] array;
 
 		public IntVector(int size) {
-			assert 0 <= size;
-			this.ints = new int[size];
+			this.array = new int[size];
 		}
 
 		@Override
 		public int size() {
-			return ints.length;
+			return array.length;
 		}
 
 		@Override
 		public Integer get(int index) {
-			return ints[index];
+			return array[index];
 		}
 
 		@Override
 		public void set(int index, Integer elem) {
-			ints[index] = elem;
+			array[index] = elem;
 		}
 
 		@Override
 		public void fill(Integer elem) {
-			Arrays.fill(ints, elem);
+			Arrays.fill(array, elem);
+		}
+
+		@Override
+		public void copy(int srcPos, Vector<Integer> dst, int dstPos, int length) {
+			System.arraycopy(array, srcPos, ((IntVector) dst).array, dstPos,
+					length);
 		}
 
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof IntVector) {
 				IntVector vec = (IntVector) obj;
-				return Arrays.equals(ints, vec.ints);
+				return Arrays.equals(array, vec.array);
+			} else
+				return false;
+		}
+	}
+
+	protected static class BoolVector extends Vector<Boolean> {
+		private final boolean[] array;
+
+		public BoolVector(int size) {
+			this.array = new boolean[size];
+		}
+
+		@Override
+		public int size() {
+			return array.length;
+		}
+
+		@Override
+		public Boolean get(int index) {
+			return array[index];
+		}
+
+		@Override
+		public void set(int index, Boolean elem) {
+			array[index] = elem;
+		}
+
+		@Override
+		public void fill(Boolean elem) {
+			Arrays.fill(array, elem);
+		}
+
+		@Override
+		public void copy(int srcPos, Vector<Boolean> dst, int dstPos, int length) {
+			System.arraycopy(array, srcPos, ((BoolVector) dst).array, dstPos,
+					length);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof BoolVector) {
+				BoolVector vec = (BoolVector) obj;
+				return Arrays.equals(array, vec.array);
 			} else
 				return false;
 		}
@@ -118,12 +170,12 @@ public abstract class Vector<ELEM> implements Iterable<ELEM> {
 
 	protected static class BitVector extends Vector<Boolean> {
 		private final int size;
-		private final long[] bits;
+		private final long[] array;
 
 		public BitVector(int size) {
 			assert 0 <= size && size < Integer.MAX_VALUE - 63;
 			this.size = size;
-			this.bits = new long[(size + 63) >> 6];
+			this.array = new long[(size + 63) >> 6];
 		}
 
 		@Override
@@ -134,62 +186,72 @@ public abstract class Vector<ELEM> implements Iterable<ELEM> {
 		@Override
 		public Boolean get(int index) {
 			assert 0 <= index && index < size;
-			return (bits[index >> 6] & (1L << (index & 63))) != 0;
+			return (array[index >> 6] & (1L << (index & 63))) != 0;
 		}
 
 		@Override
 		public void set(int index, Boolean elem) {
 			assert 0 <= index && index < size;
-			bits[index >> 6] |= 1L << (index & 63);
+			array[index >> 6] |= 1L << (index & 63);
 		}
 
 		@Override
 		public void fill(Boolean elem) {
 			if (elem) {
-				Arrays.fill(bits, -1L);
+				Arrays.fill(array, -1L);
 				if ((size & 63) != 0)
-					bits[(size - 1) >> 6] = (1L << (size & 63)) - 1;
+					array[(size - 1) >> 6] = (1L << (size & 63)) - 1;
 			} else
-				Arrays.fill(bits, 0);
+				Arrays.fill(array, 0);
+		}
+
+		@Override
+		public void copy(int srcPos, Vector<Boolean> dst, int dstPos, int length) {
+			throw new UnsupportedOperationException();
 		}
 
 		@Override
 		public boolean equals(Object obj) {
 			if (obj instanceof BitVector) {
 				BitVector vec = (BitVector) obj;
-				return size == vec.size && Arrays.equals(bits, vec.bits);
+				return size == vec.size && Arrays.equals(array, vec.array);
 			} else
 				return false;
 		}
 	}
 
 	protected static class ObjVector<ELEM> extends Vector<ELEM> {
-		private final ELEM[] objs;
+		private final ELEM[] array;
 
 		@SuppressWarnings("unchecked")
 		public ObjVector(int size) {
-			assert 0 <= size;
-			this.objs = (ELEM[]) new Object[size];
+			this.array = (ELEM[]) new Object[size];
 		}
 
 		@Override
 		public int size() {
-			return objs.length;
+			return array.length;
 		}
 
 		@Override
 		public ELEM get(int index) {
-			return objs[index];
+			return array[index];
 		}
 
 		@Override
 		public void set(int index, ELEM elem) {
-			objs[index] = elem;
+			array[index] = elem;
+		}
+
+		@Override
+		public void copy(int srcPos, Vector<ELEM> dst, int dstPos, int length) {
+			System.arraycopy(array, srcPos, ((ObjVector<ELEM>) dst).array,
+					dstPos, length);
 		}
 
 		@Override
 		public void fill(ELEM elem) {
-			Arrays.fill(objs, elem);
+			Arrays.fill(array, elem);
 		}
 
 		@Override
@@ -197,7 +259,7 @@ public abstract class Vector<ELEM> implements Iterable<ELEM> {
 		public boolean equals(Object obj) {
 			if (obj instanceof ObjVector) {
 				ObjVector<ELEM> vec = (ObjVector<ELEM>) obj;
-				return Arrays.equals(objs, vec.objs);
+				return Arrays.equals(array, vec.array);
 			} else
 				return false;
 		}

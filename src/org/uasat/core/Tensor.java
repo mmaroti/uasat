@@ -386,7 +386,7 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 
 		int pos = 0;
 		for (int i = 0; i < count; i++) {
-			System.arraycopy(list.get(i).elems, 0, tensor.elems, pos, size);
+			list.get(i).elems.copy(0, tensor.elems, pos, size);
 			pos += size;
 		}
 
@@ -409,7 +409,7 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		List<Tensor<ELEM>> list = new ArrayList<Tensor<ELEM>>();
 		for (int i = 0; i < last; i++) {
 			Tensor<ELEM> t = new Tensor<ELEM>(tensor.type, shape);
-			System.arraycopy(tensor.elems, i * size, t.elems, 0, size);
+			tensor.elems.copy(i * size, t.elems, 0, size);
 			list.add(t);
 		}
 
@@ -492,9 +492,8 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 
 		Tensor<ELEM> tensor = new Tensor<ELEM>(arg1.type, shape);
 		assert arg1.elems.size() + arg2.elems.size() == tensor.elems.size();
-		System.arraycopy(arg1.elems, 0, tensor.elems, 0, arg1.elems.size());
-		System.arraycopy(arg2.elems, 0, tensor.elems, arg1.elems.size(),
-				arg2.elems.size());
+		arg1.elems.copy(0, tensor.elems, 0, arg1.elems.size());
+		arg2.elems.copy(0, tensor.elems, arg1.elems.size(), arg2.elems.size());
 
 		return tensor;
 	}
