@@ -6,3 +6,5 @@ uasat.jar
 *.txt
 *.log
 *.uas
+*.cnf
+*.out
