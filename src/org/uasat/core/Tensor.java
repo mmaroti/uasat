@@ -21,10 +21,9 @@ package org.uasat.core;
 import java.io.*;
 import java.util.*;
 
-public class Tensor<ELEM> implements Iterable<ELEM> {
+public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 	public final Class<ELEM> type;
 	private final int[] shape;
-	private final Vector<ELEM> elems;
 
 	public int[] getShape() {
 		return shape;
@@ -42,11 +41,6 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		return shape[shape.length - 1];
 	}
 
-	@Override
-	public Iterator<ELEM> iterator() {
-		return elems.iterator();
-	}
-
 	public ELEM getElem(int... index) {
 		assert index.length == shape.length;
 
@@ -58,7 +52,7 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 			size *= shape[i];
 		}
 
-		return elems.get(pos);
+		return getElemAt(pos);
 	}
 
 	public void setElem(ELEM elem, int... index) {
@@ -72,30 +66,217 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 			size *= shape[i];
 		}
 
-		elems.set(pos, elem);
+		setElemAt(pos, elem);
 	}
 
-	public int getElemCount() {
-		return getSize(shape);
+	public abstract int getElemCount();
+
+	public abstract ELEM getElemAt(int pos);
+
+	public abstract void setElemAt(int pos, ELEM elem);
+
+	protected abstract void fillElems(ELEM elem);
+
+	protected abstract void copyElems(int srcPos, Tensor<ELEM> dst, int dstPos,
+			int length);
+
+	protected abstract boolean equalElems(Tensor<?> dst);
+
+	private class Iter implements Iterator<ELEM> {
+		private int pos;
+		private final int end;
+
+		Iter(int start, int length) {
+			assert 0 <= start && 0 <= length
+					&& start + length <= getElemCount();
+			pos = start;
+			end = start + length;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return pos < end;
+		}
+
+		@Override
+		public ELEM next() {
+			return getElemAt(pos++);
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
 	}
 
-	public ELEM getElemAt(int pos) {
-		return elems.get(pos);
+	@Override
+	public Iterator<ELEM> iterator() {
+		return new Iter(0, getElemCount());
 	}
 
-	public void setElemAt(int pos, ELEM elem) {
-		elems.set(pos, elem);
+	public Iterable<ELEM> sliceElems(final int start, final int length) {
+		return new Iterable<ELEM>() {
+			@Override
+			public Iterator<ELEM> iterator() {
+				return new Iter(start, length);
+			}
+		};
 	}
 
 	public ELEM get() {
-		assert elems.size() == 1;
-		return elems.get(0);
+		assert getElemCount() == 1;
+		return getElemAt(0);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <ELEM> Tensor<ELEM> create(Class<ELEM> type, int[] shape) {
+		if (type == Integer.TYPE)
+			return (Tensor<ELEM>) new IntTensor(shape);
+		else if (type == Boolean.TYPE)
+			return (Tensor<ELEM>) new BoolTensor(shape);
+		else
+			return new ObjTensor<ELEM>(type, shape);
 	}
 
 	private Tensor(Class<ELEM> type, int[] shape) {
 		this.type = type;
 		this.shape = shape;
-		this.elems = Vector.create(type, getSize(shape));
+	}
+
+	protected static class IntTensor extends Tensor<Integer> {
+		private final int[] array;
+
+		public IntTensor(int[] shape) {
+			super(Integer.TYPE, shape);
+			this.array = new int[getSize(shape)];
+		}
+
+		@Override
+		public int getElemCount() {
+			return array.length;
+		}
+
+		@Override
+		public Integer getElemAt(int index) {
+			return array[index];
+		}
+
+		@Override
+		public void setElemAt(int index, Integer elem) {
+			array[index] = elem;
+		}
+
+		@Override
+		protected void fillElems(Integer elem) {
+			Arrays.fill(array, elem);
+		}
+
+		@Override
+		protected void copyElems(int srcPos, Tensor<Integer> dst, int dstPos,
+				int length) {
+			System.arraycopy(array, srcPos, ((IntTensor) dst).array, dstPos,
+					length);
+		}
+
+		@Override
+		protected boolean equalElems(Tensor<?> tensor) {
+			if (tensor instanceof IntTensor) {
+				IntTensor t = (IntTensor) tensor;
+				return Arrays.equals(array, t.array);
+			} else
+				return false;
+		}
+	}
+
+	protected static class BoolTensor extends Tensor<Boolean> {
+		private final boolean[] array;
+
+		public BoolTensor(int[] shape) {
+			super(Boolean.TYPE, shape);
+			this.array = new boolean[getSize(shape)];
+		}
+
+		@Override
+		public int getElemCount() {
+			return array.length;
+		}
+
+		@Override
+		public Boolean getElemAt(int index) {
+			return array[index];
+		}
+
+		@Override
+		public void setElemAt(int index, Boolean elem) {
+			array[index] = elem;
+		}
+
+		@Override
+		protected void fillElems(Boolean elem) {
+			Arrays.fill(array, elem);
+		}
+
+		@Override
+		protected void copyElems(int srcPos, Tensor<Boolean> dst, int dstPos,
+				int length) {
+			System.arraycopy(array, srcPos, ((BoolTensor) dst).array, dstPos,
+					length);
+		}
+
+		@Override
+		protected boolean equalElems(Tensor<?> tensor) {
+			if (tensor instanceof BoolTensor) {
+				BoolTensor t = (BoolTensor) tensor;
+				return Arrays.equals(array, t.array);
+			} else
+				return false;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	protected static class ObjTensor<ELEM> extends Tensor<ELEM> {
+		private final Object[] array;
+
+		public ObjTensor(Class<ELEM> type, int[] shape) {
+			super(type, shape);
+			this.array = new Object[getSize(shape)];
+		}
+
+		@Override
+		public int getElemCount() {
+			return array.length;
+		}
+
+		@Override
+		public ELEM getElemAt(int index) {
+			return (ELEM) array[index];
+		}
+
+		@Override
+		public void setElemAt(int index, ELEM elem) {
+			array[index] = elem;
+		}
+
+		@Override
+		protected void fillElems(ELEM elem) {
+			Arrays.fill(array, elem);
+		}
+
+		@Override
+		protected void copyElems(int srcPos, Tensor<ELEM> dst, int dstPos,
+				int length) {
+			System.arraycopy(array, srcPos, ((ObjTensor<ELEM>) dst).array,
+					dstPos, length);
+		}
+
+		@Override
+		protected boolean equalElems(Tensor<?> tensor) {
+			if (tensor instanceof IntTensor) {
+				ObjTensor<ELEM> t = (ObjTensor<ELEM>) tensor;
+				return Arrays.equals(array, t.array);
+			} else
+				return false;
+		}
 	}
 
 	private static int getSize(int[] shape) {
@@ -109,10 +290,10 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 
 	public static <ELEM> Tensor<ELEM> generate(Class<ELEM> type, int[] shape,
 			Func0<ELEM> func) {
-		Tensor<ELEM> tensor = new Tensor<ELEM>(type, shape);
+		Tensor<ELEM> tensor = create(type, shape);
 
-		for (int i = 0; i < tensor.elems.size(); i++)
-			tensor.elems.set(i, func.call());
+		for (int i = 0; i < tensor.getElemCount(); i++)
+			tensor.setElemAt(i, func.call());
 
 		return tensor;
 	}
@@ -123,13 +304,13 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 
 	public static <ELEM> Tensor<ELEM> generate(Class<ELEM> type, int[] shape,
 			Func1<ELEM, int[]> func) {
-		Tensor<ELEM> tensor = new Tensor<ELEM>(type, shape);
+		Tensor<ELEM> tensor = create(type, shape);
 
-		if (tensor.elems.size() > 0) {
+		if (tensor.getElemCount() > 0) {
 			int[] index = new int[shape.length];
 			int pos = 0;
 			outer: for (;;) {
-				tensor.elems.set(pos++, func.call(index));
+				tensor.setElemAt(pos++, func.call(index));
 				for (int i = 0; i < index.length; i++) {
 					if (++index[i] >= shape[i])
 						index[i] = 0;
@@ -150,10 +331,10 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 
 	public static <ELEM> Tensor<ELEM> generate(Class<ELEM> type, int dim,
 			Func1<ELEM, Integer> func) {
-		Tensor<ELEM> tensor = new Tensor<ELEM>(type, new int[] { dim });
+		Tensor<ELEM> tensor = create(type, new int[] { dim });
 
 		for (int i = 0; i < dim; i++)
-			tensor.elems.set(i, func.call(i));
+			tensor.setElemAt(i, func.call(i));
 
 		return tensor;
 	}
@@ -164,12 +345,12 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 
 	public static <ELEM> Tensor<ELEM> generate(Class<ELEM> type, int dim1,
 			int dim2, Func2<ELEM, Integer, Integer> func) {
-		Tensor<ELEM> tensor = new Tensor<ELEM>(type, new int[] { dim1, dim2 });
+		Tensor<ELEM> tensor = create(type, new int[] { dim1, dim2 });
 
 		int pos = 0;
 		for (int j = 0; j < dim2; j++)
 			for (int i = 0; i < dim1; i++)
-				tensor.elems.set(pos++, func.call(i, j));
+				tensor.setElemAt(pos++, func.call(i, j));
 
 		return tensor;
 	}
@@ -181,8 +362,8 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 
 	public static <ELEM> Tensor<ELEM> constant(Class<ELEM> type, int[] shape,
 			ELEM elem) {
-		Tensor<ELEM> tensor = new Tensor<ELEM>(type, shape);
-		tensor.elems.fill(elem);
+		Tensor<ELEM> tensor = create(type, shape);
+		tensor.fillElems(elem);
 
 		return tensor;
 	}
@@ -192,8 +373,8 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 	}
 
 	public static <ELEM> Tensor<ELEM> scalar(Class<ELEM> type, ELEM elem) {
-		Tensor<ELEM> tensor = new Tensor<ELEM>(type, new int[0]);
-		tensor.elems.set(0, elem);
+		Tensor<ELEM> tensor = create(type, new int[0]);
+		tensor.setElemAt(0, elem);
 
 		return tensor;
 	}
@@ -203,11 +384,11 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 	}
 
 	public static <ELEM> Tensor<ELEM> vector(Class<ELEM> type, List<ELEM> elems) {
-		Tensor<ELEM> tensor = new Tensor<ELEM>(type, new int[] { elems.size() });
+		Tensor<ELEM> tensor = create(type, new int[] { elems.size() });
 
 		int pos = 0;
 		for (ELEM elem : elems)
-			tensor.elems.set(pos++, elem);
+			tensor.setElemAt(pos++, elem);
 
 		return tensor;
 	}
@@ -218,12 +399,12 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 
 	public static <ELEM> Tensor<ELEM> matrix(Class<ELEM> type, int dim1,
 			int dim2, List<ELEM> elems) {
-		Tensor<ELEM> tensor = new Tensor<ELEM>(type, new int[] { dim1, dim2 });
-		assert tensor.elems.size() == elems.size();
+		Tensor<ELEM> tensor = create(type, new int[] { dim1, dim2 });
+		assert tensor.getElemCount() == elems.size();
 
 		int pos = 0;
 		for (ELEM elem : elems)
-			tensor.elems.set(pos++, elem);
+			tensor.setElemAt(pos++, elem);
 
 		return tensor;
 	}
@@ -269,7 +450,7 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 			int[] map) {
 		assert arg.getOrder() == map.length;
 
-		Tensor<ELEM> tensor = new Tensor<ELEM>(arg.type, shape);
+		Tensor<ELEM> tensor = create(arg.type, shape);
 
 		int[] index = new int[shape.length];
 		int[] stepa = new int[shape.length];
@@ -285,14 +466,11 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		for (int i = 0; i < shape.length; i++)
 			stepb[i] = stepa[i] * (shape[i] - 1);
 
-		Vector<ELEM> src = arg.elems;
-		Vector<ELEM> dst = tensor.elems;
-
-		if (dst.size() > 0) {
+		if (tensor.getElemCount() > 0) {
 			int pos = 0;
 			int idx = 0;
 			outer: for (;;) {
-				dst.set(idx++, src.get(pos));
+				tensor.setElemAt(idx++, arg.getElemAt(pos));
 
 				for (int i = 0; i < index.length; i++) {
 					if (++index[i] >= shape[i]) {
@@ -305,7 +483,7 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 				}
 				break;
 			}
-			assert idx == dst.size();
+			assert idx == tensor.getElemCount();
 		}
 
 		return tensor;
@@ -313,10 +491,10 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 
 	public static <ELEM, ELEM1> Tensor<ELEM> map(Class<ELEM> type,
 			Func1<ELEM, ELEM1> func, Tensor<ELEM1> arg) {
-		Tensor<ELEM> tensor = new Tensor<ELEM>(type, arg.shape);
+		Tensor<ELEM> tensor = create(type, arg.shape);
 
-		for (int i = 0; i < tensor.elems.size(); i++)
-			tensor.elems.set(i, func.call(arg.elems.get(i)));
+		for (int i = 0; i < tensor.getElemCount(); i++)
+			tensor.setElemAt(i, func.call(arg.getElemAt(i)));
 
 		return tensor;
 	}
@@ -330,11 +508,10 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 			Func2<ELEM, ELEM1, ELEM2> func, Tensor<ELEM1> arg1,
 			Tensor<ELEM2> arg2) {
 		assert Arrays.equals(arg1.shape, arg2.shape);
-		Tensor<ELEM> tensor = new Tensor<ELEM>(type, arg1.shape);
+		Tensor<ELEM> tensor = create(type, arg1.shape);
 
-		for (int i = 0; i < tensor.elems.size(); i++)
-			tensor.elems
-					.set(i, func.call(arg1.elems.get(i), arg2.elems.get(i)));
+		for (int i = 0; i < tensor.getElemCount(); i++)
+			tensor.setElemAt(i, func.call(arg1.getElemAt(i), arg2.getElemAt(i)));
 
 		return tensor;
 	}
@@ -353,11 +530,11 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 
 		shape = new int[arg.getOrder() - proj];
 		System.arraycopy(arg.shape, proj, shape, 0, shape.length);
-		Tensor<ELEM2> tensor = new Tensor<ELEM2>(type, shape);
+		Tensor<ELEM2> tensor = create(type, shape);
 
 		int pos = 0;
-		for (int i = 0; i < tensor.elems.size(); i++) {
-			tensor.elems.set(i, func.call(arg.elems.slice(pos, step)));
+		for (int i = 0; i < tensor.getElemCount(); i++) {
+			tensor.setElemAt(i, func.call(arg.sliceElems(pos, step)));
 			pos += step;
 		}
 
@@ -382,11 +559,11 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		System.arraycopy(commonShape, 0, shape, 0, commonShape.length);
 		shape[commonShape.length] = list.size();
 
-		Tensor<ELEM> tensor = new Tensor<ELEM>(type, shape);
+		Tensor<ELEM> tensor = create(type, shape);
 
 		int pos = 0;
 		for (int i = 0; i < count; i++) {
-			list.get(i).elems.copy(0, tensor.elems, pos, size);
+			list.get(i).copyElems(0, tensor, pos, size);
 			pos += size;
 		}
 
@@ -408,8 +585,8 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 
 		List<Tensor<ELEM>> list = new ArrayList<Tensor<ELEM>>();
 		for (int i = 0; i < last; i++) {
-			Tensor<ELEM> t = new Tensor<ELEM>(tensor.type, shape);
-			tensor.elems.copy(i * size, t.elems, 0, size);
+			Tensor<ELEM> t = create(tensor.type, shape);
+			tensor.copyElems(i * size, t, 0, size);
 			list.add(t);
 		}
 
@@ -474,7 +651,7 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 			break;
 		}
 
-		assert list.size() == tensor.elems.size();
+		assert list.size() == tensor.getElemCount();
 		return list;
 	}
 
@@ -490,10 +667,11 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 		System.arraycopy(arg1.getShape(), 0, shape, 0, a);
 		shape[a] = arg1.getDim(a) + arg2.getDim(a);
 
-		Tensor<ELEM> tensor = new Tensor<ELEM>(arg1.type, shape);
-		assert arg1.elems.size() + arg2.elems.size() == tensor.elems.size();
-		arg1.elems.copy(0, tensor.elems, 0, arg1.elems.size());
-		arg2.elems.copy(0, tensor.elems, arg1.elems.size(), arg2.elems.size());
+		Tensor<ELEM> tensor = create(arg1.type, shape);
+		assert arg1.getElemCount() + arg2.getElemCount() == tensor
+				.getElemCount();
+		arg1.copyElems(0, tensor, 0, arg1.getElemCount());
+		arg2.copyElems(0, tensor, arg1.getElemCount(), arg2.getElemCount());
 
 		return tensor;
 	}
@@ -509,10 +687,10 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 			str.append(shape[i]);
 		}
 		str.append("] [");
-		for (int i = 0; i < elems.size(); i++) {
+		for (int i = 0; i < getElemCount(); i++) {
 			if (i != 0)
 				str.append(',');
-			str.append(elems.get(i));
+			str.append(getElemAt(i));
 		}
 		str.append("]");
 
@@ -521,9 +699,11 @@ public class Tensor<ELEM> implements Iterable<ELEM> {
 
 	@Override
 	public boolean equals(Object other) {
-		Tensor<?> tensor = (Tensor<?>) other;
+		@SuppressWarnings("unchecked")
+		Tensor<ELEM> tensor = (Tensor<ELEM>) other;
 
-		return Arrays.equals(shape, tensor.shape) && elems.equals(tensor.elems);
+		return type == tensor.type && Arrays.equals(shape, tensor.shape)
+				&& equalElems(tensor);
 	}
 
 	public static <ELEM> Comparator<Tensor<ELEM>> comparator(
