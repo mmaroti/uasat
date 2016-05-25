@@ -22,7 +22,6 @@ import java.io.*;
 import java.util.*;
 
 public abstract class Tensor<ELEM> implements Iterable<ELEM> {
-	public final Class<ELEM> type;
 	private final int[] shape;
 
 	public int[] getShape() {
@@ -68,6 +67,8 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 
 		setElemAt(pos, elem);
 	}
+
+	public abstract Class<ELEM> getType();
 
 	public abstract int getElemCount();
 
@@ -138,8 +139,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 			return new ObjTensor<ELEM>(type, shape);
 	}
 
-	private Tensor(Class<ELEM> type, int[] shape) {
-		this.type = type;
+	private Tensor(int[] shape) {
 		this.shape = shape;
 	}
 
@@ -147,8 +147,13 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 		private final int[] array;
 
 		public IntTensor(int[] shape) {
-			super(Integer.TYPE, shape);
+			super(shape);
 			this.array = new int[getSize(shape)];
+		}
+
+		@Override
+		public Class<Integer> getType() {
+			return Integer.TYPE;
 		}
 
 		@Override
@@ -192,8 +197,13 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 		private final boolean[] array;
 
 		public BoolTensor(int[] shape) {
-			super(Boolean.TYPE, shape);
+			super(shape);
 			this.array = new boolean[getSize(shape)];
+		}
+
+		@Override
+		public Class<Boolean> getType() {
+			return Boolean.TYPE;
 		}
 
 		@Override
@@ -235,11 +245,18 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 
 	@SuppressWarnings("unchecked")
 	protected static class ObjTensor<ELEM> extends Tensor<ELEM> {
+		private final Class<ELEM> type;
 		private final Object[] array;
 
 		public ObjTensor(Class<ELEM> type, int[] shape) {
-			super(type, shape);
+			super(shape);
+			this.type = type;
 			this.array = new Object[getSize(shape)];
+		}
+
+		@Override
+		public Class<ELEM> getType() {
+			return type;
 		}
 
 		@Override
@@ -271,9 +288,9 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 
 		@Override
 		protected boolean equalElems(Tensor<?> tensor) {
-			if (tensor instanceof IntTensor) {
+			if (tensor instanceof ObjTensor) {
 				ObjTensor<ELEM> t = (ObjTensor<ELEM>) tensor;
-				return Arrays.equals(array, t.array);
+				return type == t.type && Arrays.equals(array, t.array);
 			} else
 				return false;
 		}
@@ -450,7 +467,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 			int[] map) {
 		assert arg.getOrder() == map.length;
 
-		Tensor<ELEM> tensor = create(arg.type, shape);
+		Tensor<ELEM> tensor = create(arg.getType(), shape);
 
 		int[] index = new int[shape.length];
 		int[] stepa = new int[shape.length];
@@ -501,7 +518,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 
 	public static <ELEM> Tensor<ELEM> map(Func1<ELEM, ELEM> func,
 			Tensor<ELEM> arg) {
-		return map(arg.type, func, arg);
+		return map(arg.getType(), func, arg);
 	}
 
 	public static <ELEM, ELEM1, ELEM2> Tensor<ELEM> map2(Class<ELEM> type,
@@ -518,8 +535,8 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 
 	public static <ELEM> Tensor<ELEM> map2(Func2<ELEM, ELEM, ELEM> func,
 			Tensor<ELEM> arg1, Tensor<ELEM> arg2) {
-		assert arg1.type == arg2.type;
-		return map2(arg1.type, func, arg1, arg2);
+		assert arg1.getType() == arg2.getType();
+		return map2(arg1.getType(), func, arg1, arg2);
 	}
 
 	public static <ELEM1, ELEM2> Tensor<ELEM2> fold(Class<ELEM2> type,
@@ -543,14 +560,14 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 
 	public static <ELEM> Tensor<ELEM> fold(Func1<ELEM, Iterable<ELEM>> func,
 			int proj, Tensor<ELEM> arg) {
-		return fold(arg.type, func, proj, arg);
+		return fold(arg.getType(), func, proj, arg);
 	}
 
 	public static <ELEM> Tensor<ELEM> stack(Class<ELEM> type,
 			int[] commonShape, List<Tensor<ELEM>> list) {
 		for (Tensor<ELEM> tensor : list)
 			assert Arrays.equals(commonShape, tensor.shape)
-					&& tensor.type == type;
+					&& tensor.getType() == type;
 
 		int count = list.size();
 		int size = getSize(commonShape);
@@ -572,7 +589,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 
 	public static <ELEM> Tensor<ELEM> stack(List<Tensor<ELEM>> list) {
 		assert list.size() >= 1;
-		return stack(list.get(0).type, list.get(0).shape, list);
+		return stack(list.get(0).getType(), list.get(0).shape, list);
 	}
 
 	public static <ELEM> List<Tensor<ELEM>> unstack(Tensor<ELEM> tensor) {
@@ -585,7 +602,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 
 		List<Tensor<ELEM>> list = new ArrayList<Tensor<ELEM>>();
 		for (int i = 0; i < last; i++) {
-			Tensor<ELEM> t = create(tensor.type, shape);
+			Tensor<ELEM> t = create(tensor.getType(), shape);
 			tensor.copyElems(i * size, t, 0, size);
 			list.add(t);
 		}
@@ -657,7 +674,8 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 
 	public static <ELEM> Tensor<ELEM> concat(Tensor<ELEM> arg1,
 			Tensor<ELEM> arg2) {
-		assert arg1.getOrder() == arg2.getOrder() && arg1.type == arg2.type;
+		assert arg1.getOrder() == arg2.getOrder()
+				&& arg1.getType() == arg2.getType();
 
 		int a = arg1.getOrder() - 1;
 		for (int i = 0; i < a; i++)
@@ -667,7 +685,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 		System.arraycopy(arg1.getShape(), 0, shape, 0, a);
 		shape[a] = arg1.getDim(a) + arg2.getDim(a);
 
-		Tensor<ELEM> tensor = create(arg1.type, shape);
+		Tensor<ELEM> tensor = create(arg1.getType(), shape);
 		assert arg1.getElemCount() + arg2.getElemCount() == tensor
 				.getElemCount();
 		arg1.copyElems(0, tensor, 0, arg1.getElemCount());
@@ -702,8 +720,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 		@SuppressWarnings("unchecked")
 		Tensor<ELEM> tensor = (Tensor<ELEM>) other;
 
-		return type == tensor.type && Arrays.equals(shape, tensor.shape)
-				&& equalElems(tensor);
+		return Arrays.equals(shape, tensor.shape) && equalElems(tensor);
 	}
 
 	public static <ELEM> Comparator<Tensor<ELEM>> comparator(

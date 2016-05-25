@@ -169,7 +169,7 @@ public class MeetClosedRels {
 			posetCovers = PartialOrder.covers(poset);
 
 		BoolAlgebra<BOOL> alg = rel.getAlg();
-		Tensor<BOOL> tensor = Tensor.constant(rel.getTensor().type,
+		Tensor<BOOL> tensor = Tensor.constant(alg.type,
 				new int[] { gens.size() }, rel.getAlg().FALSE);
 
 		for (int i = posetLinearized.length - 1; i >= 0; i--) {
