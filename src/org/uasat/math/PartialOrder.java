@@ -217,8 +217,7 @@ public final class PartialOrder<BOOL> {
 
 	public static <BOOL> PartialOrder<BOOL> lift(BoolAlgebra<BOOL> alg,
 			PartialOrder<Boolean> rel) {
-		Tensor<BOOL> tensor = Tensor.map(alg.type, alg.LIFT, rel.tensor);
-		return new PartialOrder<BOOL>(alg, tensor);
+		return new PartialOrder<BOOL>(alg, alg.lift(rel.tensor));
 	}
 
 	public static String format(PartialOrder<Boolean> ord) {

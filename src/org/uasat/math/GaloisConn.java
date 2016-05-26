@@ -51,8 +51,7 @@ public final class GaloisConn<BOOL> {
 
 	public static <BOOL> GaloisConn<BOOL> lift(BoolAlgebra<BOOL> alg,
 			GaloisConn<Boolean> galois) {
-		Tensor<BOOL> tensor = Tensor.map(alg.type, alg.LIFT, galois.tensor);
-		return new GaloisConn<BOOL>(alg, tensor);
+		return new GaloisConn<BOOL>(alg, alg.lift(galois.tensor));
 	}
 
 	public static GaloisConn<Boolean> wrap(Tensor<Boolean> tensor) {

@@ -29,6 +29,10 @@ public abstract class BoolAlgebra<BOOL> {
 		return elem ? TRUE : FALSE;
 	}
 
+	public Tensor<BOOL> lift(Tensor<Boolean> tensor) {
+		return Tensor.map(type, LIFT, tensor);
+	}
+
 	public abstract BOOL not(BOOL elem);
 
 	public BOOL or(BOOL elem1, BOOL elem2) {
@@ -134,7 +138,7 @@ public abstract class BoolAlgebra<BOOL> {
 	public final Func2<BOOL, BOOL, BOOL> ADD;
 	public final Func2<BOOL, BOOL, BOOL> EQU;
 
-	public final Func1<BOOL, Boolean> LIFT;
+	protected final Func1<BOOL, Boolean> LIFT;
 	public final Func1<BOOL, Iterable<BOOL>> ALL;
 	public final Func1<BOOL, Iterable<BOOL>> ANY;
 	public final Func1<BOOL, Iterable<BOOL>> SUM;

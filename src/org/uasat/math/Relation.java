@@ -70,8 +70,7 @@ public final class Relation<BOOL> {
 
 	public static <BOOL> Relation<BOOL> lift(BoolAlgebra<BOOL> alg,
 			Relation<Boolean> rel) {
-		Tensor<BOOL> tensor = Tensor.map(alg.type, alg.LIFT, rel.tensor);
-		return new Relation<BOOL>(alg, tensor);
+		return new Relation<BOOL>(alg, alg.lift(rel.tensor));
 	}
 
 	public static <BOOL> List<Relation<BOOL>> lift(BoolAlgebra<BOOL> alg,

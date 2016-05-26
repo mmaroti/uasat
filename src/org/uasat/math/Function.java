@@ -58,8 +58,7 @@ public final class Function<BOOL> {
 
 	public static <BOOL> Function<BOOL> lift(BoolAlgebra<BOOL> alg,
 			Function<Boolean> fun) {
-		Tensor<BOOL> tensor = Tensor.map(alg.type, alg.LIFT, fun.tensor);
-		return new Function<BOOL>(alg, tensor);
+		return new Function<BOOL>(alg, alg.lift(fun.tensor));
 	}
 
 	public BOOL isFunction() {

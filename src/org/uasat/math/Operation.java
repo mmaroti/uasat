@@ -70,8 +70,7 @@ public final class Operation<BOOL> {
 
 	public static <BOOL> Operation<BOOL> lift(BoolAlgebra<BOOL> alg,
 			Operation<Boolean> op) {
-		Tensor<BOOL> tensor = Tensor.map(alg.type, alg.LIFT, op.tensor);
-		return new Operation<BOOL>(alg, tensor);
+		return new Operation<BOOL>(alg, alg.lift(op.tensor));
 	}
 
 	public static <BOOL> List<Operation<BOOL>> lift(BoolAlgebra<BOOL> alg,

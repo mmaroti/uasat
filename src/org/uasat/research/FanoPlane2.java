@@ -35,7 +35,7 @@ public class FanoPlane2 {
 
 		Contract<BOOL> c = Contract.linear(alg);
 		c.add(tensor, "ij");
-		c.add(Tensor.map(alg.type, alg.LIFT, GEN2), "jk");
+		c.add(alg.lift(GEN2), "jk");
 		return c.get("ik");
 	}
 
@@ -81,7 +81,7 @@ public class FanoPlane2 {
 
 		Contract<BOOL> c = Contract.linear(alg);
 		c.add(tensor, "ij");
-		c.add(Tensor.map(alg.type, alg.LIFT, GEN3), "jk");
+		c.add(alg.lift(GEN3), "jk");
 		return c.get("ik");
 	}
 
