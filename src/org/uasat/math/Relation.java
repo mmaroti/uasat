@@ -219,8 +219,7 @@ public final class Relation<BOOL> {
 	}
 
 	public Relation<BOOL> complement() {
-		Tensor<BOOL> tmp = Tensor.map(alg.NOT, tensor);
-		return new Relation<BOOL>(alg, tmp);
+		return new Relation<BOOL>(alg, alg.not(tensor));
 	}
 
 	public Relation<BOOL> subtract(Relation<BOOL> rel) {
@@ -675,7 +674,7 @@ public final class Relation<BOOL> {
 			v[i] = i;
 
 		Contract<BOOL> c = Contract.logical(alg);
-		c.add(Tensor.map(alg.NOT, tensor), v);
+		c.add(alg.not(tensor), v);
 		for (int i = 0; i < getArity(); i++) {
 			v[i] = i + getArity();
 			c.add(tensor, v);

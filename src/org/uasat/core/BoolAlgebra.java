@@ -35,6 +35,10 @@ public abstract class BoolAlgebra<BOOL> {
 
 	public abstract BOOL not(BOOL elem);
 
+	public Tensor<BOOL> not(Tensor<BOOL> tensor) {
+		return Tensor.map(type, NOT, tensor);
+	}
+
 	public BOOL or(BOOL elem1, BOOL elem2) {
 		return not(and(not(elem1), not(elem2)));
 	}
@@ -130,8 +134,7 @@ public abstract class BoolAlgebra<BOOL> {
 		return not(lexLess(elem2, elem1));
 	}
 
-	public final Func1<BOOL, BOOL> ID;
-	public final Func1<BOOL, BOOL> NOT;
+	protected final Func1<BOOL, BOOL> NOT;
 	public final Func2<BOOL, BOOL, BOOL> OR;
 	public final Func2<BOOL, BOOL, BOOL> AND;
 	public final Func2<BOOL, BOOL, BOOL> LEQ;
@@ -152,13 +155,6 @@ public abstract class BoolAlgebra<BOOL> {
 		this.TRUE = TRUE;
 
 		assert TRUE != null && FALSE != null && TRUE != FALSE;
-
-		ID = new Func1<BOOL, BOOL>() {
-			@Override
-			public BOOL call(BOOL elem) {
-				return elem;
-			}
-		};
 
 		NOT = new Func1<BOOL, BOOL>() {
 			@Override
