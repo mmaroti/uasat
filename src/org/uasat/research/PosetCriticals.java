@@ -402,9 +402,9 @@ public class PosetCriticals {
 		SatSolver.setDefault("minisat");
 		// SatSolver.setDefault("logging");
 
-		crown4();
+		// crown4();
 		// crown6();
-		// house5();
+		house5();
 		// house7();
 
 		time = System.currentTimeMillis() - time;
