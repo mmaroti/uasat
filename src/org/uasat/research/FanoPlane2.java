@@ -18,6 +18,7 @@
 
 package org.uasat.research;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 import org.uasat.core.*;
@@ -119,8 +120,18 @@ public class FanoPlane2 {
 		return ss;
 	}
 
+	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
+
 	public static void main(String[] args) {
+		long time = System.currentTimeMillis();
+
 		subspaces2();
 		subspaces3();
+
+		time = System.currentTimeMillis() - time;
+		System.out.println("Total literals: " + SOLVER.totalLiterals
+				+ ", clauses: " + SOLVER.totalClauses);
+		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
+				+ " seconds.");
 	}
 }
