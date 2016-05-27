@@ -94,6 +94,8 @@ public class MiniSat extends SatSolver<Integer> {
 		BufferedReader reader = null;
 		File output = null;
 
+		Thread shutdown = null;
+
 		try {
 			if (logfile == null) {
 				input = File.createTempFile("minisat_input_", ".tmp");
@@ -118,8 +120,18 @@ public class MiniSat extends SatSolver<Integer> {
 			args.add(input.getAbsolutePath());
 			args.add(output.getAbsolutePath());
 
-			Process proc = Runtime.getRuntime().exec(
+			final Process proc = Runtime.getRuntime().exec(
 					args.toArray(new String[args.size()]));
+
+			shutdown = new Thread() {
+				@Override
+				public void run() {
+					proc.destroy();
+				}
+			};
+
+			// TODO: close small window when process is started but hook is not
+			Runtime.getRuntime().addShutdownHook(shutdown);
 
 			BufferedReader eater = new BufferedReader(new InputStreamReader(
 					proc.getInputStream()));
@@ -196,6 +208,9 @@ public class MiniSat extends SatSolver<Integer> {
 
 			if (output != null && logfile == null)
 				output.delete();
+
+			if (shutdown != null)
+				Runtime.getRuntime().removeShutdownHook(shutdown);
 		}
 	}
 
