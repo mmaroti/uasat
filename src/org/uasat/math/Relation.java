@@ -774,6 +774,20 @@ public final class Relation<BOOL> {
 		return Relation.wrap(tensor);
 	}
 
+	public static Relation<Boolean> parse(int size, String str) {
+		if (str.isEmpty())
+			return Relation.empty(size, 1);
+		String tuple = str.split(" ", 2)[0];
+
+		int arity;
+		if (size > 'z' - 'a' + 10)
+			arity = tuple.split(",").length;
+		else
+			arity = tuple.length();
+
+		return parse(size, arity, str);
+	}
+
 	public static int cardinality(Relation<Boolean> rel) {
 		int c = 0;
 		for (Boolean b : rel.getTensor())

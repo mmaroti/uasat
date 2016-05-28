@@ -72,10 +72,10 @@ public final class Algebra<BOOL> implements Iterable<Operation<BOOL>> {
 	}
 
 	public void addAll(Iterable<Operation<BOOL>> ops) {
-		for(Operation<BOOL> op : ops)
+		for (Operation<BOOL> op : ops)
 			add(op);
 	}
-	
+
 	@SafeVarargs
 	final public Algebra<BOOL> extend(Operation<BOOL>... ops) {
 		List<Operation<BOOL>> list = new ArrayList<Operation<BOOL>>(

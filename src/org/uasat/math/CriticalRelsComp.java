@@ -139,7 +139,7 @@ public class CriticalRelsComp {
 				System.out.println("found (" + relations.getGeneratorCount()
 						+ "):\t" + Relation.format(rel));
 		}
-		
+
 		if (trace)
 			System.out.println();
 	}

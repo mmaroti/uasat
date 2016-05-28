@@ -334,9 +334,9 @@ public class MonoidalInt {
 		long time = System.currentTimeMillis();
 
 		CriticalRelsGen gen = new CriticalRelsGen(3, 2, 3);
-		gen.addGenerator(Relation.parse(3, 2, "00 11 22"));
-		gen.addGenerator(Relation.parse(3, 2, "01 10").complement());
-		gen.addGenerator(Relation.parse(3, 3, "200 210 201 211").complement());
+		gen.addGenerator(Relation.parse(3, "00 11 22"));
+		gen.addGenerator(Relation.parse(3, "01 10").complement());
+		gen.addGenerator(Relation.parse(3, "200 210 201 211").complement());
 		gen.generate2();
 		gen.printUniCriticals1();
 
@@ -348,15 +348,15 @@ public class MonoidalInt {
 	public static void main2(String[] args) {
 		long time = System.currentTimeMillis();
 
-		Relation<Boolean> rel0 = Relation.parse(3, 3,
+		Relation<Boolean> rel0 = Relation.parse(3,
 				"000 110 220 001 111 221 022 122 222");
-		Relation<Boolean> rel1 = Relation.parse(3, 3,
+		Relation<Boolean> rel1 = Relation.parse(3,
 				"000 010 110 001 101 111 222");
-		Relation<Boolean> rel2 = Relation.parse(3, 3,
+		Relation<Boolean> rel2 = Relation.parse(3,
 				"000 020 111 121 002 112 222");
-		Relation<Boolean> rel3 = Relation.parse(3, 3,
+		Relation<Boolean> rel3 = Relation.parse(3,
 				"000 200 110 020 120 220 001 111 211 021 121 221 202 212 222");
-		Relation<Boolean> rel4 = Relation.parse(3, 4,
+		Relation<Boolean> rel4 = Relation.parse(3,
 				"0000 1100 0200 1200 1010 0110 "
 						+ "0210 1210 0020 1020 0120 1120 0220 1220 1001 "
 						+ "0101 0201 1201 0011 1111 0211 1211 0021 1021 "

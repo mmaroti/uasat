@@ -66,15 +66,15 @@ public class MonInt719 {
 	public Operation<Boolean> OP3 = Operation.parse(3, 2, "000 000 002");
 	public Operation<Boolean> OP4 = Operation.parse(3, 2, "012 102 222");
 
-	public Relation<Boolean> REL0 = Relation.parse(3, 3,
+	public Relation<Boolean> REL0 = Relation.parse(3,
 			"000 110 220 001 111 221 022 122 222");
-	public Relation<Boolean> REL1 = Relation.parse(3, 3,
+	public Relation<Boolean> REL1 = Relation.parse(3,
 			"000 010 110 001 101 111 222");
-	public Relation<Boolean> REL2 = Relation.parse(3, 3,
+	public Relation<Boolean> REL2 = Relation.parse(3,
 			"000 020 111 121 002 112 222");
-	public Relation<Boolean> REL3 = Relation.parse(3, 3,
+	public Relation<Boolean> REL3 = Relation.parse(3,
 			"000 200 110 020 120 220 001 111 211 021 121 221 202 212 222");
-	public Relation<Boolean> REL4 = Relation.parse(3, 4,
+	public Relation<Boolean> REL4 = Relation.parse(3,
 			"0000 1100 0200 1200 1010 0110 0210 1210 0020 1020 0120 "
 					+ "1120 0220 1220 1001 0101 0201 1201 0011 1111 "
 					+ "0211 1211 0021 1021 0121 1121 0221 1221 0002 "
@@ -134,8 +134,8 @@ public class MonInt719 {
 	public Relation<Boolean> getAlpha(int arity) {
 		assert arity >= 2;
 
-		Relation<Boolean> r1 = Relation.parse(3, 2, "10 01");
-		Relation<Boolean> r2 = Relation.parse(3, 1, "0 1");
+		Relation<Boolean> r1 = Relation.parse(3, "10 01");
+		Relation<Boolean> r2 = Relation.parse(3, "0 1");
 
 		while (r1.getArity() < arity)
 			r1 = r1.cartesian(r2);
@@ -146,8 +146,8 @@ public class MonInt719 {
 	public Relation<Boolean> getBeta(int arity) {
 		assert arity >= 2;
 
-		Relation<Boolean> r1 = Relation.parse(3, 1, "2");
-		Relation<Boolean> r2 = Relation.parse(3, 1, "0 1");
+		Relation<Boolean> r1 = Relation.parse(3, "2");
+		Relation<Boolean> r2 = Relation.parse(3, "0 1");
 
 		while (r1.getArity() < arity)
 			r1 = r1.cartesian(r2);
@@ -159,15 +159,13 @@ public class MonInt719 {
 		assert arity >= 4;
 
 		if (arity == 4)
-			return Relation.parse(3, 4,
-					"1000 0100 0010 1110 0001 1101 1011 0111").complement();
+			return Relation.parse(3, "1000 0100 0010 1110 0001 1101 1011 0111")
+					.complement();
 		else if (arity == 5)
-			return Relation.parse(
-					3,
-					5,
-					"10000 01000 00100 11100 00010 11010 "
-							+ "10110 01110 10001 01001 00101 11101 00011 "
-							+ "11011 10111 01111").complement();
+			return Relation
+					.parse(3,
+							"10000 01000 00100 11100 00010 11010 10110 01110 10001 01001 00101 11101 00011 11011 10111 01111")
+					.complement();
 		else
 			return null;
 	}

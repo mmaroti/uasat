@@ -690,7 +690,7 @@ public class DigraphPoly {
 
 		for (int i = 0; i < 1; i++) {
 			System.out.println("digraph #" + i);
-			Relation<Boolean> rel = Relation.parse(3, 2, cycle);
+			Relation<Boolean> rel = Relation.parse(3, cycle);
 
 			Structure<Boolean> str = Structure.wrap(rel);
 			Structure.print(str);

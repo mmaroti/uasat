@@ -245,8 +245,10 @@ public class CompatibleRels {
 	public List<Relation<Boolean>> findMeetIrredRels(int arity) {
 		assert arity >= 1;
 
-		final List<Permutation<Boolean>> perms = Permutation.symmetricGroup(arity);
-		final Set<Relation<Boolean>> rels = new TreeSet<Relation<Boolean>>(Relation.COMPARATOR);
+		final List<Permutation<Boolean>> perms = Permutation
+				.symmetricGroup(arity);
+		final Set<Relation<Boolean>> rels = new TreeSet<Relation<Boolean>>(
+				Relation.COMPARATOR);
 
 		int[] shape = Util.createShape(algebra.getSize(), arity);
 		SatProblem problem = new SatProblem(shape, shape) {

@@ -92,7 +92,8 @@ public class TransMon {
 			}
 		};
 
-		Tensor<Boolean> sols = problem.solveAll(SatSolver.getDefault(), 100).get(0);
+		Tensor<Boolean> sols = problem.solveAll(SatSolver.getDefault(), 100)
+				.get(0);
 
 		List<boolean[]> list = new ArrayList<boolean[]>();
 		for (int i = 0; i < sols.getDim(1); i++) {
@@ -106,7 +107,9 @@ public class TransMon {
 	}
 
 	public static void main(String[] args) {
-		TransMon m = new TransMon(4, "0123 0000 1111 2222 3333 0100 0020 0003 0111 1121 1131 0222 2122 2223 0333 3133 3323");
+		TransMon m = new TransMon(
+				4,
+				"0123 0000 1111 2222 3333 0100 0020 0003 0111 1121 1131 0222 2122 2223 0333 3133 3323");
 		m.print();
 		System.out.println(m.findMonoids(new boolean[17]).size());
 	}
