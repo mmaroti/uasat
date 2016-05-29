@@ -18,6 +18,7 @@
 
 package org.uasat.math;
 
+import java.io.*;
 import java.util.*;
 
 import org.uasat.core.*;
@@ -917,13 +918,18 @@ public final class Relation<BOOL> {
 		System.out.println("members: " + Relation.format(rel));
 	}
 
-	public static void print(String message, List<Relation<Boolean>> rels) {
-		System.out.println(message + ": " + rels.size());
+	public static void print(String message, List<Relation<Boolean>> rels,
+			PrintStream out) {
+		out.println(message + ": " + rels.size());
 
 		Collections.sort(rels, Relation.COMPARATOR);
 		for (int i = 0; i < rels.size(); i++)
-			System.out.println(i + ":\t" + Relation.format(rels.get(i)));
+			out.println(i + ":\t" + Relation.format(rels.get(i)));
 
-		System.out.println();
+		out.println();
+	}
+
+	public static void print(String message, List<Relation<Boolean>> rels) {
+		print(message, rels, System.out);
 	}
 }

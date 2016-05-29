@@ -2,41 +2,66 @@
 <project name="uasat" default="validate">
 	<target name="clean" description="removes all build artifacts">
 		<delete includeEmptyDirs="true">
-			<fileset dir="bin" includes="**/*"/>
+			<fileset dir="bin" includes="**/*" />
 		</delete>
-		<delete file="uasat.jar"/>
+		<delete file="uasat.jar" />
 	</target>
 
 	<path id="classpath">
-		<fileset dir="" includes="lib/*.jar"/>
-		<pathelement path="bin"/>
+		<fileset dir="" includes="lib/*.jar" />
+		<pathelement path="bin" />
 	</path>
 
 	<target name="build" description="compiles all java files">
-		<mkdir dir="bin"/>
-		<javac srcdir="src" destdir="bin" classpathref="classpath" includeantruntime="false"/>
+		<mkdir dir="bin" />
+		<javac srcdir="src" destdir="bin" classpathref="classpath" includeantruntime="false" />
 	</target>
 
 	<target name="jar" depends="build" description="builds the uasat.jar file">
 		<manifestclasspath property="jar.classpath" jarfile="uasat.jar">
-			<classpath refid="classpath"/>
+			<classpath refid="classpath" />
 		</manifestclasspath>
 		<jar destfile="uasat.jar" includes="" compress="true">
-			<fileset dir="src" includes="**/*.java"/>
-			<fileset dir="" includes="lib/*.jar"/>
-			<fileset dir="bin" includes="**/*.class"/>
-			<fileset file="LICENSE"/>
-			<fileset file="README.md"/>
+			<fileset dir="src" includes="**/*.java" />
+			<fileset dir="" includes="lib/*.jar" />
+			<fileset dir="bin" includes="**/*.class" />
+			<fileset file="LICENSE" />
+			<fileset file="README.md" />
 			<manifest>
-				<attribute name="Main-Class" value="org.uasat.math.Validation"/>
-				<attribute name="Class-Path" value="${jar.classpath}"/>
+				<attribute name="Main-Class" value="org.uasat.math.Validation" />
+				<attribute name="Class-Path" value="${jar.classpath}" />
 			</manifest>
 		</jar>
 	</target>
 
 	<target name="validate" depends="jar" description="runs the validation program">
 		<java jar="uasat.jar" fork="true">
-			<jvmarg value="-ea"/>
+			<jvmarg value="-ea" />
 		</java>
+	</target>
+
+	<target name="web" depends="build" description="builds the uasatweb.jar file">
+		<manifestclasspath property="jar.classpath" jarfile="uasatweb.jar">
+			<classpath refid="classpath" />
+		</manifestclasspath>
+		<jar destfile="uasatweb.jar" includes="" compress="true">
+			<fileset dir="bin">
+				<include name="org/uasat/applets/*.class" />
+				<include name="org/uasat/core/*.class" />
+				<include name="org/uasat/math/*.class" />
+				<include name="org/uasat/solvers/*.class" />
+			</fileset>
+			<zipfileset src="lib/jnisat.jar">
+				<include name="org/**/*" />
+			</zipfileset>
+			<fileset file="LICENSE" />
+			<fileset file="README.md" />
+			<manifest>
+<!--				<attribute name="Main-Class" value="org.uasat.applets.CriticalRels" />
+				<attribute name="Permissions" value="sandbox" />
+				<attribute name="Application-Name" value="UASat Applet" />
+		        <attribute name="Sealed" value="true" />
+-->			</manifest>
+		</jar>
 	</target>
 </project>

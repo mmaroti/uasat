@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>Critical Relations applet</title>
+</head>
+<body>
+<h3>Finding critical relations in relation clones</h3>
+<p>This applet can calculate or estimate the critical relations of
+small arities of a finite relational structure. The generator
+relations must be entered, and then the algorithm iteratively
+generates relations in the relational clone using products, projections
+and intersections, finds the meet-irreducible relations and determines which
+of those are directly indecomposable.</p>
+
+<p>It is not practical to really find all relations of some arity in the
+relational clone,
+because some relations might be generated only through some very large
+arity intermediate relations. Instead, we maintain the list of possibly
+irreducible relations of a given arity <tt>n</tt> (starting from the
+generators) expand them to <tt>n+1</tt> arity relations in all possible
+ways, compute all possible intersections and project it back to the
+first <tt>n</tt> coordinate. So we only calculate those relations that
+can iteratively be obtained by this process (by adding one or more extra
+coordinates).
+Actually, we do not calculate all intersections either, but encode an
+arbitrary intersection of these <tt>n+1</tt> arity relations as a SAT
+problem and use a SAT solver to find such intersection whose <tt>n</tt>
+arity projection is not already represented as the intersection our
+candidate critical relations.</p>
+
+<p>You have to type in your input into the following field. Elements
+are numbered from 0 till <tt>size-1</tt>, using the letter <tt>a</tt>
+for 10, <tt>b</tt> for 11, etc. A tuple is a sequence of elements
+(without separation), and a relation is a sequence of tuples separated
+by spaces. First you have to specify the size of your relational
+structure, then the arity of the meet irreducible relations you want
+to find (these will be directly decomposed into critical relations).
+Then you specify the list of relations in the structure, one per line.
+You can change the extra number of coordinates that is used in the
+generation process from the default value of 1. The format of the
+input is the following:</p>
+<pre>
+size &lt;number&gt;
+rel &lt;relation&gt;
+...
+rel &lt;relation&gt;
+[idempotent]
+arity &lt;number&gt;
+extra &lt;number&gt;
+</pre>
+<p>For example, to find the 4-ary critical relations of the 4-element crown poset,
+use the following script:</p>
+<pre>
+size 4
+rel 00 11 22 33 02 03 12 13
+arity 4
+</pre>
+<form action="">
+<p><textarea id="input" rows="7" cols="70"></textarea></p>
+<p>
+<input type="button" value="Calculate" onclick="calculate();"/>
+<input type="button" value="Clear Output" onclick="clearOutput();"/>
+</p>
+<p><textarea id="output" rows="20" cols="70"></textarea></p>
+</form>
+<p><a href="http://validator.w3.org/check?uri=referer">
+<img src="http://www.w3.org/Icons/valid-xhtml10" style="border:none;"
+alt="Valid XHTML 1.0!" height="31" width="88"/></a>
+</p>
+<script type="text/javascript" src="https://www.java.com/js/deployJava.js"></script>
+<script type="text/javascript">
+  deployJava.runApplet({id: "javaApplet", code: "org.uasat.applets.CriticalRels",
+    archive: "uasatweb.jar", width: 200, height: 40}, {permissions: "sandbox"}, "1.7");
+  var inputField = document.getElementById("input");
+  var outputField = document.getElementById("output");
+  function clearOutput() {
+    outputField.value = "";
+  }
+  function calculate() {
+    outputField.value = "working...";
+    try {
+      outputField.value = javaApplet.solve(inputField.value);
+    } catch (e) {
+      outputField.value = e;
+    }
+  }
+  outputField.value = ""
+</script>
+</body>
+</html>

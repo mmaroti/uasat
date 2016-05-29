@@ -18,6 +18,7 @@
 
 package org.uasat.math;
 
+import java.io.*;
 import java.util.*;
 
 import org.uasat.core.*;
@@ -39,6 +40,13 @@ public final class Structure<BOOL> implements Iterable<Relation<BOOL>> {
 		return relations;
 	}
 
+	public int getMaxArity() {
+		int m = 0;
+		for (Relation<BOOL> rel : relations)
+			m = Math.max(m, rel.getArity());
+		return m;
+	}
+
 	public Relation<BOOL> getRelation(int index) {
 		return relations.get(index);
 	}
@@ -46,6 +54,11 @@ public final class Structure<BOOL> implements Iterable<Relation<BOOL>> {
 	public void add(Relation<BOOL> rel) {
 		assert rel.getSize() == size;
 		relations.add(rel);
+	}
+
+	public void addAll(Iterable<Relation<BOOL>> rels) {
+		for (Relation<BOOL> rel : rels)
+			add(rel);
 	}
 
 	public Structure(BoolAlgebra<BOOL> alg, int size) {
@@ -145,13 +158,17 @@ public final class Structure<BOOL> implements Iterable<Relation<BOOL>> {
 				new ArrayList<Relation<Boolean>>());
 	}
 
-	public static void print(Structure<Boolean> str) {
+	public static void print(Structure<Boolean> str, PrintStream out) {
 		List<Relation<Boolean>> rels = str.relations;
-		System.out.println("structure of size " + str.getSize() + " with "
+		out.println("structure of size " + str.getSize() + " with "
 				+ rels.size() + " rels");
 		for (int i = 0; i < rels.size(); i++)
-			System.out.println(i + ":\t" + Relation.format(rels.get(i)));
-		System.out.println();
+			out.println(i + ":\t" + Relation.format(rels.get(i)));
+		out.println();
+	}
+
+	public static void print(Structure<Boolean> str) {
+		print(str, System.out);
 	}
 
 	@Override

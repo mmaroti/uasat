@@ -18,6 +18,7 @@
 
 package org.uasat.math;
 
+import java.io.PrintStream;
 import java.util.*;
 
 import org.uasat.core.*;
@@ -201,22 +202,25 @@ public class CriticalRelsGen {
 				getMeetIrreds2());
 	}
 
-	public void printUniCriticals1() {
+	public void printUniCriticals1(PrintStream out) {
 		List<Relation<Boolean>> rels = relations1.getUniCriticals();
 		Collections.sort(rels, Relation.COMPARATOR);
 
-		Relation.print("unique critical rels of arity " + arity1, rels);
+		Relation.print("unique critical rels of arity " + arity1, rels, out);
 
-		System.out.println("corresponding critical tuples:");
+		out.println("corresponding critical tuples:");
 		for (int i = 0; i < rels.size(); i++) {
 			Relation<Boolean> rel = rels.get(i);
 			if (rel.getArity() == arity1) {
 				Relation<Boolean> cov = relations1.getIrredCover(rel);
-				System.out.println(i + ":\t"
-						+ Relation.format(cov.subtract(rel)));
+				out.println(i + ":\t" + Relation.format(cov.subtract(rel)));
 			}
 		}
-		System.out.println();
+		out.println();
+	}
+
+	public void printUniCriticals1() {
+		printUniCriticals1(System.out);
 	}
 
 	public void printUniCriticals2() {

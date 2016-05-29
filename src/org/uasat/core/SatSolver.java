@@ -48,7 +48,11 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 			return new MiniSat();
 		}
 
-		System.err.println("WARNING: using Sat4J, which is slow");
+		if (!defaultSolver.equals("sat4j")) {
+			System.err.println("WARNING: using Sat4J, which is slow");
+			defaultSolver = "sat4j";
+		}
+
 		return new Sat4J();
 	}
 
