@@ -8,3 +8,4 @@ uasat.jar
 *.uas
 *.cnf
 *.out
+src/org/uasat/applets/uasatweb.jar

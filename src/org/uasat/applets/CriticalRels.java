@@ -67,7 +67,9 @@ public class CriticalRels extends Applet {
 			while (tokenizer.hasMoreTokens()) {
 				String line = tokenizer.nextToken().trim();
 
-				if (line.startsWith("size ")) {
+				if (line.length() == 0)
+					continue;
+				else if (line.startsWith("size ")) {
 					int size = Integer.parseInt(line.substring(5));
 					if (size <= 0 || structure != null)
 						throw new IllegalArgumentException("invalid size");

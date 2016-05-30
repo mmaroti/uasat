@@ -14,7 +14,7 @@
 
 	<target name="build" description="compiles all java files">
 		<mkdir dir="bin" />
-		<javac srcdir="src" destdir="bin" classpathref="classpath" includeantruntime="false" />
+		<javac srcdir="src" destdir="bin" classpathref="classpath" includeantruntime="false" target="1.7" source="1.7"/>
 	</target>
 
 	<target name="jar" depends="build" description="builds the uasat.jar file">
@@ -40,7 +40,7 @@
 		</java>
 	</target>
 
-	<target name="web" depends="build" description="builds the uasatweb.jar file">
+	<target name="applet" depends="build" description="builds uasatweb.jar for applets">
 		<manifestclasspath property="jar.classpath" jarfile="uasatweb.jar">
 			<classpath refid="classpath" />
 		</manifestclasspath>
@@ -57,11 +57,12 @@
 			<fileset file="LICENSE" />
 			<fileset file="README.md" />
 			<manifest>
-<!--				<attribute name="Main-Class" value="org.uasat.applets.CriticalRels" />
+				<attribute name="Main-Class" value="org.uasat.math.Validate" />
 				<attribute name="Permissions" value="sandbox" />
 				<attribute name="Application-Name" value="UASat Applet" />
 		        <attribute name="Sealed" value="true" />
--->			</manifest>
+			</manifest>
 		</jar>
+		<move file="uasatweb.jar" todir="src/org/uasat/applets" />
 	</target>
 </project>
