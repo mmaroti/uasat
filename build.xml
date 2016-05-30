@@ -40,13 +40,13 @@
 		</java>
 	</target>
 
-	<target name="applet" depends="build" description="builds uasatweb.jar for applets">
+	<target name="applet" depends="clean,build" description="builds uasatweb.jar for applets">
 		<manifestclasspath property="jar.classpath" jarfile="uasatweb.jar">
 			<classpath refid="classpath" />
 		</manifestclasspath>
 		<jar destfile="uasatweb.jar" includes="" compress="true">
 			<fileset dir="bin">
-				<include name="org/uasat/applets/*.class" />
+				<include name="org/uasat/applet/*.class" />
 				<include name="org/uasat/core/*.class" />
 				<include name="org/uasat/math/*.class" />
 				<include name="org/uasat/solvers/*.class" />
@@ -63,6 +63,6 @@
 		        <attribute name="Sealed" value="true" />
 			</manifest>
 		</jar>
-		<move file="uasatweb.jar" todir="src/org/uasat/applets" />
+		<move file="uasatweb.jar" todir="src/org/uasat/applet" />
 	</target>
 </project>
