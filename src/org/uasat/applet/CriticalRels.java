@@ -21,6 +21,7 @@ package org.uasat.applet;
 import java.text.*;
 import java.util.*;
 import java.applet.*;
+import java.awt.*;
 import java.io.*;
 
 import org.uasat.core.*;
@@ -107,6 +108,11 @@ public class CriticalRels extends Applet {
 		} catch (Throwable e) {
 			return e.toString();
 		}
+	}
+
+	@Override
+	public void paint(Graphics g) {
+		g.drawString("UASat applet loaded", 20, 20);
 	}
 
 	public static void main(String[] args) {

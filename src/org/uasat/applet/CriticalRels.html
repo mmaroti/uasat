@@ -70,22 +70,25 @@ arity 4
 <img src="http://www.w3.org/Icons/valid-xhtml10" style="border:none;"
 alt="Valid XHTML 1.0 Strict" height="31" width="88"/></a>
 </p>
-<script type="text/javascript" src="https://www.java.com/js/deployJava.js"></script>
+<div><object id="applet" classid="java:org.uasat.applet.CriticalRels"
+  type="application/x-java-applet" archive="uasatweb.jar" height="40" width="200">
+</object></div>
 <script type="text/javascript">
-  deployJava.runApplet({id: "javaApplet", code: "org.uasat.applet.CriticalRels",
-    archive: "uasatweb.jar", width: 200, height: 40}, {permissions: "sandbox"}, "1.7");
   var inputField = document.getElementById("input");
   var outputField = document.getElementById("output");
+  var javaApplet = document.getElementById("applet");
   function clearOutput() {
     outputField.value = "";
   }
   function calculate() {
     outputField.value = "working...";
-    try {
-      outputField.value = javaApplet.solve(inputField.value);
-    } catch (e) {
-      outputField.value = e;
-    }
+    setTimeout(function() {
+      try {
+        outputField.value = javaApplet.solve(inputField.value);
+      } catch (e) {
+        outputField.value = e;
+      }
+    }, 1);
   }
   outputField.value = ""
 </script>
