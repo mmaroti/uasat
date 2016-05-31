@@ -73,7 +73,7 @@ public class CompatibleOps {
 				res = alg.and(res, str.isCompatibleWith(op));
 
 				if (stabilizer != null)
-					res = alg.and(res, stabilizer.isClosedUnder(alg, op));
+					res = alg.and(res, stabilizer.isClosedUnder(op));
 
 				for (String token : options.split(" ")) {
 					if (token.equals("automorphism"))
@@ -111,7 +111,7 @@ public class CompatibleOps {
 				res = alg.and(res, str.isCompatibleWith(op));
 
 				if (stabilizer != null)
-					res = alg.and(res, stabilizer.isClosedUnder(alg, op));
+					res = alg.and(res, stabilizer.isClosedUnder(op));
 
 				for (String token : options.split(" ")) {
 					if (token.equals("idempotent"))
@@ -159,7 +159,7 @@ public class CompatibleOps {
 				res = alg.and(res, str.isCompatibleWith(op));
 
 				if (stabilizer != null)
-					res = alg.and(res, stabilizer.isClosedUnder(alg, op));
+					res = alg.and(res, stabilizer.isClosedUnder(op));
 
 				for (String token : options.split(" ")) {
 					if (token.equals("idempotent"))
@@ -211,8 +211,8 @@ public class CompatibleOps {
 				b = alg.and(b, str.isCompatibleWith(op1));
 				b = alg.and(b, str.isCompatibleWith(op2));
 				if (stabilizer != null) {
-					b = alg.and(b, stabilizer.isClosedUnder(alg, op1));
-					b = alg.and(b, stabilizer.isClosedUnder(alg, op2));
+					b = alg.and(b, stabilizer.isClosedUnder(op1));
+					b = alg.and(b, stabilizer.isClosedUnder(op2));
 				}
 				b = alg.and(b, Operation.areSiggersTerms(op1, op2));
 				return b;
@@ -241,8 +241,8 @@ public class CompatibleOps {
 				b = alg.and(b, str.isCompatibleWith(op1));
 				b = alg.and(b, str.isCompatibleWith(op2));
 				if (stabilizer != null) {
-					b = alg.and(b, stabilizer.isClosedUnder(alg, op1));
-					b = alg.and(b, stabilizer.isClosedUnder(alg, op2));
+					b = alg.and(b, stabilizer.isClosedUnder(op1));
+					b = alg.and(b, stabilizer.isClosedUnder(op2));
 				}
 				b = alg.and(b, Operation.areJovanovicTerms(op1, op2));
 				return b;
@@ -281,7 +281,7 @@ public class CompatibleOps {
 					b = alg.and(b, op.isOperation());
 					b = alg.and(b, str.isCompatibleWith(op));
 					if (stabilizer != null)
-						b = alg.and(b, stabilizer.isClosedUnder(alg, op));
+						b = alg.and(b, stabilizer.isClosedUnder(op));
 				}
 
 				b = alg.and(b, Operation.areJonssonTerms(ops));

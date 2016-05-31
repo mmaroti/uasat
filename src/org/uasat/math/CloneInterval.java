@@ -194,8 +194,8 @@ public class CloneInterval {
 				b = alg.and(b, rel.isPermuteMinimal());
 
 				if (interval != null) {
-					b = alg.and(b, interval.isClosedUnder(alg, op));
-					b = alg.and(b, interval.isCompatibleWith(alg, rel));
+					b = alg.and(b, interval.isClosedUnder(op));
+					b = alg.and(b, interval.isCompatibleWith(rel));
 				}
 
 				Relation<BOOL> rset = preservedRels(alg, op);
@@ -243,8 +243,8 @@ public class CloneInterval {
 				b = alg.and(b, rel.isPermuteMinimal());
 
 				if (interval != null) {
-					b = alg.and(b, interval.isClosedUnder(alg, op));
-					b = alg.and(b, interval.isCompatibleWith(alg, rel));
+					b = alg.and(b, interval.isClosedUnder(op));
+					b = alg.and(b, interval.isCompatibleWith(rel));
 				}
 
 				Relation<BOOL> oset = preservedOps(alg, rel);
@@ -293,9 +293,9 @@ public class CloneInterval {
 				b = alg.and(b, rel2.isPermuteMinimal());
 
 				if (interval != null) {
-					b = alg.and(b, interval.isClosedUnder(alg, op));
-					b = alg.and(b, interval.isCompatibleWith(alg, rel1));
-					b = alg.and(b, interval.isCompatibleWith(alg, rel2));
+					b = alg.and(b, interval.isClosedUnder(op));
+					b = alg.and(b, interval.isCompatibleWith(rel1));
+					b = alg.and(b, interval.isCompatibleWith(rel2));
 				}
 
 				Relation<BOOL> set1 = preservedOps(alg, rel1);
@@ -344,9 +344,9 @@ public class CloneInterval {
 				b = alg.and(b, op2.isPermuteMinimal());
 
 				if (interval != null) {
-					b = alg.and(b, interval.isClosedUnder(alg, op1));
-					b = alg.and(b, interval.isClosedUnder(alg, op2));
-					b = alg.and(b, interval.isCompatibleWith(alg, rel));
+					b = alg.and(b, interval.isClosedUnder(op1));
+					b = alg.and(b, interval.isClosedUnder(op2));
+					b = alg.and(b, interval.isCompatibleWith(rel));
 				}
 
 				Relation<BOOL> set1 = preservedRels(alg, op1);

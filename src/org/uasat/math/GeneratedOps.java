@@ -164,8 +164,9 @@ public class GeneratedOps implements Iterable<Operation<Boolean>> {
 		return true;
 	}
 
-	public <BOOL> BOOL isClosedUnder(BoolAlgebra<BOOL> alg, Operation<BOOL> op) {
+	public <BOOL> BOOL isClosedUnder(Operation<BOOL> op) {
 		assert op.getSize() == size;
+		BoolAlgebra<BOOL> alg = op.getAlg();
 
 		List<Operation<BOOL>> ops = Operation.lift(alg, operations);
 
@@ -193,8 +194,8 @@ public class GeneratedOps implements Iterable<Operation<Boolean>> {
 		return b;
 	}
 
-	public <BOOL> BOOL isCompatibleWith(BoolAlgebra<BOOL> alg,
-			Relation<BOOL> rel) {
+	public <BOOL> BOOL isCompatibleWith(Relation<BOOL> rel) {
+		BoolAlgebra<BOOL> alg = rel.getAlg();
 		BOOL b = alg.TRUE;
 
 		for (Operation<Boolean> op : operations) {
