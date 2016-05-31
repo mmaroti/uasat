@@ -141,6 +141,70 @@ public class MonoidalInt {
 		System.out.println();
 	}
 
+	public static void findContinuumInterval(int size, String monoid) {
+		SatSolver<?> solver = SatSolver.getDefault();
+		solver.debugging = false;
+
+		final GeneratedOps monops = parseMonoid(size, monoid);
+		System.out.println("monoid: " + monoid);
+
+		final DefByCases def = new DefByCases(size);
+		def.addAllDiagonals();
+		def.addAllNearUnanimous();
+		def.addOthewise();
+		def.printCases();
+
+		SatProblem problem = new SatProblem(new int[] { def.getCases() },
+				new int[] { size, def.getCases() }) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> genrel = new Relation<BOOL>(alg, tensors.get(0));
+				Function<BOOL> genfun = new Function<BOOL>(alg, tensors.get(1));
+
+				BOOL b = alg.TRUE;
+
+				List<Relation<BOOL>> rels = new ArrayList<Relation<BOOL>>();
+				rels.add(def.generateRelation(genrel, 3));
+				rels.add(def.generateRelation(genrel, 4));
+				rels.add(def.generateRelation(genrel, 5));
+
+				for (Relation<BOOL> rel : rels)
+					b = alg.and(b, monops.isCompatibleWith(rel));
+
+				List<Operation<BOOL>> ops = new ArrayList<Operation<BOOL>>();
+				ops.add(def.generateOperation(genfun, 3));
+				// ops.add(def.generateOperation(genfun, 4));
+				// ops.add(def.generateOperation(genfun, 5));
+
+				for (Operation<BOOL> op : ops)
+					b = alg.and(b, monops.isClosedUnder(op));
+
+				for (int i = 0; i < rels.size(); i++)
+					for (int j = 0; j < ops.size(); j++) {
+						BOOL c = ops.get(j).preserves(rels.get(i));
+						if (i == j)
+							c = alg.not(c);
+						b = alg.and(b, c);
+					}
+
+				return b;
+			}
+		};
+
+		List<Tensor<Boolean>> tensors = problem.solveOne(solver);
+		if (tensors != null) {
+			Relation<Boolean> genrel = Relation.wrap(tensors.get(0));
+			System.out.println("genrel: " + Relation.format(genrel));
+
+			Function<Boolean> genfun = Function.wrap(tensors.get(1));
+			System.out.println("genfun: " + Function.format(genfun));
+		} else
+			System.out.println("not found");
+
+		System.out.println();
+	}
+
 	public static String[] TWO_MONOIDS = new String[] { "01", "01 00", "01 10",
 			"01 00 11", "01 10 00 11" };
 
@@ -282,6 +346,17 @@ public class MonoidalInt {
 	}
 
 	public static void main(String[] args) {
+		long time = System.currentTimeMillis();
+		SatSolver.setDefault("minisat");
+
+		findContinuumInterval(3, "012");
+
+		time = System.currentTimeMillis() - time;
+		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
+				+ " seconds.");
+	}
+
+	public static void main5(String[] args) {
 		long time = System.currentTimeMillis();
 
 		GeneratedOps gen = parseMonoid(3, "000 002 012 102 111 112");
