@@ -134,6 +134,40 @@ public class DefByCases {
 			addAllNearUnaMajor(majority);
 	}
 
+	public void addRangeTwo(final int elem1, final int elem2) {
+		assert 0 <= elem1 && elem1 < elem2 && elem2 < size;
+
+		cases.add(new Case() {
+			@Override
+			public boolean matches(int[] tuple) {
+				int a = 0;
+				int b = 0;
+
+				for (int i = 0; i < tuple.length; i++) {
+					if (tuple[i] == elem1)
+						a++;
+					else if (tuple[i] == elem2)
+						b++;
+					else
+						return false;
+				}
+
+				return a > 0 && b > 0;
+			}
+
+			@Override
+			public String toString() {
+				return "rangetwo " + elem1 + " " + elem2;
+			}
+		});
+	}
+
+	public void addAllRangeTwo() {
+		for (int elem1 = 0; elem1 < size - 1; elem1++)
+			for (int elem2 = elem1 + 1; elem2 < size; elem2++)
+				addRangeTwo(elem1, elem2);
+	}
+
 	public void addOthewise() {
 		cases.add(new Case() {
 			@Override

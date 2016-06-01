@@ -151,6 +151,7 @@ public class MonoidalInt {
 		final DefByCases def = new DefByCases(size);
 		def.addAllDiagonals();
 		def.addAllNearUnanimous();
+		def.addAllRangeTwo();
 		def.addOthewise();
 		def.printCases();
 
@@ -161,8 +162,7 @@ public class MonoidalInt {
 					List<Tensor<BOOL>> tensors) {
 				Relation<BOOL> genrel = new Relation<BOOL>(alg, tensors.get(0));
 				Function<BOOL> genfun = new Function<BOOL>(alg, tensors.get(1));
-
-				BOOL b = alg.TRUE;
+				BOOL b = genfun.isFunction();
 
 				List<Relation<BOOL>> rels = new ArrayList<Relation<BOOL>>();
 				rels.add(def.generateRelation(genrel, 3));
@@ -174,16 +174,25 @@ public class MonoidalInt {
 
 				List<Operation<BOOL>> ops = new ArrayList<Operation<BOOL>>();
 				ops.add(def.generateOperation(genfun, 3));
-				// ops.add(def.generateOperation(genfun, 4));
-				// ops.add(def.generateOperation(genfun, 5));
+				ops.add(def.generateOperation(genfun, 4));
+				ops.add(def.generateOperation(genfun, 5));
 
 				for (Operation<BOOL> op : ops)
 					b = alg.and(b, monops.isClosedUnder(op));
 
-				for (int i = 0; i < rels.size(); i++)
-					for (int j = 0; j < ops.size(); j++) {
-						BOOL c = ops.get(j).preserves(rels.get(i));
-						if (i == j)
+				System.out.println(ops.size());
+				System.out.println(rels.size());
+				
+				for (Operation<BOOL> op : ops)
+					for (Relation<BOOL> rel : rels) {
+						if ((op.getArity() + 1) * rel.getArity() >= 25)
+							continue;
+
+						System.out.println("op " + op.getArity() + " rel "
+								+ rel.getArity());
+
+						BOOL c = op.preserves(rel);
+						if (op.getArity() == rel.getArity())
 							c = alg.not(c);
 						b = alg.and(b, c);
 					}

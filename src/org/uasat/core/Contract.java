@@ -317,24 +317,25 @@ public class Contract<ELEM> {
 	}
 
 	public static void main(String[] args) {
-		// Contract.track = true;
+		Contract.track = true;
 		Contract<Boolean> c = Contract.logical(BoolAlgebra.INSTANCE);
 
-		Tensor<Boolean> op = Tensor.constant(new int[] { 3, 3, 3, 3, 3 },
+		Tensor<Boolean> op = Tensor.constant(new int[] { 3, 3, 3, 3, 3, 3 },
 				Boolean.FALSE);
 
 		Tensor<Boolean> rel = Tensor.constant(new int[] { 3, 3, 3, 3 },
 				Boolean.FALSE);
 
 		c.add(rel, "abcd");
-		c.add(op, "xaeim");
+		c.add(op, "xaeimq");
 		c.add(rel, "efgh");
-		c.add(op, "ybfjn");
+		c.add(op, "ybfjnr");
 		c.add(rel, "ijkl");
-		c.add(op, "zcgko");
 		c.add(rel, "mnop");
-		c.add(op, "udhlp");
-		c.get("xyz");
+		c.add(op, "zcgkos");
+		c.add(rel, "qrst");
+		c.add(op, "udhlpt");
+		c.get("xyzu");
 
 		System.out.println("reshape: " + track_reshape);
 		System.out.println("map2:    " + track_map2);

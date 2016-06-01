@@ -556,6 +556,12 @@ public final class Operation<BOOL> {
 			return evaluate_op4_rel3(rel);
 		else if (getArity() == 4 && rel.getArity() == 4)
 			return evaluate_op4_rel4(rel);
+		else if (getArity() == 4 && rel.getArity() == 5)
+			return evaluate_op4_rel5(rel);
+		else if (getArity() == 5 && rel.getArity() == 3)
+			return evaluate_op5_rel3(rel);
+		else if (getArity() == 5 && rel.getArity() == 4)
+			return evaluate_op5_rel4(rel);
 
 		throw new UnsupportedOperationException(
 				"not implemented for these arities");
@@ -755,7 +761,63 @@ public final class Operation<BOOL> {
 		c.add(tensor, "zcgko");
 		c.add(rel.getTensor(), "mnop");
 		c.add(tensor, "udhlp");
+		Tensor<BOOL> t = c.get("xyzu");
+
+		return new Relation<BOOL>(alg, t);
+	}
+
+	private Relation<BOOL> evaluate_op4_rel5(Relation<BOOL> rel) {
+		assert getArity() == 4 && rel.getArity() == 5;
+		Contract<BOOL> c = Contract.logical(alg);
+
+		// the order matters for performance
+		c.add(tensor, "xafkp");
+		c.add(rel.getTensor(), "abcde");
+		c.add(tensor, "ybglq");
+		c.add(rel.getTensor(), "fghij");
+		c.add(tensor, "zchmr");
+		c.add(rel.getTensor(), "klmno");
+		c.add(tensor, "udins");
+		c.add(rel.getTensor(), "pqrst");
+		c.add(tensor, "vejot");
+		Tensor<BOOL> t = c.get("xyzuv");
+
+		return new Relation<BOOL>(alg, t);
+	}
+
+	private Relation<BOOL> evaluate_op5_rel3(Relation<BOOL> rel) {
+		assert getArity() == 5 && rel.getArity() == 3;
+		Contract<BOOL> c = Contract.logical(alg);
+
+		// the order matters for performance
+		c.add(rel.getTensor(), "abc");
+		c.add(tensor, "xadgjm");
+		c.add(rel.getTensor(), "def");
+		c.add(rel.getTensor(), "ghi");
+		c.add(tensor, "ybehkn");
+		c.add(rel.getTensor(), "jkl");
+		c.add(rel.getTensor(), "mno");
+		c.add(tensor, "zcfilo");
 		Tensor<BOOL> t = c.get("xyz");
+
+		return new Relation<BOOL>(alg, t);
+	}
+
+	private Relation<BOOL> evaluate_op5_rel4(Relation<BOOL> rel) {
+		assert getArity() == 5 && rel.getArity() == 4;
+		Contract<BOOL> c = Contract.logical(alg);
+
+		// the order matters for performance
+		c.add(rel.getTensor(), "abcd");
+		c.add(tensor, "xaeimq");
+		c.add(rel.getTensor(), "efgh");
+		c.add(tensor, "ybfjnr");
+		c.add(rel.getTensor(), "ijkl");
+		c.add(rel.getTensor(), "mnop");
+		c.add(tensor, "zcgkos");
+		c.add(rel.getTensor(), "qrst");
+		c.add(tensor, "udhlpt");
+		Tensor<BOOL> t = c.get("xyzu");
 
 		return new Relation<BOOL>(alg, t);
 	}
