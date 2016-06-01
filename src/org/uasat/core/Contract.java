@@ -21,6 +21,11 @@ package org.uasat.core;
 import java.util.*;
 
 public class Contract<ELEM> {
+	private static boolean track = false;
+	private static int track_reshape = 0;
+	private static int track_map2 = 0;
+	private static int track_fold = 0;
+
 	private final Func1<ELEM, Iterable<ELEM>> sum;
 	private final Func2<ELEM, ELEM, ELEM> prod;
 
@@ -119,8 +124,8 @@ public class Contract<ELEM> {
 		add(tensor, list);
 	}
 
-	private static <ELEM> int[] fillShape(Entry<ELEM> entry, List<Object> vars,
-			int[] shape) {
+	private static <ELEM> int[] getReshapeMap(Entry<ELEM> entry,
+			List<Object> vars, int[] shape) {
 		assert shape.length == vars.size();
 		int[] map = new int[entry.vars.size()];
 
@@ -149,10 +154,13 @@ public class Contract<ELEM> {
 
 		int[] shape = new int[vars.size()];
 		Arrays.fill(shape, -1);
-		int[] map = fillShape(entry, vars, shape);
+		int[] map = getReshapeMap(entry, vars, shape);
 
 		if (map == null)
 			return entry;
+
+		if (track)
+			track_reshape += Util.getShapeSize(shape);
 
 		Tensor<ELEM> tensor = Tensor.reshape(entry.tensor, shape, map);
 		return new Entry<ELEM>(tensor, vars);
@@ -170,8 +178,17 @@ public class Contract<ELEM> {
 
 		int[] shape = new int[vars.size()];
 		Arrays.fill(shape, -1);
-		int[] map1 = fillShape(arg1, vars, shape);
-		int[] map2 = fillShape(arg2, vars, shape);
+		int[] map1 = getReshapeMap(arg1, vars, shape);
+		int[] map2 = getReshapeMap(arg2, vars, shape);
+
+		if (track) {
+			int s = Util.getShapeSize(shape);
+			if (map1 != null)
+				track_reshape += s;
+			if (map2 != null)
+				track_reshape += s;
+			track_map2 += s;
+		}
 
 		Tensor<ELEM> t1 = map1 != null ? Tensor.reshape(arg1.tensor, shape,
 				map1) : arg1.tensor;
@@ -203,7 +220,15 @@ public class Contract<ELEM> {
 
 		int[] shape = new int[vars.size()];
 		Arrays.fill(shape, -1);
-		int[] map = fillShape(entry, vars, shape);
+		int[] map = getReshapeMap(entry, vars, shape);
+
+		if (track) {
+			int s = Util.getShapeSize(shape);
+			if (map != null)
+				track_reshape += s;
+			track_fold += s;
+		}
+
 		Tensor<ELEM> tensor = map != null ? Tensor.reshape(entry.tensor, shape,
 				map) : entry.tensor;
 
@@ -271,7 +296,7 @@ public class Contract<ELEM> {
 		System.out.println();
 	}
 
-	public static void main(String[] args) {
+	public static void main2(String[] args) {
 		Tensor<Integer> a = Tensor.matrix(Integer.TYPE, 2, 2,
 				Arrays.asList(1, 2, 3, 4));
 		Tensor.print(a);
@@ -289,5 +314,32 @@ public class Contract<ELEM> {
 		contract.add(a, "ij");
 		contract.add(a, "jk");
 		Tensor.print(contract.get("j"));
+	}
+
+	public static void main(String[] args) {
+		// Contract.track = true;
+		Contract<Boolean> c = Contract.logical(BoolAlgebra.INSTANCE);
+
+		Tensor<Boolean> op = Tensor.constant(new int[] { 3, 3, 3, 3, 3 },
+				Boolean.FALSE);
+
+		Tensor<Boolean> rel = Tensor.constant(new int[] { 3, 3, 3, 3 },
+				Boolean.FALSE);
+
+		c.add(rel, "abcd");
+		c.add(op, "xaeim");
+		c.add(rel, "efgh");
+		c.add(op, "ybfjn");
+		c.add(rel, "ijkl");
+		c.add(op, "zcgko");
+		c.add(rel, "mnop");
+		c.add(op, "udhlp");
+		c.get("xyz");
+
+		System.out.println("reshape: " + track_reshape);
+		System.out.println("map2:    " + track_map2);
+		System.out.println("fold:    " + track_fold);
+		System.out.println("total:   "
+				+ (track_reshape + track_map2 + track_fold));
 	}
 }

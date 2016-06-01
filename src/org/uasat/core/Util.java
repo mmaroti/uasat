@@ -30,6 +30,15 @@ public final class Util {
 		return shape;
 	}
 
+	public static int getShapeSize(int[] shape) {
+		int size = 1;
+		for (int i = 0; i < shape.length; i++) {
+			assert 0 <= shape[i];
+			size *= shape[i];
+		}
+		return size;
+	}
+
 	public static String formatElement(int size, int elem) {
 		if (elem < 0 || elem >= size)
 			throw new IllegalArgumentException();
@@ -201,7 +210,7 @@ public final class Util {
 	/**
 	 * Given a shape (an array of dimensions) of tensors it returns an iterator
 	 * for the set of element indexes.
-	 *
+	 * 
 	 * @param shape
 	 *            the shape of a tensor
 	 * @return an iterator for the set of indices in increasing order (first
@@ -274,7 +283,7 @@ public final class Util {
 	 * Given a regular shape (with size and arity) it returns an iterator for
 	 * the set of indexes starting in increasing order (first index increases
 	 * the fastest).
-	 *
+	 * 
 	 * @param size
 	 *            the shared size of all arities
 	 * @param arity
@@ -368,7 +377,7 @@ public final class Util {
 	 * Given a regular shape (with size and arity) it returns an iterator for
 	 * the set of indexes starting in order where the maximum component grows
 	 * (onion layers)
-	 *
+	 * 
 	 * @param size
 	 *            the shared size of all arities
 	 * @param arity

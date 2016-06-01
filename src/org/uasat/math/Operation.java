@@ -552,6 +552,10 @@ public final class Operation<BOOL> {
 			return evaluate_op3_rel4(rel);
 		else if (getArity() == 3 && rel.getArity() == 5)
 			return evaluate_op3_rel5(rel);
+		else if (getArity() == 4 && rel.getArity() == 3)
+			return evaluate_op4_rel3(rel);
+		else if (getArity() == 4 && rel.getArity() == 4)
+			return evaluate_op4_rel4(rel);
 
 		throw new UnsupportedOperationException(
 				"not implemented for these arities");
@@ -708,15 +712,50 @@ public final class Operation<BOOL> {
 		Contract<BOOL> c = Contract.logical(alg);
 
 		// the order matters for performance
-		c.add(rel.getTensor(), "abcde");
-		c.add(rel.getTensor(), "fghij");
 		c.add(tensor, "xafk");
+		c.add(rel.getTensor(), "abcde");
 		c.add(tensor, "ybgl");
+		c.add(rel.getTensor(), "fghij");
 		c.add(tensor, "zchm");
-		c.add(tensor, "udin");
 		c.add(rel.getTensor(), "klmno");
+		c.add(tensor, "udin");
 		c.add(tensor, "vejo");
 		Tensor<BOOL> t = c.get("xyzuv");
+
+		return new Relation<BOOL>(alg, t);
+	}
+
+	private Relation<BOOL> evaluate_op4_rel3(Relation<BOOL> rel) {
+		assert getArity() == 4 && rel.getArity() == 3;
+		Contract<BOOL> c = Contract.logical(alg);
+
+		// the order matters for performance
+		c.add(rel.getTensor(), "abc");
+		c.add(tensor, "xadgj");
+		c.add(rel.getTensor(), "def");
+		c.add(rel.getTensor(), "ghi");
+		c.add(tensor, "ybehk");
+		c.add(rel.getTensor(), "jkl");
+		c.add(tensor, "zcfil");
+		Tensor<BOOL> t = c.get("xyz");
+
+		return new Relation<BOOL>(alg, t);
+	}
+
+	private Relation<BOOL> evaluate_op4_rel4(Relation<BOOL> rel) {
+		assert getArity() == 4 && rel.getArity() == 4;
+		Contract<BOOL> c = Contract.logical(alg);
+
+		// the order matters for performance
+		c.add(rel.getTensor(), "abcd");
+		c.add(tensor, "xaeim");
+		c.add(rel.getTensor(), "efgh");
+		c.add(tensor, "ybfjn");
+		c.add(rel.getTensor(), "ijkl");
+		c.add(tensor, "zcgko");
+		c.add(rel.getTensor(), "mnop");
+		c.add(tensor, "udhlp");
+		Tensor<BOOL> t = c.get("xyz");
 
 		return new Relation<BOOL>(alg, t);
 	}

@@ -148,7 +148,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 
 		public IntTensor(int[] shape) {
 			super(shape);
-			this.array = new int[getSize(shape)];
+			this.array = new int[Util.getShapeSize(shape)];
 		}
 
 		@Override
@@ -198,7 +198,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 
 		public BoolTensor(int[] shape) {
 			super(shape);
-			this.array = new boolean[getSize(shape)];
+			this.array = new boolean[Util.getShapeSize(shape)];
 		}
 
 		@Override
@@ -251,7 +251,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 		public ObjTensor(Class<ELEM> type, int[] shape) {
 			super(shape);
 			this.type = type;
-			this.array = new Object[getSize(shape)];
+			this.array = new Object[Util.getShapeSize(shape)];
 		}
 
 		@Override
@@ -294,15 +294,6 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 			} else
 				return false;
 		}
-	}
-
-	private static int getSize(int[] shape) {
-		int size = 1;
-		for (int i = 0; i < shape.length; i++) {
-			assert 0 <= shape[i];
-			size *= shape[i];
-		}
-		return size;
 	}
 
 	public static <ELEM> Tensor<ELEM> generate(Class<ELEM> type, int[] shape,
@@ -543,7 +534,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 			Func1<ELEM2, Iterable<ELEM1>> func, int proj, Tensor<ELEM1> arg) {
 		int[] shape = new int[proj];
 		System.arraycopy(arg.shape, 0, shape, 0, proj);
-		int step = getSize(shape);
+		int step = Util.getShapeSize(shape);
 
 		shape = new int[arg.getOrder() - proj];
 		System.arraycopy(arg.shape, proj, shape, 0, shape.length);
@@ -570,7 +561,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 					&& tensor.getType() == type;
 
 		int count = list.size();
-		int size = getSize(commonShape);
+		int size = Util.getShapeSize(commonShape);
 
 		int[] shape = new int[commonShape.length + 1];
 		System.arraycopy(commonShape, 0, shape, 0, commonShape.length);
@@ -597,7 +588,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 
 		int[] shape = new int[tensor.getOrder() - 1];
 		System.arraycopy(tensor.getShape(), 0, shape, 0, shape.length);
-		int size = getSize(shape);
+		int size = Util.getShapeSize(shape);
 		int last = tensor.getDim(shape.length);
 
 		List<Tensor<ELEM>> list = new ArrayList<Tensor<ELEM>>();
