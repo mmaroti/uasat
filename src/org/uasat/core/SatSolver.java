@@ -71,6 +71,12 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 
 	public abstract void clause(List<BOOL> clause);
 
+	public abstract void clause(BOOL lit1);
+
+	public abstract void clause(BOOL lit1, BOOL lit2);
+
+	public abstract void clause(BOOL lit1, BOOL lit2, BOOL lit3);
+
 	public abstract boolean solve();
 
 	public abstract boolean decode(BOOL term);
@@ -103,9 +109,9 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 			return FALSE;
 
 		BOOL var = variable();
-		clause(Arrays.asList(a, not(var)));
-		clause(Arrays.asList(b, not(var)));
-		clause(Arrays.asList(not(a), not(b), var));
+		clause(a, not(var));
+		clause(b, not(var));
+		clause(not(a), not(b), var);
 		return var;
 	}
 
@@ -126,7 +132,7 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 
 		BOOL var = variable();
 		for (BOOL a : list)
-			clause(Arrays.asList(a, not(var)));
+			clause(a, not(var));
 
 		for (int i = 0; i < list.size(); i++)
 			list.set(i, not(list.get(i)));
@@ -151,9 +157,9 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 			return TRUE;
 
 		BOOL var = variable();
-		clause(Arrays.asList(not(a), var));
-		clause(Arrays.asList(not(b), var));
-		clause(Arrays.asList(a, b, not(var)));
+		clause(not(a), var);
+		clause(not(b), var);
+		clause(a, b, not(var));
 		return var;
 	}
 
@@ -174,7 +180,7 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 
 		BOOL var = variable();
 		for (BOOL a : list)
-			clause(Arrays.asList(not(a), var));
+			clause(not(a), var);
 
 		list.add(not(var));
 		clause(list);
@@ -194,10 +200,10 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 			return a;
 
 		BOOL var = variable();
-		clause(Arrays.asList(a, b, not(var)));
-		clause(Arrays.asList(a, not(b), var));
-		clause(Arrays.asList(not(a), b, var));
-		clause(Arrays.asList(not(a), not(b), not(var)));
+		clause(a, b, not(var));
+		clause(a, not(b), var);
+		clause(not(a), b, var);
+		clause(not(a), not(b), not(var));
 		return var;
 	}
 }

@@ -60,6 +60,24 @@ public class MiniSat extends SatSolver<Integer> {
 	}
 
 	@Override
+	public void clause(Integer lit1) {
+		totalClauses += 1;
+		clauses.add(new int[] { lit1 });
+	}
+
+	@Override
+	public void clause(Integer lit1, Integer lit2) {
+		totalClauses += 1;
+		clauses.add(new int[] { lit1, lit2 });
+	}
+
+	@Override
+	public void clause(Integer lit1, Integer lit2, Integer lit3) {
+		totalClauses += 1;
+		clauses.add(new int[] { lit1, lit2, lit3 });
+	}
+
+	@Override
 	public Integer not(Integer b) {
 		return -b;
 	}

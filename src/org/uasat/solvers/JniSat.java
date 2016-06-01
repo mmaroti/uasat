@@ -61,6 +61,24 @@ public class JniSat extends SatSolver<Integer> {
 	}
 
 	@Override
+	public void clause(Integer lit1) {
+		totalClauses += 1;
+		solver.addClause(lit1);
+	}
+
+	@Override
+	public void clause(Integer lit1, Integer lit2) {
+		totalClauses += 1;
+		solver.addClause(lit1, lit2);
+	}
+
+	@Override
+	public void clause(Integer lit1, Integer lit2, Integer lit3) {
+		totalClauses += 1;
+		solver.addClause(lit1, lit2, lit3);
+	}
+
+	@Override
 	public boolean solve() {
 		totalSolves += 1;
 		return solver.solve();

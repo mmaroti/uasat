@@ -68,7 +68,7 @@ public abstract class SatProblem {
 			tensors.add(Tensor.generate(solver.type, mask.getShape(),
 					solver.VARIABLE));
 
-		solver.clause(Arrays.asList(compute(solver, tensors)));
+		solver.clause(compute(solver, tensors));
 
 		return solver.solve();
 	}
@@ -81,7 +81,7 @@ public abstract class SatProblem {
 			tensors.add(Tensor.generate(solver.type, mask.getShape(),
 					solver.VARIABLE));
 
-		solver.clause(Arrays.asList(compute(solver, tensors)));
+		solver.clause(compute(solver, tensors));
 
 		if (!solver.solve())
 			return null;
@@ -103,7 +103,7 @@ public abstract class SatProblem {
 			tensors.add(Tensor.generate(solver.type, mask.getShape(),
 					solver.VARIABLE));
 
-		solver.clause(Arrays.asList(compute(solver, tensors)));
+		solver.clause(compute(solver, tensors));
 
 		List<List<Tensor<Boolean>>> solutions = new ArrayList<List<Tensor<Boolean>>>();
 		while (solver.solve()) {

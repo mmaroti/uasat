@@ -43,7 +43,7 @@ public class Sat4J extends SatSolver<Integer> {
 		solution = new boolean[0];
 
 		solver.newVar(1);
-		clause(new int[] { 1 });
+		clause(1);
 	}
 
 	protected static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
@@ -112,12 +112,26 @@ public class Sat4J extends SatSolver<Integer> {
 
 	@Override
 	public void clause(List<Integer> clause) {
-		totalClauses += 1;
 		int[] c = new int[clause.size()];
 		for (int i = 0; i < clause.size(); i++)
 			c[i] = clause.get(i);
 
 		clause(c);
+	}
+
+	@Override
+	public void clause(Integer lit1) {
+		clause(new int[] { lit1 });
+	}
+
+	@Override
+	public void clause(Integer lit1, Integer lit2) {
+		clause(new int[] { lit1, lit2 });
+	}
+
+	@Override
+	public void clause(Integer lit1, Integer lit2, Integer lit3) {
+		clause(new int[] { lit1, lit2, lit3 });
 	}
 
 	@Override
