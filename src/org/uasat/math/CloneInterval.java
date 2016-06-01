@@ -143,7 +143,7 @@ public class CloneInterval {
 
 	public <BOOL> Relation<BOOL> preservedOps(final BoolAlgebra<BOOL> alg,
 			final Relation<BOOL> rel) {
-		Tensor<BOOL> tensor = Tensor.generate(alg.type, operations.size(),
+		Tensor<BOOL> tensor = Tensor.generate(alg.getType(), operations.size(),
 				new Func1<BOOL, Integer>() {
 					@Override
 					public BOOL call(Integer elem) {
@@ -157,7 +157,7 @@ public class CloneInterval {
 
 	public <BOOL> Relation<BOOL> preservedRels(final BoolAlgebra<BOOL> alg,
 			final Operation<BOOL> op) {
-		Tensor<BOOL> tensor = Tensor.generate(alg.type, relations.size(),
+		Tensor<BOOL> tensor = Tensor.generate(alg.getType(), relations.size(),
 				new Func1<BOOL, Integer>() {
 					@Override
 					public BOOL call(Integer elem) {

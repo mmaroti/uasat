@@ -21,10 +21,15 @@ package org.uasat.core;
 import java.util.*;
 
 public abstract class BoolAlgebra<BOOL> {
-	public final Class<BOOL> type;
+	protected final Class<BOOL> type;
+	
+	public Class<BOOL> getType() {
+		return type;
+	}
+	
 	public final BOOL FALSE;
 	public final BOOL TRUE;
-
+	
 	public BOOL lift(boolean elem) {
 		return elem ? TRUE : FALSE;
 	}

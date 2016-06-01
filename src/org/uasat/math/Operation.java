@@ -569,7 +569,7 @@ public final class Operation<BOOL> {
 
 	private Relation<BOOL> evaluate_op0(int arity) {
 		assert getArity() == 0;
-		Tensor<BOOL> t = Tensor.diagonal(alg.type, tensor, new int[arity],
+		Tensor<BOOL> t = Tensor.diagonal(alg.getType(), tensor, new int[arity],
 				alg.FALSE);
 		return new Relation<BOOL>(alg, t);
 	}

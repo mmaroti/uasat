@@ -85,7 +85,7 @@ public final class Relation<BOOL> {
 	public static <BOOL> Relation<BOOL> constant(BoolAlgebra<BOOL> alg,
 			int size, int arity, BOOL value) {
 		int[] shape = Util.createShape(size, arity);
-		Tensor<BOOL> tensor = Tensor.constant(alg.type, shape, value);
+		Tensor<BOOL> tensor = Tensor.constant(alg.getType(), shape, value);
 		return new Relation<BOOL>(alg, tensor);
 	}
 
@@ -367,7 +367,7 @@ public final class Relation<BOOL> {
 	public Relation<BOOL> diagonal(int arity) {
 		assert getArity() == 1;
 
-		Tensor<BOOL> tmp = Tensor.constant(alg.type,
+		Tensor<BOOL> tmp = Tensor.constant(alg.getType(),
 				Util.createShape(getSize(), arity), alg.FALSE);
 
 		int[] index = new int[arity];
@@ -414,7 +414,7 @@ public final class Relation<BOOL> {
 
 		final int[] idx1 = new int[getArity()];
 		final int[] idx2 = new int[getArity()];
-		Tensor<BOOL> tmp = Tensor.generate(alg.type, shape,
+		Tensor<BOOL> tmp = Tensor.generate(alg.getType(), shape,
 				new Func1<BOOL, int[]>() {
 					@Override
 					public BOOL call(int[] elem) {
@@ -714,7 +714,7 @@ public final class Relation<BOOL> {
 		int[] shape = new int[getArity()];
 		Arrays.fill(shape, subsets.size());
 
-		Tensor<BOOL> tensor = Tensor.generate(alg.type, shape,
+		Tensor<BOOL> tensor = Tensor.generate(alg.getType(), shape,
 				new Func1<BOOL, int[]>() {
 					@Override
 					public BOOL call(int[] elem) {

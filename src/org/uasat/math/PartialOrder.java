@@ -150,20 +150,20 @@ public final class PartialOrder<BOOL> {
 		assert alg == ord.alg;
 
 		final int s = getSize();
-		Tensor<BOOL> t = Tensor.generate(alg.type, s + ord.getSize(),
-				s + ord.getSize(), new Func2<BOOL, Integer, Integer>() {
-					@Override
-					public BOOL call(Integer elem1, Integer elem2) {
-						if (elem1 < s && elem2 < s)
-							return tensor.getElem(elem1, elem2);
-						else if (elem1 >= s && elem2 >= s)
-							return ord.tensor.getElem(elem1 - s, elem2 - s);
-						else if (elem1 < s && elem2 >= s)
-							return alg.TRUE;
-						else
-							return alg.FALSE;
-					}
-				});
+		Tensor<BOOL> t = Tensor.generate(alg.getType(), s + ord.getSize(), s
+				+ ord.getSize(), new Func2<BOOL, Integer, Integer>() {
+			@Override
+			public BOOL call(Integer elem1, Integer elem2) {
+				if (elem1 < s && elem2 < s)
+					return tensor.getElem(elem1, elem2);
+				else if (elem1 >= s && elem2 >= s)
+					return ord.tensor.getElem(elem1 - s, elem2 - s);
+				else if (elem1 < s && elem2 >= s)
+					return alg.TRUE;
+				else
+					return alg.FALSE;
+			}
+		});
 
 		return new PartialOrder<BOOL>(alg, t);
 	}
@@ -172,18 +172,18 @@ public final class PartialOrder<BOOL> {
 		assert alg == ord.alg;
 
 		final int s = getSize();
-		Tensor<BOOL> t = Tensor.generate(alg.type, s + ord.getSize(),
-				s + ord.getSize(), new Func2<BOOL, Integer, Integer>() {
-					@Override
-					public BOOL call(Integer elem1, Integer elem2) {
-						if (elem1 < s && elem2 < s)
-							return tensor.getElem(elem1, elem2);
-						else if (elem1 >= s && elem2 >= s)
-							return ord.tensor.getElem(elem1 - s, elem2 - s);
-						else
-							return alg.FALSE;
-					}
-				});
+		Tensor<BOOL> t = Tensor.generate(alg.getType(), s + ord.getSize(), s
+				+ ord.getSize(), new Func2<BOOL, Integer, Integer>() {
+			@Override
+			public BOOL call(Integer elem1, Integer elem2) {
+				if (elem1 < s && elem2 < s)
+					return tensor.getElem(elem1, elem2);
+				else if (elem1 >= s && elem2 >= s)
+					return ord.tensor.getElem(elem1 - s, elem2 - s);
+				else
+					return alg.FALSE;
+			}
+		});
 
 		return new PartialOrder<BOOL>(alg, t);
 	}
