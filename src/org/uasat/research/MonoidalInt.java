@@ -180,16 +180,10 @@ public class MonoidalInt {
 				for (Operation<BOOL> op : ops)
 					b = alg.and(b, monops.isClosedUnder(op));
 
-				System.out.println(ops.size());
-				System.out.println(rels.size());
-				
 				for (Operation<BOOL> op : ops)
 					for (Relation<BOOL> rel : rels) {
-						if ((op.getArity() + 1) * rel.getArity() >= 25)
+						if (op.getArity() == 5 && rel.getArity() >= 4)
 							continue;
-
-						System.out.println("op " + op.getArity() + " rel "
-								+ rel.getArity());
 
 						BOOL c = op.preserves(rel);
 						if (op.getArity() == rel.getArity())
@@ -359,6 +353,7 @@ public class MonoidalInt {
 		SatSolver.setDefault("minisat");
 
 		findContinuumInterval(3, "012");
+		// findContinuumInterval(3, "000 002 010 012");
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
