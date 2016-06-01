@@ -129,8 +129,8 @@ public class FanoPlane2 {
 		subspaces3();
 
 		time = System.currentTimeMillis() - time;
-		System.out.println("Total literals: " + SOLVER.totalLiterals
-				+ ", clauses: " + SOLVER.totalClauses);
+		System.out.println("Total literals: " + SOLVER.getTotalLiterals()
+				+ ", clauses: " + SOLVER.getTotalClauses());
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
 				+ " seconds.");
 	}

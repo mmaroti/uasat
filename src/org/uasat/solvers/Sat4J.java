@@ -27,6 +27,25 @@ import org.sat4j.specs.*;
 import org.uasat.core.*;
 
 public class Sat4J extends SatSolver<Integer> {
+	public int totalLiterals = 0;
+	public int totalClauses = 0;
+	public int totalSolves = 0;
+
+	@Override
+	public int getTotalLiterals() {
+		return totalLiterals;
+	}
+
+	@Override
+	public int getTotalClauses() {
+		return totalClauses;
+	}
+
+	@Override
+	public int getTotalSolves() {
+		return totalSolves;
+	}
+
 	protected int variables;
 	protected ISolver solver = SolverFactory.newDefault();
 	protected boolean[] solution;

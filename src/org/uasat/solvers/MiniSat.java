@@ -25,6 +25,25 @@ import java.util.*;
 import org.uasat.core.*;
 
 public class MiniSat extends SatSolver<Integer> {
+	public int totalLiterals = 0;
+	public int totalClauses = 0;
+	public int totalSolves = 0;
+
+	@Override
+	public int getTotalLiterals() {
+		return totalLiterals;
+	}
+
+	@Override
+	public int getTotalClauses() {
+		return totalClauses;
+	}
+
+	@Override
+	public int getTotalSolves() {
+		return totalSolves;
+	}
+
 	protected int variables;
 	protected List<int[]> clauses = new ArrayList<int[]>();
 

@@ -45,7 +45,7 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 			solver.logfile = "logging";
 			return solver;
 		} else if (defaultSolver.equals("minisat")) {
-			return new MiniSat();
+			return new CachedOps(new MiniSat());
 		}
 
 		if (!defaultSolver.equals("sat4j")) {
@@ -57,9 +57,12 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 	}
 
 	public boolean debugging = false;
-	public int totalLiterals = 0;
-	public int totalClauses = 0;
-	public int totalSolves = 0;
+
+	public abstract int getTotalLiterals();
+
+	public abstract int getTotalClauses();
+
+	public abstract int getTotalSolves();
 
 	public SatSolver(Class<BOOL> TYPE, BOOL FALSE, BOOL TRUE) {
 		super(TYPE, FALSE, TRUE);

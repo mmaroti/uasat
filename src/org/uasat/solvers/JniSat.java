@@ -25,6 +25,25 @@ import jnisat.*;
 import org.uasat.core.*;
 
 public class JniSat extends SatSolver<Integer> {
+	public int totalLiterals = 0;
+	public int totalClauses = 0;
+	public int totalSolves = 0;
+
+	@Override
+	public int getTotalLiterals() {
+		return totalLiterals;
+	}
+
+	@Override
+	public int getTotalClauses() {
+		return totalClauses;
+	}
+
+	@Override
+	public int getTotalSolves() {
+		return totalSolves;
+	}
+
 	private final Solver solver;
 
 	public JniSat(String what) {

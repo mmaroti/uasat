@@ -182,13 +182,12 @@ public class MonoidalInt {
 
 				for (Operation<BOOL> op : ops)
 					for (Relation<BOOL> rel : rels) {
-						if (op.getArity() == 4 && rel.getArity() >= 5)
-							continue;
-						if (op.getArity() == 5 && rel.getArity() >= 4)
+						if (op.getArity() == 5 && rel.getArity() == 5)
 							continue;
 
-						System.out.println(op.getArity() + " " + rel.getArity());
-						
+						System.out
+								.println(op.getArity() + " " + rel.getArity());
+
 						BOOL c = op.preserves(rel);
 						if (op.getArity() == rel.getArity())
 							c = alg.not(c);
