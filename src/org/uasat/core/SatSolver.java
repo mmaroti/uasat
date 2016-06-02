@@ -37,7 +37,7 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 			}
 		} else if (defaultSolver.equals("jni-cominisatps")) {
 			try {
-				return new JniSat("cominisatps");
+				return new CachedOps(new JniSat("cominisatps"));
 			} catch (LinkageError e) {
 			}
 		} else if (defaultSolver.equals("logging")) {

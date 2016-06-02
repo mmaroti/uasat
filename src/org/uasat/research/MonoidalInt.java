@@ -182,7 +182,7 @@ public class MonoidalInt {
 
 				for (Operation<BOOL> op : ops)
 					for (Relation<BOOL> rel : rels) {
-						if (op.getArity() == 5 && rel.getArity() == 5)
+						if (op.getArity() >= 5 && rel.getArity() >= 4)
 							continue;
 
 						System.out
@@ -353,6 +353,7 @@ public class MonoidalInt {
 
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
+		// SatSolver.setDefault("jni-cominisatps");
 		SatSolver.setDefault("minisat");
 
 		findContinuumInterval(3, "012");

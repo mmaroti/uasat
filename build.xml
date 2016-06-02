@@ -18,9 +18,6 @@
 	</target>
 
 	<target name="jar" depends="build" description="builds the uasat.jar file">
-		<manifestclasspath property="jar.classpath" jarfile="uasat.jar">
-			<classpath refid="classpath" />
-		</manifestclasspath>
 		<jar destfile="uasat.jar" includes="" compress="true">
 			<fileset dir="src" includes="**/*.java" />
 			<fileset dir="" includes="lib/*.jar" />
@@ -29,7 +26,7 @@
 			<fileset file="README.md" />
 			<manifest>
 				<attribute name="Main-Class" value="org.uasat.math.Validation" />
-				<attribute name="Class-Path" value="${jar.classpath}" />
+				<attribute name="Class-Path" value="lib/jnisat.jar" />
 			</manifest>
 		</jar>
 	</target>
@@ -41,9 +38,6 @@
 	</target>
 
 	<target name="applet" depends="clean,build" description="builds uasatweb.jar for applets">
-		<manifestclasspath property="jar.classpath" jarfile="uasatweb.jar">
-			<classpath refid="classpath" />
-		</manifestclasspath>
 		<jar destfile="uasatweb.jar" includes="" compress="true">
 			<fileset dir="bin">
 				<include name="org/uasat/applet/*.class" />
