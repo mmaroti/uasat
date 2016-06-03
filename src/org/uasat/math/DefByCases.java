@@ -103,9 +103,11 @@ public class DefByCases {
 						a++;
 					else if (tuple[i] == minority)
 						b++;
+					else
+						return false;
 				}
 
-				return a == size - 1 && b == 1;
+				return a == tuple.length - 1 && b == 1;
 			}
 
 			@Override

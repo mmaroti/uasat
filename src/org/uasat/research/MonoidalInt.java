@@ -141,6 +141,56 @@ public class MonoidalInt {
 		System.out.println();
 	}
 
+	public static void testContinuumInterval() {
+		final GeneratedOps monops = parseMonoid(3, "000 011 012");
+		monops.print();
+
+		final DefByCases def = new DefByCases(3);
+		def.addAllDiagonals();
+		def.addAllNearUnanimous();
+		def.addAllRangeTwo();
+		def.addAllFirstProj();
+		def.printCases();
+
+		Relation<Boolean> genrel = Relation.parse(15, "0 1 5 6 7 8 b");
+		Function<Boolean> genfun = Function.parse(3, 15, "011111121111111");
+
+		System.out.println("isFunction");
+		System.out.println(genfun.isFunction());
+
+		List<Relation<Boolean>> rels = new ArrayList<Relation<Boolean>>();
+		rels.add(def.generateRelation(genrel, 3));
+		rels.add(def.generateRelation(genrel, 4));
+		rels.add(def.generateRelation(genrel, 5));
+
+		System.out.println("isCompatibleWith");
+		for (Relation<Boolean> rel : rels) {
+			// System.out.println(Relation.format(rel));
+			System.out.println(monops.isCompatibleWith(rel));
+		}
+
+		List<Operation<Boolean>> ops = new ArrayList<Operation<Boolean>>();
+		ops.add(def.generateOperation(genfun, 3));
+		ops.add(def.generateOperation(genfun, 4));
+		ops.add(def.generateOperation(genfun, 5));
+
+		System.out.println("isClosedUnder");
+		for (Operation<Boolean> op : ops) {
+			// System.out.println(Operation.format(op));
+			System.out.println(monops.isClosedUnder(op));
+		}
+
+		for (Operation<Boolean> op : ops)
+			for (Relation<Boolean> rel : rels) {
+				if (op.getArity() >= 5 && rel.getArity() >= 5)
+					continue;
+
+				System.out.println(op.getArity() + " " + rel.getArity() + " "
+						+ op.preserves(rel));
+
+			}
+	}
+
 	public static void findContinuumInterval(int size, String monoid) {
 		SatSolver<?> solver = SatSolver.getDefault();
 		solver.debugging = false;
@@ -152,7 +202,7 @@ public class MonoidalInt {
 		def.addAllDiagonals();
 		def.addAllNearUnanimous();
 		def.addAllRangeTwo();
-		def.addOthewise();
+		def.addAllFirstProj();
 		def.printCases();
 
 		SatProblem problem = new SatProblem(new int[] { def.getCases() },
@@ -182,7 +232,7 @@ public class MonoidalInt {
 
 				for (Operation<BOOL> op : ops)
 					for (Relation<BOOL> rel : rels) {
-						if (op.getArity() >= 5 && rel.getArity() >= 4)
+						if (op.getArity() >= 5 && rel.getArity() >= 5)
 							continue;
 
 						System.out
@@ -356,8 +406,11 @@ public class MonoidalInt {
 		// SatSolver.setDefault("jni-cominisatps");
 		SatSolver.setDefault("minisat");
 
-		findContinuumInterval(3, "012");
+		// findContinuumInterval(3, "012");
 		// findContinuumInterval(3, "000 002 010 012");
+		// findContinuumInterval(3, "000 002 010 012 111");
+		findContinuumInterval(3, "000 011 012");
+		// testContinuumInterval();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

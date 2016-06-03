@@ -197,4 +197,22 @@ public final class Function<BOOL> {
 
 		return Util.formatTuple(t.getDim(0), tuple);
 	}
+
+	public static Function<Boolean> parse(int codomain, int domain, String str) {
+		assert domain >= 0 && codomain >= 0;
+
+		Tensor<Boolean> tensor = Tensor.constant(Boolean.TYPE, new int[] {
+				codomain, domain }, Boolean.FALSE);
+
+		if (domain > 0) {
+			int[] tuple = Util.parseTuple(codomain, str);
+			if (tuple.length != domain)
+				throw new IllegalArgumentException();
+
+			for (int i = 0; i < tuple.length; i++)
+				tensor.setElem(Boolean.TRUE, tuple[i], i);
+		}
+
+		return wrap(tensor);
+	}
 }

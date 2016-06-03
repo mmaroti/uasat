@@ -118,7 +118,7 @@ public final class Util {
 				int t;
 				if ('0' <= c && c <= '9')
 					t = c - '0';
-				else if ('a' <= c && c <= 'a')
+				else if ('a' <= c && c <= 'z')
 					t = c - 'a' + 10;
 				else
 					throw new IllegalArgumentException();
