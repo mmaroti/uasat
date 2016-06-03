@@ -195,15 +195,15 @@ public class MonoidalInt {
 		SatSolver<?> solver = SatSolver.getDefault();
 		solver.debugging = false;
 
-		final GeneratedOps monops = parseMonoid(size, monoid);
-		System.out.println("monoid: " + monoid);
-
 		final DefByCases def = new DefByCases(size);
 		def.addAllDiagonals();
 		def.addAllNearUnanimous();
 		def.addAllRangeTwo();
 		def.addAllFirstProj();
-		def.printCases();
+		// def.printCases();
+
+		final GeneratedOps monops = parseMonoid(size, monoid);
+		System.out.println("monoid: " + monoid);
 
 		SatProblem problem = new SatProblem(new int[] { def.getCases() },
 				new int[] { size, def.getCases() }) {
@@ -235,9 +235,6 @@ public class MonoidalInt {
 						if (op.getArity() >= 5 && rel.getArity() >= 5)
 							continue;
 
-						System.out
-								.println(op.getArity() + " " + rel.getArity());
-
 						BOOL c = op.preserves(rel);
 						if (op.getArity() == rel.getArity())
 							c = alg.not(c);
@@ -257,8 +254,6 @@ public class MonoidalInt {
 			System.out.println("genfun: " + Function.format(genfun));
 		} else
 			System.out.println("not found");
-
-		System.out.println();
 	}
 
 	public static String[] TWO_MONOIDS = new String[] { "01", "01 00", "01 10",
@@ -401,22 +396,6 @@ public class MonoidalInt {
 		System.out.println(clone.getClosedOpSets(-1).size());
 	}
 
-	public static void main(String[] args) {
-		long time = System.currentTimeMillis();
-		// SatSolver.setDefault("jni-cominisatps");
-		SatSolver.setDefault("minisat");
-
-		// findContinuumInterval(3, "012");
-		// findContinuumInterval(3, "000 002 010 012");
-		// findContinuumInterval(3, "000 002 010 012 111");
-		findContinuumInterval(3, "000 011 012");
-		// testContinuumInterval();
-
-		time = System.currentTimeMillis() - time;
-		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
-				+ " seconds.");
-	}
-
 	public static void main5(String[] args) {
 		long time = System.currentTimeMillis();
 
@@ -529,4 +508,24 @@ public class MonoidalInt {
 
 	public static final int LIMIT = 100000;
 	public static final int PRINT_LIMIT = 50;
+
+	public static void main(String[] args) {
+		// SatSolver.setDefault("jni-cominisatps");
+		SatSolver.setDefault("minisat");
+
+		// findContinuumInterval(3, "000 011 012");
+		// testContinuumInterval();
+
+		for (String monoid : UNKNOWN_MONOIDS) {
+			long time = System.currentTimeMillis();
+
+			findContinuumInterval(3, monoid);
+
+			time = System.currentTimeMillis() - time;
+			System.out.println("Finished in "
+					+ TIME_FORMAT.format(0.001 * time) + " seconds.");
+			
+			System.out.println();
+		}
+	}
 }
