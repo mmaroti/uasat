@@ -45,8 +45,8 @@ public class CachedOps extends SatSolver<Integer> {
 	}
 
 	@Override
-	public int getTotalLiterals() {
-		return solver.getTotalLiterals();
+	public int getTotalVariables() {
+		return solver.getTotalVariables();
 	}
 
 	@Override

@@ -301,7 +301,7 @@ public class Validation {
 		checkLinearExtensions();
 
 		time = System.currentTimeMillis() - time;
-		System.out.println("Total literals: " + solver.getTotalLiterals()
+		System.out.println("Total variables: " + solver.getTotalVariables()
 				+ ", clauses: " + solver.getTotalClauses() + ".");
 
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)

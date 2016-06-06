@@ -25,13 +25,13 @@ import jnisat.*;
 import org.uasat.core.*;
 
 public class JniSat extends SatSolver<Integer> {
-	public int totalLiterals = 0;
+	public int totalVariables = 0;
 	public int totalClauses = 0;
 	public int totalSolves = 0;
 
 	@Override
-	public int getTotalLiterals() {
-		return totalLiterals;
+	public int getTotalVariables() {
+		return totalVariables;
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class JniSat extends SatSolver<Integer> {
 
 	@Override
 	public Integer variable() {
-		totalLiterals += 1;
+		totalVariables += 1;
 		return solver.addVariable();
 	}
 
@@ -134,7 +134,7 @@ public class JniSat extends SatSolver<Integer> {
 		solver.addClause(b, -var);
 		solver.addClause(-a, -b, var);
 
-		totalLiterals += 1;
+		totalVariables += 1;
 		totalClauses += 3;
 		return var;
 	}
@@ -157,7 +157,7 @@ public class JniSat extends SatSolver<Integer> {
 		solver.addClause(-b, var);
 		solver.addClause(a, b, -var);
 
-		totalLiterals += 1;
+		totalVariables += 1;
 		totalClauses += 3;
 		return var;
 	}
@@ -179,7 +179,7 @@ public class JniSat extends SatSolver<Integer> {
 		solver.addClause(-a, b, var);
 		solver.addClause(-a, -b, -var);
 
-		totalLiterals += 1;
+		totalVariables += 1;
 		totalClauses += 4;
 		return var;
 	}

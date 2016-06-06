@@ -58,7 +58,7 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 
 	public boolean debugging = false;
 
-	public abstract int getTotalLiterals();
+	public abstract int getTotalVariables();
 
 	public abstract int getTotalClauses();
 

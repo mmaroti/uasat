@@ -25,18 +25,18 @@ import java.util.*;
 import org.uasat.core.*;
 
 public class MiniSat extends SatSolver<Integer> {
-	public int totalLiterals = 0;
+	public int totalVariables = 0;
 	public int totalClauses = 0;
 	public int totalSolves = 0;
 
 	@Override
-	public int getTotalLiterals() {
-		return totalLiterals;
+	public int getTotalVariables() {
+		return totalVariables + variables - 1;
 	}
 
 	@Override
 	public int getTotalClauses() {
-		return totalClauses;
+		return totalClauses + clauses.size() - 1;
 	}
 
 	@Override
@@ -57,6 +57,9 @@ public class MiniSat extends SatSolver<Integer> {
 
 	@Override
 	public void clear() {
+		totalVariables = variables - 1;
+		totalClauses = clauses.size() - 1;
+		
 		variables = 1;
 		clauses.clear();
 		clauses.add(new int[] { 1 });
@@ -64,13 +67,11 @@ public class MiniSat extends SatSolver<Integer> {
 
 	@Override
 	public final Integer variable() {
-		totalLiterals += 1;
 		return ++variables;
 	}
 
 	@Override
 	public void clause(List<Integer> clause) {
-		totalClauses += 1;
 		int[] c = new int[clause.size()];
 		for (int i = 0; i < clause.size(); i++)
 			c[i] = clause.get(i);
@@ -80,19 +81,16 @@ public class MiniSat extends SatSolver<Integer> {
 
 	@Override
 	public void clause(Integer lit1) {
-		totalClauses += 1;
 		clauses.add(new int[] { lit1 });
 	}
 
 	@Override
 	public void clause(Integer lit1, Integer lit2) {
-		totalClauses += 1;
 		clauses.add(new int[] { lit1, lit2 });
 	}
 
 	@Override
 	public void clause(Integer lit1, Integer lit2, Integer lit3) {
-		totalClauses += 1;
 		clauses.add(new int[] { lit1, lit2, lit3 });
 	}
 

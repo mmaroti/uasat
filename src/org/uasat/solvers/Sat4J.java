@@ -27,13 +27,13 @@ import org.sat4j.specs.*;
 import org.uasat.core.*;
 
 public class Sat4J extends SatSolver<Integer> {
-	public int totalLiterals = 0;
+	public int totalVariables = 0;
 	public int totalClauses = 0;
 	public int totalSolves = 0;
 
 	@Override
-	public int getTotalLiterals() {
-		return totalLiterals;
+	public int getTotalVariables() {
+		return totalVariables;
 	}
 
 	@Override
@@ -113,7 +113,7 @@ public class Sat4J extends SatSolver<Integer> {
 
 	@Override
 	public Integer variable() {
-		totalLiterals += 1;
+		totalVariables += 1;
 		int a = solver.newVar(++variables);
 		assert a == variables;
 
