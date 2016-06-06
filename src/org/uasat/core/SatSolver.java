@@ -118,30 +118,33 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 		return var;
 	}
 
+	private ArrayList<BOOL> tmpList = new ArrayList<BOOL>();
+
 	@Override
 	public BOOL all(Iterable<BOOL> elems) {
-		ArrayList<BOOL> list = new ArrayList<BOOL>();
+		tmpList.clear();
+
 		for (BOOL a : elems) {
 			if (a == FALSE)
 				return FALSE;
 			else if (a != TRUE)
-				list.add(a);
+				tmpList.add(a);
 		}
 
-		if (list.size() == 0)
+		if (tmpList.size() == 0)
 			return TRUE;
-		else if (list.size() == 1)
-			return list.get(0);
+		else if (tmpList.size() == 1)
+			return tmpList.get(0);
 
 		BOOL var = variable();
-		for (BOOL a : list)
+		for (BOOL a : tmpList)
 			clause(a, not(var));
 
-		for (int i = 0; i < list.size(); i++)
-			list.set(i, not(list.get(i)));
+		for (int i = 0; i < tmpList.size(); i++)
+			tmpList.set(i, not(tmpList.get(i)));
 
-		list.add(var);
-		clause(list);
+		tmpList.add(var);
+		clause(tmpList);
 
 		return var;
 	}
@@ -168,25 +171,26 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 
 	@Override
 	public BOOL any(Iterable<BOOL> elems) {
-		ArrayList<BOOL> list = new ArrayList<BOOL>();
+		tmpList.clear();
+
 		for (BOOL a : elems) {
 			if (a == TRUE)
 				return TRUE;
 			else if (a != FALSE)
-				list.add(a);
+				tmpList.add(a);
 		}
 
-		if (list.size() == 0)
+		if (tmpList.size() == 0)
 			return FALSE;
-		else if (list.size() == 1)
-			return list.get(0);
+		else if (tmpList.size() == 1)
+			return tmpList.get(0);
 
 		BOOL var = variable();
-		for (BOOL a : list)
+		for (BOOL a : tmpList)
 			clause(not(a), var);
 
-		list.add(not(var));
-		clause(list);
+		tmpList.add(not(var));
+		clause(tmpList);
 
 		return var;
 	}

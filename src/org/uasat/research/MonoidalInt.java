@@ -516,7 +516,7 @@ public class MonoidalInt {
 		// findContinuumInterval(3, "000 011 012");
 		// testContinuumInterval();
 
-		for (String monoid : UNKNOWN_MONOIDS) {
+		for (String monoid : FINITE_MONOIDS) {
 			long time = System.currentTimeMillis();
 
 			findContinuumInterval(3, monoid);
