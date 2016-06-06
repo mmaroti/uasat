@@ -32,7 +32,7 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 	public static SatSolver<?> getDefault() {
 		if (defaultSolver.equals("jni-minisat")) {
 			try {
-				return new JniSat("minisat");
+				return new CachedOps(new JniSat("minisat"));
 			} catch (LinkageError e) {
 			}
 		} else if (defaultSolver.equals("jni-cominisatps")) {
@@ -43,7 +43,7 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 		} else if (defaultSolver.equals("logging")) {
 			MiniSat solver = new MiniSat();
 			solver.logfile = "logging";
-			return solver;
+			return new CachedOps(solver);
 		} else if (defaultSolver.equals("minisat")) {
 			return new CachedOps(new MiniSat());
 		}
@@ -53,7 +53,7 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 			defaultSolver = "sat4j";
 		}
 
-		return new Sat4J();
+		return new CachedOps(new Sat4J());
 	}
 
 	public boolean debugging = false;

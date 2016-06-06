@@ -27,9 +27,10 @@ public class CachedOps extends SatSolver<Integer> {
 	private final int FALSE;
 	private final int TRUE;
 
-	private final static int CACHE_SIZE = 7993;
+	private final static int CACHE_SIZE = 33331;
 	private final static int ELEM1_STEP = 107;
 	private final int[] andCache;
+	private final int[] addCache;
 
 	public CachedOps(SatSolver<Integer> solver) {
 		super(solver.getType(), solver.FALSE, solver.TRUE);
@@ -38,6 +39,7 @@ public class CachedOps extends SatSolver<Integer> {
 		this.FALSE = solver.FALSE;
 		this.TRUE = solver.TRUE;
 		andCache = new int[3 * CACHE_SIZE];
+		addCache = new int[3 * CACHE_SIZE];
 
 		clear();
 	}
@@ -60,6 +62,7 @@ public class CachedOps extends SatSolver<Integer> {
 	@Override
 	public void clear() {
 		Arrays.fill(andCache, FALSE);
+		Arrays.fill(addCache, FALSE);
 		solver.clear();
 	}
 
@@ -134,14 +137,13 @@ public class CachedOps extends SatSolver<Integer> {
 			return andCache[pos + 2];
 
 		int var = variable();
-		clause(a, not(var));
-		clause(b, not(var));
-		clause(not(a), not(b), var);
-
 		andCache[pos] = a;
 		andCache[pos + 1] = b;
 		andCache[pos + 2] = var;
 
+		clause(a, not(var));
+		clause(b, not(var));
+		clause(not(a), not(b), var);
 		return var;
 	}
 
@@ -157,7 +159,42 @@ public class CachedOps extends SatSolver<Integer> {
 
 	@Override
 	public Integer add(Integer elem1, Integer elem2) {
-		return solver.add(elem1, elem2);
+		int a = elem1;
+		int b = elem2;
+
+		if (a == TRUE)
+			return not(b);
+		else if (a == FALSE)
+			return b;
+		else if (b == TRUE)
+			return not(a);
+		else if (b == FALSE)
+			return a;
+
+		if (a > b) {
+			int c = a;
+			a = b;
+			b = c;
+		}
+
+		int pos = (a * ELEM1_STEP + b) % CACHE_SIZE;
+		if (pos < 0)
+			pos += CACHE_SIZE;
+		pos *= 3;
+
+		if (addCache[pos] == a && addCache[pos + 1] == b)
+			return addCache[pos + 2];
+
+		int var = variable();
+		addCache[pos] = a;
+		addCache[pos + 1] = b;
+		addCache[pos + 2] = var;
+
+		clause(a, b, not(var));
+		clause(a, not(b), var);
+		clause(not(a), b, var);
+		clause(not(a), not(b), not(var));
+		return var;
 	}
 
 	@Override
