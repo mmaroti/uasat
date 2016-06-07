@@ -198,10 +198,16 @@ public class MonoidalInt {
 		final DefByCases def = new DefByCases(size);
 		def.addAllDiagonals();
 		def.addAllNearUnanimous();
+		def.addDiagButTwo(0, 1);
+		def.addDiagButTwo(0, 2);
+		def.addDiagButTwo(1, 0);
+		def.addDiagButTwo(1, 2);
+		def.addDiagButTwo(2, 0);
+		def.addDiagButTwo(2, 1);
+		def.addAllRangeTwo();
 		def.addDiagButTwo(0, 1, 2);
 		def.addDiagButTwo(1, 0, 2);
 		def.addDiagButTwo(2, 0, 1);
-		def.addAllRangeTwo();
 		def.addOtherwise();
 		def.printCases();
 

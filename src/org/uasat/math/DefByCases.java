@@ -136,6 +136,37 @@ public class DefByCases {
 			addAllNearUnaMajor(majority);
 	}
 
+	public void addDiagButTwo(final int majority, final int minority) {
+		assert 0 <= majority && majority < size;
+		assert 0 <= minority && minority < size;
+		assert majority != minority;
+
+		cases.add(new Case() {
+			@Override
+			public boolean matches(int[] tuple) {
+				int a = 0;
+				int b = 0;
+
+				for (int i = 0; i < tuple.length; i++) {
+					if (tuple[i] == majority)
+						a++;
+					else if (tuple[i] == minority)
+						b++;
+					else
+						return false;
+				}
+
+				return a == tuple.length - 2 && b == 2;
+			}
+
+			@Override
+			public String toString() {
+				return "diagbuttwo " + majority + " " + minority + " "
+						+ minority;
+			}
+		});
+	}
+
 	public void addDiagButTwo(final int majority, final int minority1,
 			final int minority2) {
 		assert 0 <= majority && majority < size;
