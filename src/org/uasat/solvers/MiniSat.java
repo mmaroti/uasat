@@ -36,7 +36,7 @@ public class MiniSat extends SatSolver<Integer> {
 
 	@Override
 	public int getTotalClauses() {
-		return totalClauses + clauses.size() - 1;
+		return totalClauses + clauses - 1;
 	}
 
 	@Override
@@ -45,24 +45,44 @@ public class MiniSat extends SatSolver<Integer> {
 	}
 
 	protected int variables;
-	protected List<int[]> clauses = new ArrayList<int[]>();
+	protected int clauses;
+
+	private static final int BLOCK_SIZE = 16350;
+	private final List<int[]> blocks = new ArrayList<int[]>();
+	private int[] currentBlock = new int[BLOCK_SIZE];
+	private int currentHead;
+
+	private void addBlockLit(int lit) {
+		currentBlock[currentHead] = lit;
+		if (++currentHead >= BLOCK_SIZE) {
+			blocks.add(currentBlock);
+			currentBlock = new int[BLOCK_SIZE];
+			currentHead = 0;
+		}
+	}
 
 	public String options = "-no-pre";
 	public String logfile = null;
 
 	public MiniSat() {
 		super(Integer.TYPE, -1, 1);
+		variables = 1;
+		clauses = 1;
 		clear();
 	}
 
 	@Override
 	public void clear() {
-		totalVariables = variables - 1;
-		totalClauses = clauses.size() - 1;
-		
+		totalVariables += variables - 1;
 		variables = 1;
-		clauses.clear();
-		clauses.add(new int[] { 1 });
+
+		totalClauses += clauses - 1;
+		clauses = 1;
+
+		blocks.clear();
+		currentHead = 0;
+		addBlockLit(1);
+		addBlockLit(0);
 	}
 
 	@Override
@@ -72,26 +92,34 @@ public class MiniSat extends SatSolver<Integer> {
 
 	@Override
 	public void clause(List<Integer> clause) {
-		int[] c = new int[clause.size()];
-		for (int i = 0; i < clause.size(); i++)
-			c[i] = clause.get(i);
-
-		clauses.add(c);
+		for (int lit : clause)
+			addBlockLit(lit);
+		addBlockLit(0);
+		clauses += 1;
 	}
 
 	@Override
 	public void clause(Integer lit1) {
-		clauses.add(new int[] { lit1 });
+		addBlockLit(lit1);
+		addBlockLit(0);
+		clauses += 1;
 	}
 
 	@Override
 	public void clause(Integer lit1, Integer lit2) {
-		clauses.add(new int[] { lit1, lit2 });
+		addBlockLit(lit1);
+		addBlockLit(lit2);
+		addBlockLit(0);
+		clauses += 1;
 	}
 
 	@Override
 	public void clause(Integer lit1, Integer lit2, Integer lit3) {
-		clauses.add(new int[] { lit1, lit2, lit3 });
+		addBlockLit(lit1);
+		addBlockLit(lit2);
+		addBlockLit(lit3);
+		addBlockLit(0);
+		clauses += 1;
 	}
 
 	@Override
@@ -100,20 +128,27 @@ public class MiniSat extends SatSolver<Integer> {
 	}
 
 	public void dimacs(PrintStream stream) {
-		stream.println("p cnf " + variables + " " + clauses.size());
-		for (int[] clause : clauses) {
-			for (int i : clause) {
-				assert i != 0 && Math.abs(i) <= variables;
-
-				stream.print(i);
-				stream.print(' ');
+		stream.println("p cnf " + variables + " " + clauses);
+		for (int[] block : blocks) {
+			for (int a : block) {
+				stream.print(a);
+				stream.print(a != 0 ? ' ' : '\n');
 			}
-			stream.println('0');
+		}
+		for (int i = 0; i < currentHead; i++) {
+			int a = currentBlock[i];
+			stream.print(a);
+			stream.print(a != 0 ? ' ' : '\n');
 		}
 	}
 
 	// variable indices in clauses and solution start at 1
 	protected boolean[] solution;
+
+	@Override
+	public boolean decode(Integer term) {
+		return solution[term];
+	}
 
 	protected static final DateFormat DATEFORMAT = new SimpleDateFormat(
 			"HH-mm-ss-SSS");
@@ -247,10 +282,5 @@ public class MiniSat extends SatSolver<Integer> {
 			if (shutdown != null)
 				Runtime.getRuntime().removeShutdownHook(shutdown);
 		}
-	}
-
-	@Override
-	public boolean decode(Integer term) {
-		return solution[term];
 	}
 }
