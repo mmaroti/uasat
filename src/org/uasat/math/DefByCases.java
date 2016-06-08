@@ -136,44 +136,38 @@ public class DefByCases {
 			addAllNearUnaMajor(majority);
 	}
 
-	public void addDiagButTwo(final int majority, final int minority) {
-		assert 0 <= majority && majority < size;
+	public void addUniOccur(final int minority) {
 		assert 0 <= minority && minority < size;
-		assert majority != minority;
 
 		cases.add(new Case() {
 			@Override
 			public boolean matches(int[] tuple) {
 				int a = 0;
-				int b = 0;
 
 				for (int i = 0; i < tuple.length; i++) {
-					if (tuple[i] == majority)
+					if (tuple[i] == minority)
 						a++;
-					else if (tuple[i] == minority)
-						b++;
-					else
-						return false;
 				}
 
-				return a == tuple.length - 2 && b == 2;
+				return a == 1;
 			}
 
 			@Override
 			public String toString() {
-				return "diagbuttwo " + majority + " " + minority + " "
-						+ minority;
+				return "unioccur " + minority;
 			}
 		});
 	}
 
-	public void addDiagButTwo(final int majority, final int minority1,
-			final int minority2) {
+	public void addAllUniOccur() {
+		for (int minority = 0; minority < size; minority++)
+			addUniOccur(minority);
+	}
+
+	public void addDiagAndPair(final int majority, final int first,
+			final int second) {
 		assert 0 <= majority && majority < size;
-		assert 0 <= minority1 && minority1 < size;
-		assert 0 <= minority2 && minority2 < size;
-		assert majority != minority1 && majority != minority2
-				&& minority1 < minority2;
+		assert first != majority && second != majority;
 
 		cases.add(new Case() {
 			@Override
@@ -182,15 +176,18 @@ public class DefByCases {
 				int b = 0;
 				int c = 0;
 
+				int last = tuple[tuple.length - 1];
 				for (int i = 0; i < tuple.length; i++) {
 					if (tuple[i] == majority)
 						a++;
-					else if (tuple[i] == minority1)
+					else if (tuple[i] == first && last == majority)
 						b++;
-					else if (tuple[i] == minority2)
+					else if (tuple[i] == second && last == first)
 						c++;
 					else
 						return false;
+
+					last = tuple[i];
 				}
 
 				return a == tuple.length - 2 && b == 1 && c == 1;
@@ -198,10 +195,24 @@ public class DefByCases {
 
 			@Override
 			public String toString() {
-				return "diagbuttwo " + majority + " " + minority1 + " "
-						+ minority2;
+				return "diagandpair " + majority + " " + first + " " + second;
 			}
 		});
+	}
+
+	public void addAllDiagAndPair() {
+		for (int majority = 0; majority < size; majority++) {
+			for (int first = 0; first < size; first++) {
+				if (first == majority)
+					continue;
+				for (int second = 0; second < size; second++) {
+					if (second == majority)
+						continue;
+
+					addDiagAndPair(majority, first, second);
+				}
+			}
+		}
 	}
 
 	public void addRangeTwo(final int elem1, final int elem2) {

@@ -191,6 +191,8 @@ public class MonoidalInt {
 			}
 	}
 
+	private static boolean printCases = true;
+
 	public static void findContinuumInterval(int size, String monoid) {
 		SatSolver<?> solver = SatSolver.getDefault();
 		solver.debugging = false;
@@ -198,18 +200,15 @@ public class MonoidalInt {
 		final DefByCases def = new DefByCases(size);
 		def.addAllDiagonals();
 		def.addAllNearUnanimous();
-		def.addDiagButTwo(0, 1);
-		def.addDiagButTwo(0, 2);
-		def.addDiagButTwo(1, 0);
-		def.addDiagButTwo(1, 2);
-		def.addDiagButTwo(2, 0);
-		def.addDiagButTwo(2, 1);
+		def.addAllDiagAndPair();
 		def.addAllRangeTwo();
-		def.addDiagButTwo(0, 1, 2);
-		def.addDiagButTwo(1, 0, 2);
-		def.addDiagButTwo(2, 0, 1);
+		def.addAllUniOccur();
 		def.addOtherwise();
-		def.printCases();
+
+		if (printCases) {
+			def.printCases();
+			printCases = false;
+		}
 
 		final GeneratedOps monops = parseMonoid(size, monoid);
 		System.out.println("monoid: " + monoid);
@@ -583,7 +582,7 @@ public class MonoidalInt {
 		// findContinuumInterval(3, "000 011 012");
 		// testContinuumInterval();
 
-		for (String monoid : INFINITE_MONOIDS2) {
+		for (String monoid : UNKNOWN_MONOIDS) {
 			long time = System.currentTimeMillis();
 
 			findContinuumInterval(3, monoid);
