@@ -31,6 +31,8 @@ public class DefByCases {
 
 		this.size = size;
 		cases = new ArrayList<Case>();
+
+		digraph_mask = Tensor.constant(new int[] { size, size }, Boolean.FALSE);
 	}
 
 	public int getSize() {
@@ -164,8 +166,7 @@ public class DefByCases {
 			addUniOccur(minority);
 	}
 
-	public void addDiagAndPair(final int majority, final int first,
-			final int second) {
+	public void addDiagAndPair(final int majority, final int first, final int second) {
 		assert 0 <= majority && majority < size;
 		assert first != majority && second != majority;
 
@@ -284,12 +285,52 @@ public class DefByCases {
 			addFirstProj(elem);
 	}
 
-	public <BOOL> Relation<BOOL> generateRelation(final Relation<BOOL> input,
-			final int arity) {
+	private Tensor<Boolean> digraph_mask;
+
+	public void addDigraph(final Relation<Boolean> graph) {
+		assert graph.getArity() == 2 && graph.getSize() == size;
+
+		cases.add(new Case() {
+			@Override
+			public boolean matches(int[] tuple) {
+				digraph_mask.fillElems(Boolean.FALSE);
+
+				digraph_mask.setElem(Boolean.TRUE, tuple[tuple.length - 1], tuple[0]);
+				for (int i = 1; i < tuple.length; i++)
+					digraph_mask.setElem(Boolean.TRUE, tuple[i - 1], tuple[i]);
+
+				return graph.getTensor().equals(digraph_mask);
+			}
+
+			@Override
+			public String toString() {
+				return "digraph " + Relation.format(graph);
+			}
+		});
+	}
+
+	public void addAllDigarphs() {
+		SatProblem prob = new SatProblem(digraph_mask.getShape()) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
+
+				BOOL b = rel.isNotEmpty();
+				b = alg.and(b, rel.project(0).isEqualTo(rel.project(1)));
+				return b;
+			}
+		};
+
+		List<Tensor<Boolean>> digraphs = Tensor.unstack(prob.solveAll(SatSolver.getDefault()).get(0));
+		for (Tensor<Boolean> digraph : digraphs)
+			addDigraph(Relation.wrap(digraph));
+	}
+
+	public <BOOL> Relation<BOOL> generateRelation(final Relation<BOOL> input, final int arity) {
 		assert input.getArity() == 1 && input.getSize() == cases.size();
 
-		Tensor<BOOL> tensor = Tensor.generate(input.getTensor().getType(),
-				Util.createShape(size, arity), new Func1<BOOL, int[]>() {
+		Tensor<BOOL> tensor = Tensor.generate(input.getTensor().getType(), Util.createShape(size, arity),
+				new Func1<BOOL, int[]>() {
 					@Override
 					public BOOL call(int[] elem) {
 						return input.getValue(getCaseIndex(elem));
@@ -299,14 +340,13 @@ public class DefByCases {
 		return new Relation<BOOL>(input.getAlg(), tensor);
 	}
 
-	public <BOOL> Operation<BOOL> generateOperation(final Function<BOOL> input,
-			final int arity) {
+	public <BOOL> Operation<BOOL> generateOperation(final Function<BOOL> input, final int arity) {
 		assert input.getDomain() == cases.size() && input.getCodomain() == size;
 
 		final int[] tuple = new int[arity];
 
-		Tensor<BOOL> tensor = Tensor.generate(input.getTensor().getType(),
-				Util.createShape(size, arity + 1), new Func1<BOOL, int[]>() {
+		Tensor<BOOL> tensor = Tensor.generate(input.getTensor().getType(), Util.createShape(size, arity + 1),
+				new Func1<BOOL, int[]>() {
 					@Override
 					public BOOL call(int[] elem) {
 						System.arraycopy(elem, 1, tuple, 0, arity);

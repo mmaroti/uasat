@@ -76,7 +76,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 
 	public abstract void setElemAt(int pos, ELEM elem);
 
-	protected abstract void fillElems(ELEM elem);
+	public abstract void fillElems(ELEM elem);
 
 	protected abstract void copyElems(int srcPos, Tensor<ELEM> dst, int dstPos,
 			int length);
@@ -172,7 +172,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 		}
 
 		@Override
-		protected void fillElems(Integer elem) {
+		public void fillElems(Integer elem) {
 			Arrays.fill(array, elem);
 		}
 
@@ -222,7 +222,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 		}
 
 		@Override
-		protected void fillElems(Boolean elem) {
+		public void fillElems(Boolean elem) {
 			Arrays.fill(array, elem);
 		}
 
@@ -275,7 +275,7 @@ public abstract class Tensor<ELEM> implements Iterable<ELEM> {
 		}
 
 		@Override
-		protected void fillElems(ELEM elem) {
+		public void fillElems(ELEM elem) {
 			Arrays.fill(array, elem);
 		}
 
