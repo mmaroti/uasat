@@ -458,6 +458,13 @@ public final class Relation<BOOL> {
 		}
 	}
 
+	public static boolean isStronglyConnected(Relation<Boolean> rel) {
+		assert rel.getArity() == 2;
+		Relation<Boolean> p = rel.project(0);
+		Relation<Boolean> c = transitiveClosure(rel);
+		return c.equals(p.cartesian(p));
+	}
+
 	public Relation<BOOL> conjugate(Permutation<BOOL> perm) {
 		assert perm.getAlg() == getAlg() && perm.getSize() == getSize();
 		Contract<BOOL> c = Contract.logical(alg);
