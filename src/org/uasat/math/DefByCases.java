@@ -326,13 +326,18 @@ public class DefByCases {
 			}
 		};
 
-		List<Tensor<Boolean>> digraphs = Tensor.unstack(prob.solveAll(
-				SatSolver.getDefault()).get(0));
-		for (Tensor<Boolean> digraph : digraphs) {
-			Relation<Boolean> rel = Relation.wrap(digraph);
-			if (Relation.isStronglyConnected(rel))
-				addDigraph(rel);
+		Tensor<Boolean> sols = prob.solveAll(SatSolver.getDefault()).get(0);
+		List<Relation<Boolean>> digraphs = Relation.wrap(Tensor.unstack(sols));
+
+		Iterator<Relation<Boolean>> iter = digraphs.iterator();
+		while (iter.hasNext()) {
+			if (!Relation.isStronglyConnected(iter.next()))
+				iter.remove();
 		}
+
+		digraphs = Relation.sort(digraphs);
+		for (Relation<Boolean> digraph : digraphs)
+			addDigraph(digraph);
 	}
 
 	public <BOOL> Relation<BOOL> generateRelation(final Relation<BOOL> input,
