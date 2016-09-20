@@ -415,6 +415,28 @@ public final class Operation<BOOL> {
 	}
 
 	/**
+	 * Testing congruence meet semi-distributivity (omitting types 1 and 2):
+	 * 
+	 * p(x,x,x) = x. p(x,x,y) = p(x,y,x) = p(y,x,x) = q(x,y,x) = q(x,x,y) =
+	 * q(x,y,y).
+	 */
+	public static <BOOL> BOOL areJovanovicTerms2(Operation<BOOL> p,
+			Operation<BOOL> q) {
+		assert p.alg == q.alg && p.getArity() == 3 && q.getArity() == 3;
+
+		BOOL b = p.isIdempotent();
+
+		Operation<BOOL> r = p.polymer(0, 0, 1);
+		b = p.alg.and(b, r.isEqualTo(p.polymer(0, 1, 0)));
+		b = p.alg.and(b, r.isEqualTo(p.polymer(1, 0, 0)));
+		b = p.alg.and(b, r.isEqualTo(q.polymer(0, 1, 0)));
+		b = p.alg.and(b, r.isEqualTo(q.polymer(0, 0, 1)));
+		b = p.alg.and(b, r.isEqualTo(q.polymer(0, 1, 1)));
+
+		return b;
+	}
+
+	/**
 	 * Testing congruence distributivity (omitting types 1, 2 and 5 and no
 	 * tails)
 	 * 

@@ -24,33 +24,33 @@ import java.util.*;
 import org.uasat.core.*;
 import org.uasat.math.*;
 
-public class LocalCond {
+public class MeetSD {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
-	public void findCommImpliesWeakNU4(final int size) {
-		SatProblem prob = new SatProblem(new int[] { size, size, size },
-				new int[] { size, size, size, size }) {
+	public void findBigDaddy(final int size) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size, size },
+				new int[] { size, size, size, size }, new int[] { size, size,
+						size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
-				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
-				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(1));
+				Operation<BOOL> op1 = new Operation<BOOL>(alg, tensors.get(0));
+				Operation<BOOL> op2 = new Operation<BOOL>(alg, tensors.get(1));
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(2));
 
-				BOOL b = op.isOperation();
-				b = alg.and(b, op.isIdempotent());
-				b = alg.and(b, op.preserves(rel));
+				BOOL b = op1.isOperation();
+				b = alg.and(b, op2.isOperation());
+				b = alg.and(b, Operation.areJovanovicTerms2(op1, op2));
+				b = alg.and(b, op1.preserves(rel));
+				b = alg.and(b, op2.preserves(rel));
+
+				b = alg.and(b, rel.getValue(0, 1, 0));
+				b = alg.and(b, rel.getValue(0, 2, 2));
+				b = alg.and(b, rel.getValue(1, 1, 2));
+				b = alg.and(b, rel.getValue(2, 0, 1));
 
 				for (int i = 0; i < size; i++)
-					b = alg.and(b,
-							alg.equ(op.hasValue(i, 0, 1), op.hasValue(i, 1, 0)));
-
-				b = alg.and(b, rel.getValue(1, 0, 0, 0));
-				b = alg.and(b, rel.getValue(0, 1, 0, 0));
-				b = alg.and(b, rel.getValue(0, 0, 1, 0));
-				b = alg.and(b, rel.getValue(0, 0, 0, 1));
-
-				for (int i = 0; i < size; i++)
-					b = alg.and(b, alg.not(rel.getValue(i, i, i, i)));
+					b = alg.and(b, alg.not(rel.getValue(i, i, i)));
 
 				return b;
 			}
@@ -69,31 +69,30 @@ public class LocalCond {
 		System.out.println(Relation.format(rel));
 	}
 
-	public void findCommImpliesWeakNU4Ext(final int size) {
-		SatProblem prob = new SatProblem(new int[] { size, size, size },
-				new int[] { size, size, size, size, size, size }) {
+	public void findLittleSis(final int size) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size, size },
+				new int[] { size, size, size, size }, new int[] { size, size,
+						size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 					List<Tensor<BOOL>> tensors) {
-				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
-				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(1));
+				Operation<BOOL> op1 = new Operation<BOOL>(alg, tensors.get(0));
+				Operation<BOOL> op2 = new Operation<BOOL>(alg, tensors.get(1));
+				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(2));
 
-				BOOL b = op.isOperation();
-				b = alg.and(b, op.isIdempotent());
-				b = alg.and(b, op.preserves(rel));
+				BOOL b = op1.isOperation();
+				b = alg.and(b, op2.isOperation());
+				b = alg.and(b, Operation.areJovanovicTerms2(op1, op2));
+				b = alg.and(b, op1.preserves(rel));
+				b = alg.and(b, op2.preserves(rel));
+
+				b = alg.and(b, rel.getValue(0, 1, 1));
+				b = alg.and(b, rel.getValue(0, 0, 2));
+				b = alg.and(b, rel.getValue(1, 2, 0));
+				b = alg.and(b, rel.getValue(2, 0, 1));
 
 				for (int i = 0; i < size; i++)
-					b = alg.and(b,
-							alg.equ(op.hasValue(i, 0, 1), op.hasValue(i, 1, 0)));
-
-				b = alg.and(b, rel.getValue(1, 0, 0, 0, 0, 0));
-				b = alg.and(b, rel.getValue(0, 1, 0, 0, 0, 1));
-				b = alg.and(b, rel.getValue(0, 0, 1, 0, 1, 0));
-				b = alg.and(b, rel.getValue(0, 0, 0, 1, 1, 1));
-
-				for (int i = 0; i < size; i++)
-					for (int j = 0; j < size; j++)
-						b = alg.and(b, alg.not(rel.getValue(i, i, i, i, j, j)));
+					b = alg.and(b, alg.not(rel.getValue(i, i, i)));
 
 				return b;
 			}
@@ -114,9 +113,10 @@ public class LocalCond {
 
 	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
-		LocalCond test = new LocalCond();
+		MeetSD test = new MeetSD();
 
-		test.findCommImpliesWeakNU4Ext(4);
+		// test.findBigDaddy(5);
+		test.findLittleSis(5);
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
