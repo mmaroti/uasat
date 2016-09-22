@@ -29,13 +29,11 @@ public class MeetSD {
 
 	public void findBigDaddy(final int size) {
 		System.out.println("finding big daddy " + size);
-		
-		SatProblem prob = new SatProblem(new int[] { size, size, size, size },
-				new int[] { size, size, size, size }, new int[] { size, size,
-						size }) {
+
+		SatProblem prob = new SatProblem(new int[] { size, size, size, size }, new int[] { size, size, size, size },
+				new int[] { size, size, size }) {
 			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
 				Operation<BOOL> op1 = new Operation<BOOL>(alg, tensors.get(0));
 				Operation<BOOL> op2 = new Operation<BOOL>(alg, tensors.get(1));
 				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(2));
@@ -51,8 +49,7 @@ public class MeetSD {
 				b = alg.and(b, rel.getValue(1, 1, 2));
 				b = alg.and(b, rel.getValue(2, 0, 1));
 
-				for (int i = 0; i < size; i++)
-					b = alg.and(b, alg.not(rel.getValue(i, i, i)));
+				b = alg.and(b, rel.diagonal().isEmpty());
 
 				return b;
 			}
@@ -64,22 +61,22 @@ public class MeetSD {
 			return;
 		}
 
-		Operation<Boolean> op = Operation.wrap(tensors.get(0));
-		Relation<Boolean> rel = Relation.wrap(tensors.get(1));
+		Operation<Boolean> op1 = Operation.wrap(tensors.get(0));
+		Operation<Boolean> op2 = Operation.wrap(tensors.get(1));
+		Relation<Boolean> rel = Relation.wrap(tensors.get(2));
 
-		System.out.println(Operation.format(op));
+		System.out.println(Operation.format(op1));
+		System.out.println(Operation.format(op2));
 		System.out.println(Relation.format(rel));
 	}
 
 	public void findLittleSis(final int size) {
 		System.out.println("finding little sister " + size);
-		
-		SatProblem prob = new SatProblem(new int[] { size, size, size, size },
-				new int[] { size, size, size, size }, new int[] { size, size,
-						size }) {
+
+		SatProblem prob = new SatProblem(new int[] { size, size, size, size }, new int[] { size, size, size, size },
+				new int[] { size, size, size }) {
 			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
 				Operation<BOOL> op1 = new Operation<BOOL>(alg, tensors.get(0));
 				Operation<BOOL> op2 = new Operation<BOOL>(alg, tensors.get(1));
 				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(2));
@@ -95,8 +92,7 @@ public class MeetSD {
 				b = alg.and(b, rel.getValue(1, 2, 0));
 				b = alg.and(b, rel.getValue(2, 0, 1));
 
-				for (int i = 0; i < size; i++)
-					b = alg.and(b, alg.not(rel.getValue(i, i, i)));
+				b = alg.and(b, rel.diagonal().isEmpty());
 
 				return b;
 			}
@@ -108,10 +104,12 @@ public class MeetSD {
 			return;
 		}
 
-		Operation<Boolean> op = Operation.wrap(tensors.get(0));
-		Relation<Boolean> rel = Relation.wrap(tensors.get(1));
+		Operation<Boolean> op1 = Operation.wrap(tensors.get(0));
+		Operation<Boolean> op2 = Operation.wrap(tensors.get(1));
+		Relation<Boolean> rel = Relation.wrap(tensors.get(2));
 
-		System.out.println(Operation.format(op));
+		System.out.println(Operation.format(op1));
+		System.out.println(Operation.format(op2));
 		System.out.println(Relation.format(rel));
 	}
 
@@ -120,11 +118,10 @@ public class MeetSD {
 		long time = System.currentTimeMillis();
 		MeetSD test = new MeetSD();
 
-		test.findBigDaddy(5);
-		test.findLittleSis(5);
+		test.findBigDaddy(6);
+		test.findLittleSis(6);
 
 		time = System.currentTimeMillis() - time;
-		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
-				+ " seconds.");
+		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time) + " seconds.");
 	}
 }
