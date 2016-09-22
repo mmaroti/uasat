@@ -28,6 +28,8 @@ public class MeetSD {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
 	public void findBigDaddy(final int size) {
+		System.out.println("finding big daddy " + size);
+		
 		SatProblem prob = new SatProblem(new int[] { size, size, size, size },
 				new int[] { size, size, size, size }, new int[] { size, size,
 						size }) {
@@ -70,6 +72,8 @@ public class MeetSD {
 	}
 
 	public void findLittleSis(final int size) {
+		System.out.println("finding little sister " + size);
+		
 		SatProblem prob = new SatProblem(new int[] { size, size, size, size },
 				new int[] { size, size, size, size }, new int[] { size, size,
 						size }) {
@@ -112,10 +116,11 @@ public class MeetSD {
 	}
 
 	public static void main(String[] args) {
+		SatSolver.setDefault("jni-cominisatps");
 		long time = System.currentTimeMillis();
 		MeetSD test = new MeetSD();
 
-		// test.findBigDaddy(5);
+		test.findBigDaddy(5);
 		test.findLittleSis(5);
 
 		time = System.currentTimeMillis() - time;
