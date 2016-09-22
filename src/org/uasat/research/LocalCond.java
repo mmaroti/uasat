@@ -116,6 +116,9 @@ public class LocalCond {
 		long time = System.currentTimeMillis();
 		LocalCond test = new LocalCond();
 
+		// solution: 06555125 61000750 50234617 50234617 50234617 14666506 35111061 50234617
+		// test.findCommImpliesWeakNU4(8);
+		
 		test.findCommImpliesWeakNU4Ext(4);
 
 		time = System.currentTimeMillis() - time;
