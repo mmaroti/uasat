@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015-2016
+ * Copyright (C) Miklos Maroti, 2015-2016
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -70,7 +70,7 @@ public class MeetSD {
 		System.out.println(Relation.format(rel));
 	}
 
-	static final Algebra<Boolean> BIG_DADDY_6 = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(6, 3,
+	static final Algebra<Boolean> BIG_DADDY = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(6, 3,
 		"000000 043345 043345 003303 040044 043345 " + "044044 415545 355355 355355 444444 555555 "
 			+ "033303 455545 352355 333333 455545 555555 " + "033303 053345 353355 333333 053345 353355 "
 			+ "044044 445545 045345 045345 444444 445545 " + "055345 455545 355355 355355 455545 555555"),
@@ -121,6 +121,15 @@ public class MeetSD {
 		System.out.println(Operation.format(op2));
 		System.out.println(Relation.format(rel));
 	}
+
+	static final Algebra<Boolean> LITTLE_SIS = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(6, 3,
+		"035355 311313 545545 333333 544545 555555 " + "315345 111111 514345 313313 414144 515345 "
+			+ "535355 114144 542545 335355 444444 555555 " + "335355 311313 515345 333333 514345 535355 "
+			+ "515345 114144 544545 315345 444444 545545 " + "535355 314345 545545 335355 544545 555555"),
+		Operation.parse(6, 3, "015345 315345 515345 315345 515345 515345 "
+			+ "314345 314345 314345 314345 314345 314345 " + "515345 514345 512345 515345 514345 515345 "
+			+ "315345 315345 315345 315345 315345 315345 " + "514345 514345 514345 514345 514345 514345 "
+			+ "515345 515345 515345 515345 515345 515345"));
 
 	public static void main(String[] args) {
 		SatSolver.setDefault("jni-cominisatps");
