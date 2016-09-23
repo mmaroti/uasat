@@ -31,7 +31,7 @@ public class MeetSD {
 		System.out.println("finding big daddy " + size);
 
 		SatProblem prob = new SatProblem(new int[] { size, size, size, size }, new int[] { size, size, size, size },
-				new int[] { size, size, size }) {
+			new int[] { size, size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
 				Operation<BOOL> op1 = new Operation<BOOL>(alg, tensors.get(0));
@@ -70,11 +70,20 @@ public class MeetSD {
 		System.out.println(Relation.format(rel));
 	}
 
+	static final Algebra<Boolean> BIG_DADDY_6 = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(6, 3,
+		"000000 043345 043345 003303 040044 043345 " + "044044 415545 355355 355355 444444 555555 "
+			+ "033303 455545 352355 333333 455545 555555 " + "033303 053345 353355 333333 053345 353355 "
+			+ "044044 445545 045345 045345 444444 445545 " + "055345 455545 355355 355355 455545 555555"),
+		Operation.parse(6, 3, "043345 045345 053345 053345 045345 055345 "
+			+ "043345 015345 055345 053345 045345 055345 " + "043345 055345 052345 053345 045345 055345 "
+			+ "043345 055345 053345 053345 045345 055345 " + "043345 045345 055345 053345 045345 055345 "
+			+ "043345 055345 055345 053345 045345 055345"));
+
 	public void findLittleSis(final int size) {
 		System.out.println("finding little sister " + size);
 
 		SatProblem prob = new SatProblem(new int[] { size, size, size, size }, new int[] { size, size, size, size },
-				new int[] { size, size, size }) {
+			new int[] { size, size, size }) {
 			@Override
 			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
 				Operation<BOOL> op1 = new Operation<BOOL>(alg, tensors.get(0));
