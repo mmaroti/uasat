@@ -151,9 +151,13 @@ public class XmlWriter {
 	}
 
 	public void writeToFile(String filename) {
+		document.setXmlStandalone(true);
 		DOMSource source = new DOMSource(document);
 		StreamResult target = new StreamResult(new File(filename));
 		try {
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+			transformer.setOutputProperty(
+					"{http://xml.apache.org/xslt}indent-amount", "2");
 			transformer.transform(source, target);
 		} catch (TransformerException e) {
 			throw new RuntimeException(e);
