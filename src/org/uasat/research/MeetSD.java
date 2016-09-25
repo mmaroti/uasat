@@ -30,10 +30,12 @@ public class MeetSD {
 	public void findBigDaddy(final int size) {
 		System.out.println("finding big daddy " + size);
 
-		SatProblem prob = new SatProblem(new int[] { size, size, size, size }, new int[] { size, size, size, size },
-			new int[] { size, size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size, size },
+				new int[] { size, size, size, size }, new int[] { size, size,
+						size }) {
 			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
 				Operation<BOOL> op1 = new Operation<BOOL>(alg, tensors.get(0));
 				Operation<BOOL> op2 = new Operation<BOOL>(alg, tensors.get(1));
 				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(2));
@@ -70,22 +72,30 @@ public class MeetSD {
 		System.out.println(Relation.format(rel));
 	}
 
-	static final Algebra<Boolean> BIG_DADDY = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(6, 3,
-		"000000 043345 043345 003303 040044 043345 " + "044044 415545 355355 355355 444444 555555 "
-			+ "033303 455545 352355 333333 455545 555555 " + "033303 053345 353355 333333 053345 353355 "
-			+ "044044 445545 045345 045345 444444 445545 " + "055345 455545 355355 355355 455545 555555"),
-		Operation.parse(6, 3, "043345 045345 053345 053345 045345 055345 "
-			+ "043345 015345 055345 053345 045345 055345 " + "043345 055345 052345 053345 045345 055345 "
-			+ "043345 055345 053345 053345 045345 055345 " + "043345 045345 055345 053345 045345 055345 "
-			+ "043345 055345 055345 053345 045345 055345"));
+	static final Algebra<Boolean> BIG_DADDY = new Algebra<Boolean>(
+			BoolAlgebra.INSTANCE, Operation.parse(6, 3,
+					"000000 043345 043345 003303 040044 043345 "
+							+ "044044 415545 355355 355355 444444 555555 "
+							+ "033303 455545 352355 333333 455545 555555 "
+							+ "033303 053345 353355 333333 053345 353355 "
+							+ "044044 445545 045345 045345 444444 445545 "
+							+ "055345 455545 355355 355355 455545 555555"),
+			Operation.parse(6, 3, "043345 045345 053345 053345 045345 055345 "
+					+ "043345 015345 055345 053345 045345 055345 "
+					+ "043345 055345 052345 053345 045345 055345 "
+					+ "043345 055345 053345 053345 045345 055345 "
+					+ "043345 045345 055345 053345 045345 055345 "
+					+ "043345 055345 055345 053345 045345 055345"));
 
 	public void findLittleSis(final int size) {
 		System.out.println("finding little sister " + size);
 
-		SatProblem prob = new SatProblem(new int[] { size, size, size, size }, new int[] { size, size, size, size },
-			new int[] { size, size, size }) {
+		SatProblem prob = new SatProblem(new int[] { size, size, size, size },
+				new int[] { size, size, size, size }, new int[] { size, size,
+						size }) {
 			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
 				Operation<BOOL> op1 = new Operation<BOOL>(alg, tensors.get(0));
 				Operation<BOOL> op2 = new Operation<BOOL>(alg, tensors.get(1));
 				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(2));
@@ -122,16 +132,22 @@ public class MeetSD {
 		System.out.println(Relation.format(rel));
 	}
 
-	static final Algebra<Boolean> LITTLE_SIS = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(6, 3,
-		"035355 311313 545545 333333 544545 555555 " + "315345 111111 514345 313313 414144 515345 "
-			+ "535355 114144 542545 335355 444444 555555 " + "335355 311313 515345 333333 514345 535355 "
-			+ "515345 114144 544545 315345 444444 545545 " + "535355 314345 545545 335355 544545 555555"),
-		Operation.parse(6, 3, "015345 315345 515345 315345 515345 515345 "
-			+ "314345 314345 314345 314345 314345 314345 " + "515345 514345 512345 515345 514345 515345 "
-			+ "315345 315345 315345 315345 315345 315345 " + "514345 514345 514345 514345 514345 514345 "
-			+ "515345 515345 515345 515345 515345 515345"));
+	static final Algebra<Boolean> LITTLE_SIS = new Algebra<Boolean>(
+			BoolAlgebra.INSTANCE, Operation.parse(6, 3,
+					"035355 311313 545545 333333 544545 555555 "
+							+ "315345 111111 514345 313313 414144 515345 "
+							+ "535355 114144 542545 335355 444444 555555 "
+							+ "335355 311313 515345 333333 514345 535355 "
+							+ "515345 114144 544545 315345 444444 545545 "
+							+ "535355 314345 545545 335355 544545 555555"),
+			Operation.parse(6, 3, "015345 315345 515345 315345 515345 515345 "
+					+ "314345 314345 314345 314345 314345 314345 "
+					+ "515345 514345 512345 515345 514345 515345 "
+					+ "315345 315345 315345 315345 315345 315345 "
+					+ "514345 514345 514345 514345 514345 514345 "
+					+ "515345 515345 515345 515345 515345 515345"));
 
-	public static void main(String[] args) {
+	public static void main2(String[] args) {
 		SatSolver.setDefault("jni-cominisatps");
 		long time = System.currentTimeMillis();
 		MeetSD test = new MeetSD();
@@ -140,6 +156,15 @@ public class MeetSD {
 		test.findLittleSis(6);
 
 		time = System.currentTimeMillis() - time;
-		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time) + " seconds.");
+		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
+				+ " seconds.");
 	}
+
+	public static void main(String[] args) {
+		XmlWriter.writeAlgebra(BIG_DADDY, "big-daddy",
+				new String[] { "p", "q" }, "big-daddy.ua");
+
+		XmlWriter.writeAlgebra(LITTLE_SIS, "little-sis",
+				new String[] { "p", "q" }, "little-sis.ua");
+}
 }
