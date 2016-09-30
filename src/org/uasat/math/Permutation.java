@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015
+ * Copyright (C) Miklos Maroti, 2015
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -49,23 +49,25 @@ public final class Permutation<BOOL> {
 			assert (Boolean) isPermutation();
 	}
 
+	public BOOL hasValue(int result, int argument) {
+		return tensor.getElem(result, argument);
+	}
+
 	public static Permutation<Boolean> wrap(Tensor<Boolean> tensor) {
 		return new Permutation<Boolean>(BoolAlgebra.INSTANCE, tensor);
 	}
 
-	public static <BOOL> Permutation<BOOL> lift(BoolAlgebra<BOOL> alg,
-			Permutation<Boolean> perm) {
+	public static <BOOL> Permutation<BOOL> lift(BoolAlgebra<BOOL> alg, Permutation<Boolean> perm) {
 		return new Permutation<BOOL>(alg, alg.lift(perm.tensor));
 	}
 
 	public static Permutation<Boolean> create(final int[] perm) {
-		return wrap(Tensor.generate(perm.length, perm.length,
-				new Func2<Boolean, Integer, Integer>() {
-					@Override
-					public Boolean call(Integer elem1, Integer elem2) {
-						return perm[elem2] == elem1;
-					}
-				}));
+		return wrap(Tensor.generate(perm.length, perm.length, new Func2<Boolean, Integer, Integer>() {
+			@Override
+			public Boolean call(Integer elem1, Integer elem2) {
+				return perm[elem2] == elem1;
+			}
+		}));
 	}
 
 	public static Permutation<Boolean> identity(int size) {
@@ -192,8 +194,7 @@ public final class Permutation<BOOL> {
 		Relation<BOOL> tmp1 = Relation.lift(alg, Relation.lessThan(getSize()));
 		tmp1 = tmp1.compose(asRelation());
 
-		Relation<BOOL> tmp2 = Relation.lift(alg,
-				Relation.greaterThan(getSize()));
+		Relation<BOOL> tmp2 = Relation.lift(alg, Relation.greaterThan(getSize()));
 		tmp2 = asRelation().compose(tmp2);
 
 		return tmp1.intersect(tmp2).isOddCard();
