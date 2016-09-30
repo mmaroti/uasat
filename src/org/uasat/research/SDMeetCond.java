@@ -24,7 +24,7 @@ import java.util.*;
 import org.uasat.core.*;
 import org.uasat.math.*;
 
-public class MeetSD {
+public class SDMeetCond {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
 	public void findBigDaddy(final int size) {
@@ -150,7 +150,7 @@ public class MeetSD {
 	public static void main2(String[] args) {
 		SatSolver.setDefault("jni-cominisatps");
 		long time = System.currentTimeMillis();
-		MeetSD test = new MeetSD();
+		SDMeetCond test = new SDMeetCond();
 
 		test.findBigDaddy(6);
 		test.findLittleSis(6);
@@ -164,7 +164,7 @@ public class MeetSD {
 		XmlWriter.writeAlgebra(BIG_DADDY, "big-daddy",
 				new String[] { "p", "q" }, "big-daddy.ua");
 
-		XmlWriter.writeAlgebra(LITTLE_SIS, "little-sis",
-				new String[] { "p", "q" }, "little-sis.ua");
-}
+		XmlWriter.writeAlgebra(LITTLE_SIS, "little-sis", new String[] { "p",
+				"q" }, "little-sis.ua");
+	}
 }
