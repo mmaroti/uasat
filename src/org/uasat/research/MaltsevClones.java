@@ -27,11 +27,22 @@ import org.uasat.math.*;
 public class MaltsevClones {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
-	static final Algebra<Boolean> BULIN_LOOP = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(6, 2,
-		"012345 103254 234501 325410 451023 540132"));
+	static final Algebra<Boolean> BULIN_LOOP = new Algebra<Boolean>(
+			BoolAlgebra.INSTANCE, Operation.parse(6, 2,
+					"012345 103254 234501 325410 451023 540132"));
 
-	public void findCriticalRels(Algebra<Boolean> alg) {
+	public void analyze(Algebra<Boolean> alg) {
 		Algebra.print(alg);
+
+		GeneratedOps gen = new GeneratedOps(alg.getSize(), 1);
+		gen.addProjections();
+		gen.addCompositions(alg);
+		gen.print();
+
+//		gen = new GeneratedOps(alg.getSize(), 2);
+//		gen.addProjections();
+//		gen.addCompositions(alg);
+//		gen.print();
 
 		CompatibleRels comp = new CompatibleRels(alg);
 		comp.printAllRels(1);
@@ -45,11 +56,14 @@ public class MaltsevClones {
 	}
 
 	public void findMaltsevAlgebras(int size) {
-		final List<Permutation<Boolean>> perms = Permutation.nontrivialPerms(size);
+		final List<Permutation<Boolean>> perms = Permutation
+				.nontrivialPerms(size);
 
-		SatProblem problem = new SatProblem(new int[] { size, size, size, size }) {
+		SatProblem problem = new SatProblem(
+				new int[] { size, size, size, size }) {
 			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
 				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
 
 				BOOL b = op.isOperation();
@@ -64,35 +78,44 @@ public class MaltsevClones {
 			}
 		};
 
-		List<Tensor<Boolean>> list = Tensor.unstack(problem.solveAll(SatSolver.getDefault()).get(0));
+		List<Tensor<Boolean>> list = Tensor.unstack(problem.solveAll(
+				SatSolver.getDefault()).get(0));
 		for (Tensor<Boolean> tensor : list) {
 			Operation<Boolean> op = Operation.wrap(tensor);
 			System.out.println(Operation.format(op));
 		}
 	}
 
-	static final Algebra<Boolean> LOOP_2 = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(2, 2, "01 10"));
-	static final Algebra<Boolean> LOOP_3 = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(3, 2,
-		"012 120 201"));
-	static final Algebra<Boolean> LOOP_4A = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(4, 2,
-		"0123 1302 2031 3210"));
-	static final Algebra<Boolean> LOOP_4B = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(4, 2,
-		"0123 1032 2301 3210"));
-	static final Algebra<Boolean> LOOP_5A = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(5, 2,
-		"01234 14302 20413 32041 43120"));
-	static final Algebra<Boolean> LOOP_5B = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(5, 2,
-		"01234 14302 23041 32410 40123"));
-	static final Algebra<Boolean> LOOP_5C = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(5, 2,
-		"01234 14302 23140 30421 42013"));
-	static final Algebra<Boolean> LOOP_5D = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(5, 2,
-		"01234 14320 23401 30142 42013"));
-	static final Algebra<Boolean> LOOP_5E = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(5, 2,
-		"01234 14320 23041 30412 42103"));
-	static final Algebra<Boolean> LOOP_5F = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(5, 2,
-		"01234 10423 23041 34102 42310"));
+	static final Algebra<Boolean> LOOP_2 = new Algebra<Boolean>(
+			BoolAlgebra.INSTANCE, Operation.parse(2, 2, "01 10"));
+	static final Algebra<Boolean> LOOP_3 = new Algebra<Boolean>(
+			BoolAlgebra.INSTANCE, Operation.parse(3, 2, "012 120 201"));
+	static final Algebra<Boolean> LOOP_4A = new Algebra<Boolean>(
+			BoolAlgebra.INSTANCE, Operation.parse(4, 2, "0123 1302 2031 3210"));
+	static final Algebra<Boolean> LOOP_4B = new Algebra<Boolean>(
+			BoolAlgebra.INSTANCE, Operation.parse(4, 2, "0123 1032 2301 3210"));
+	static final Algebra<Boolean> LOOP_5A = new Algebra<Boolean>(
+			BoolAlgebra.INSTANCE, Operation.parse(5, 2,
+					"01234 14302 20413 32041 43120"));
+	static final Algebra<Boolean> LOOP_5B = new Algebra<Boolean>(
+			BoolAlgebra.INSTANCE, Operation.parse(5, 2,
+					"01234 14302 23041 32410 40123"));
+	static final Algebra<Boolean> LOOP_5C = new Algebra<Boolean>(
+			BoolAlgebra.INSTANCE, Operation.parse(5, 2,
+					"01234 14302 23140 30421 42013"));
+	static final Algebra<Boolean> LOOP_5D = new Algebra<Boolean>(
+			BoolAlgebra.INSTANCE, Operation.parse(5, 2,
+					"01234 14320 23401 30142 42013"));
+	static final Algebra<Boolean> LOOP_5E = new Algebra<Boolean>(
+			BoolAlgebra.INSTANCE, Operation.parse(5, 2,
+					"01234 14320 23041 30412 42103"));
+	static final Algebra<Boolean> LOOP_5F = new Algebra<Boolean>(
+			BoolAlgebra.INSTANCE, Operation.parse(5, 2,
+					"01234 10423 23041 34102 42310"));
 
 	public void findLoops(final int size) {
-		final List<Permutation<Boolean>> perms = Permutation.nontrivialPerms(size);
+		final List<Permutation<Boolean>> perms = Permutation
+				.nontrivialPerms(size);
 		for (int i = perms.size() - 1; i >= 0; i--) {
 			if (!perms.get(i).hasValue(0, 0)) {
 				perms.remove(i);
@@ -101,7 +124,8 @@ public class MaltsevClones {
 
 		SatProblem problem = new SatProblem(new int[] { size, size, size }) {
 			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
 				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
 
 				BOOL b = op.isOperation();
@@ -122,7 +146,8 @@ public class MaltsevClones {
 			}
 		};
 
-		List<Tensor<Boolean>> list = Tensor.unstack(problem.solveAll(SatSolver.getDefault()).get(0));
+		List<Tensor<Boolean>> list = Tensor.unstack(problem.solveAll(
+				SatSolver.getDefault()).get(0));
 		for (Tensor<Boolean> tensor : list) {
 			Operation<Boolean> op = Operation.wrap(tensor);
 			System.out.println(Operation.format(op));
@@ -134,13 +159,18 @@ public class MaltsevClones {
 		long time = System.currentTimeMillis();
 		MaltsevClones test = new MaltsevClones();
 
-		// test.findLoops(6);
-		// test.findCriticalRels(LOOP_5E);
-		test.findCriticalRels(BULIN_LOOP);
-//		test.findCriticalRels(new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(6, 2,
-//			"012345 154203 230514 321450 405132 543021")));
+		// test.findMaltsevAlgebras(3);
+		test.analyze(new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation
+				.parse(3, 3, "012 202 120 111 012 001 212 222 012")));
+
+		// test.analyze(LOOP_5E);
+		// test.analyze(BULIN_LOOP);
+		// test.analyze(new Algebra<Boolean>(BoolAlgebra.INSTANCE,
+		// Operation.parse(6, 2,
+		// "012345 154203 230514 321450 405132 543021")));
 
 		time = System.currentTimeMillis() - time;
-		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time) + " seconds.");
+		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
+				+ " seconds.");
 	}
 }

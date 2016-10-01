@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015-2016
+ * Copyright (C) Miklos Maroti, 2015-2016
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -138,6 +138,23 @@ public class GeneratedOps implements Iterable<Operation<Boolean>> {
 
 			if (a == operations.size())
 				break;
+		}
+	}
+
+	public void addCompositions(Algebra<Boolean> alg) {
+		assert alg.getSize() == size;
+		List<Operation<Boolean>> ops = alg.getOperations();
+
+		int n = 0;
+		while (n < ops.size()) {
+			int a = operations.size();
+			for (Operation<Boolean> op : ops) {
+				addCompositions(op);
+				if (a == operations.size())
+					n += 1;
+				else
+					n = 1;
+			}
 		}
 	}
 
