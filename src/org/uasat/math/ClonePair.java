@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015-2016
+ * Copyright (C) Miklos Maroti, 2015-2016
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -220,7 +220,7 @@ public class ClonePair {
 	}
 
 	public void print() {
-		System.out.println("clone pair on universe " + size);
+		System.out.println("quasi clone on universe " + size);
 
 		System.out.println("operations: " + operations.size());
 		int c = 0;

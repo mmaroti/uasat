@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015-2016
+ * Copyright (C) Miklos Maroti, 2015-2016
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -172,9 +172,9 @@ public final class Operation<BOOL> {
 	}
 
 	public BOOL isProjection() {
-		BOOL b = alg.TRUE;
+		BOOL b = alg.FALSE;
 		for (int i = 0; i < getArity(); i++)
-			b = alg.and(b, isProjection(i));
+			b = alg.or(b, isProjection(i));
 
 		return b;
 	}
