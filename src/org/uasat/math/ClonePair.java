@@ -68,6 +68,15 @@ public class ClonePair {
 	}
 
 	public void clear() {
+		operations.clear();
+		relations.clear();
+	}
+
+	public void clearOperations() {
+		operations.clear();
+	}
+
+	public void clearRelations() {
 		relations.clear();
 	}
 
@@ -102,31 +111,25 @@ public class ClonePair {
 			addRelation(Relation.singleton(size, i));
 	}
 
-	public <BOOL> Relation<BOOL> preservedOps(final BoolAlgebra<BOOL> alg,
-			final Relation<BOOL> rel) {
-		Tensor<BOOL> tensor = Tensor.generate(alg.getType(), operations.size(),
-				new Func1<BOOL, Integer>() {
-					@Override
-					public BOOL call(Integer elem) {
-						Operation<BOOL> op = Operation.lift(alg,
-								operations.get(elem));
-						return op.preserves(rel);
-					}
-				});
+	public <BOOL> Relation<BOOL> preservedOps(final BoolAlgebra<BOOL> alg, final Relation<BOOL> rel) {
+		Tensor<BOOL> tensor = Tensor.generate(alg.getType(), operations.size(), new Func1<BOOL, Integer>() {
+			@Override
+			public BOOL call(Integer elem) {
+				Operation<BOOL> op = Operation.lift(alg, operations.get(elem));
+				return op.preserves(rel);
+			}
+		});
 		return new Relation<BOOL>(alg, tensor);
 	}
 
-	public <BOOL> Relation<BOOL> preservedRels(final BoolAlgebra<BOOL> alg,
-			final Operation<BOOL> op) {
-		Tensor<BOOL> tensor = Tensor.generate(alg.getType(), relations.size(),
-				new Func1<BOOL, Integer>() {
-					@Override
-					public BOOL call(Integer elem) {
-						Relation<BOOL> rel = Relation.lift(alg,
-								relations.get(elem));
-						return op.preserves(rel);
-					}
-				});
+	public <BOOL> Relation<BOOL> preservedRels(final BoolAlgebra<BOOL> alg, final Operation<BOOL> op) {
+		Tensor<BOOL> tensor = Tensor.generate(alg.getType(), relations.size(), new Func1<BOOL, Integer>() {
+			@Override
+			public BOOL call(Integer elem) {
+				Relation<BOOL> rel = Relation.lift(alg, relations.get(elem));
+				return op.preserves(rel);
+			}
+		});
 		return new Relation<BOOL>(alg, tensor);
 	}
 
@@ -151,12 +154,9 @@ public class ClonePair {
 	public Pair findCriticalPair(int opArity, int relArity) {
 		assert opArity >= 0 && relArity >= 1;
 
-		SatProblem problem = new SatProblem(
-				Util.createShape(size, opArity + 1), Util.createShape(size,
-						relArity)) {
+		SatProblem problem = new SatProblem(Util.createShape(size, opArity + 1), Util.createShape(size, relArity)) {
 			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
 				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
 				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(1));
 
@@ -170,7 +170,7 @@ public class ClonePair {
 					b = alg.and(b, op.preserves(Relation.lift(alg, r)));
 
 				b = alg.and(b, op.isPermuteMinimal());
-				b = alg.and(b, rel.isPermuteMinimal());
+				b = alg.and(b, rel.isLexMinimal());
 
 				return b;
 			}

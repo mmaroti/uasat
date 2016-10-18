@@ -20,7 +20,6 @@ package org.uasat.research;
 
 import java.text.*;
 import java.util.List;
-
 import org.uasat.core.*;
 import org.uasat.math.*;
 
@@ -139,7 +138,7 @@ public class MaltsevClones {
 		}
 	}
 
-	public static void main(String[] args) {
+	public static void main2(String[] args) {
 		SatSolver.setDefault("jni-cominisatps");
 		long time = System.currentTimeMillis();
 		MaltsevClones test = new MaltsevClones();
@@ -149,10 +148,57 @@ public class MaltsevClones {
 		// .parse(3, 3, "012 202 120 111 012 001 212 222 012")));
 
 		// test.analyze(LOOP_5E);
-		test.analyze(BULIN_LOOP);
+		// test.analyze(BULIN_LOOP);
 		// test.analyze(new Algebra<Boolean>(BoolAlgebra.INSTANCE,
 		// Operation.parse(6, 2,
 		// "012345 154203 230514 321450 405132 543021")));
+		test.analyze(MALTSEV33E);
+
+		time = System.currentTimeMillis() - time;
+		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time) + " seconds.");
+	}
+
+	static final Algebra<Boolean> MALTSEV32A = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(3, 3,
+		"012 102 220 102 012 221 220 221 012"));
+
+	static final Algebra<Boolean> MALTSEV32B = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(3, 3,
+		"012 100 200 100 012 021 200 021 012"));
+
+	static final Algebra<Boolean> MALTSEV32C = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(3, 3,
+		"012 101 210 101 012 121 210 121 012"));
+
+	static final Algebra<Boolean> MALTSEV32D = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(3, 3,
+		"012 001 020 110 012 211 202 122 012"));
+
+	static final Algebra<Boolean> MALTSEV33A = MALTSEV32A;
+
+	static final Algebra<Boolean> MALTSEV33B = MALTSEV32B;
+
+	static final Algebra<Boolean> MALTSEV33C = MALTSEV32C;
+
+	static final Algebra<Boolean> MALTSEV33D = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(3, 3,
+		"012 201 120 120 012 201 201 120 012"));
+
+	static final Algebra<Boolean> MALTSEV33E = new Algebra<Boolean>(BoolAlgebra.INSTANCE, Operation.parse(3, 3,
+		"012 101 220 100 012 221 200 121 012"));
+
+	public static void main(String[] args) {
+		SatSolver.setDefault("jni-cominisatps");
+		long time = System.currentTimeMillis();
+
+		MinimalClones clones = new MinimalClones("maltsev", 3, 4);
+		clones.trace = true;
+		// clones.addUpperLimit(Relation.parse(3, "20 01 11"));
+		// clones.addUpperLimit(Relation.parse(3, "20 01 02"));
+		// clones.addUpperLimit(Relation.parse(3, "20 01 22"));
+		clones.addUpperLimit(Relation.parse(3, "20 01 12"));
+		
+		clones.addUpperLimit(Relation.parse(3, "010 001"));
+		//clones.addUpperLimit(Relation.parse(3, "200 110 020 101 011 221 002 212 122"));
+
+		clones.findAll();
+		clones.print();
+		clones.printWitnesses();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time) + " seconds.");

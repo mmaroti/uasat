@@ -26,11 +26,11 @@ import org.uasat.solvers.*;
 public class TestMinimalClones {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
-	public static void main1(String[] args) {
+	public static void main(String[] args) {
 		SatSolver<?> solver = new MiniSat();
 		long time = System.currentTimeMillis();
 
-		MinimalClones clones = new MinimalClones("nontrivial", 2, 3, 3, solver);
+		MinimalClones clones = new MinimalClones("nontriv3", 2, 3, solver);
 
 		clones.addGenerator(Operation.parse(2, 1, "00"));
 		clones.addGenerator(Operation.parse(2, 1, "11"));
@@ -43,35 +43,19 @@ public class TestMinimalClones {
 		clones.print();
 
 		time = System.currentTimeMillis() - time;
-		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
-				+ " seconds.");
+		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time) + " seconds.");
 	}
 
 	public static void main2(String[] args) {
 		SatSolver<?> solver = new MiniSat();
 		long time = System.currentTimeMillis();
 
-		MinimalClones clones = new MinimalClones("majority", 4, 3, 2, solver);
+		MinimalClones clones = new MinimalClones("majority", 3, 2, solver);
 
 		clones.findAll();
 		clones.print();
 
 		time = System.currentTimeMillis() - time;
-		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
-				+ " seconds.");
-	}
-
-	public static void main(String[] args) {
-		SatSolver<?> solver = new MiniSat();
-		long time = System.currentTimeMillis();
-
-		MinimalClones clones = new MinimalClones("maltsev", 3, 3, 4, solver);
-
-		clones.findAll();
-		clones.print();
-
-		time = System.currentTimeMillis() - time;
-		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
-				+ " seconds.");
+		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time) + " seconds.");
 	}
 }

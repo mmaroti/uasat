@@ -24,24 +24,22 @@ import org.uasat.core.*;
 public class MinimalClones {
 	private final String type;
 	private final int size;
-	private final int opArity;
 	private final int relArity;
 	private final SatSolver<?> solver;
+	public boolean trace = false;
 
 	private final List<Operation<Boolean>> generators;
 	private final List<Relation<Boolean>> upperLimit;
 
-	public MinimalClones(String type, int size, int opArity, int relArity) {
-		this(type, size, opArity, relArity, SatSolver.getDefault());
+	public MinimalClones(String type, int size, int relArity) {
+		this(type, size, relArity, SatSolver.getDefault());
 	}
 
-	public MinimalClones(String type, int size, int opArity, int relArity,
-			SatSolver<?> solver) {
+	public MinimalClones(String type, int size, int relArity, SatSolver<?> solver) {
 		assert size >= 1 && solver != null;
 
 		this.type = type;
 		this.size = size;
-		this.opArity = opArity;
 		this.relArity = relArity;
 		this.solver = solver;
 
@@ -54,6 +52,9 @@ public class MinimalClones {
 	}
 
 	public void addUpperLimit(Relation<Boolean> rel) {
+		for (Operation<Boolean> op : generators)
+			assert op.preserves(rel);
+
 		upperLimit.add(rel);
 	}
 
@@ -62,6 +63,9 @@ public class MinimalClones {
 	}
 
 	public void addGenerator(Operation<Boolean> op) {
+		for (Relation<Boolean> rel : upperLimit)
+			assert op.preserves(rel);
+
 		generators.add(op);
 	}
 
@@ -69,19 +73,36 @@ public class MinimalClones {
 		return generators;
 	}
 
-	protected <BOOL> BOOL isValidGenerator(Operation<BOOL> op) {
+	public int getOpArity() {
+		if (type.equals("nontriv1"))
+			return 1;
+		else if (type.equals("nontriv2"))
+			return 2;
+		else if (type.equals("nontriv3"))
+			return 3;
+		else if (type.equals("majority"))
+			return 3;
+		else if (type.equals("minority"))
+			return 3;
+		else if (type.equals("maltsev"))
+			return 3;
+		else
+			throw new IllegalStateException();
+	}
+
+	protected <BOOL> BOOL isValidOp(Operation<BOOL> op) {
 		assert op.getSize() == size;
 
 		BoolAlgebra<BOOL> alg = op.getAlg();
 		BOOL b = op.isOperation();
 
-		if (type == "nontrivial")
+		if (type.equals("nontriv1") || type.equals("nontriv2") || type.equals("nontriv3"))
 			b = alg.and(b, alg.not(op.isProjection()));
-		else if (type == "majority")
+		else if (type.equals("majority"))
 			b = alg.and(b, op.isMajority());
-		else if (type == "maltsev")
+		else if (type.equals("maltsev"))
 			b = alg.and(b, op.isMaltsev());
-		else if (type == "minority")
+		else if (type.equals("minority"))
 			b = alg.and(b, op.isMinority());
 		else
 			throw new IllegalStateException();
@@ -89,19 +110,17 @@ public class MinimalClones {
 		return b;
 	}
 
-	protected static <BOOL> BOOL isNotAboveClone(Operation<BOOL> op,
-			Relation<BOOL> witness, Operation<Boolean> clone) {
+	public static <BOOL> BOOL isNotAboveClone(Operation<BOOL> op, Relation<BOOL> witness, Operation<Boolean> other) {
 		BoolAlgebra<BOOL> alg = op.getAlg();
-		Operation<BOOL> clo = Operation.lift(alg, clone);
+		Operation<BOOL> op2 = Operation.lift(alg, other);
 
-		BOOL b = alg.not(clo.preserves(witness));
+		BOOL b = alg.not(op2.preserves(witness));
 		b = alg.and(b, op.preserves(witness));
 
 		return b;
 	}
 
-	protected static <BOOL> BOOL isBelowClone(Operation<BOOL> op,
-			List<Relation<Boolean>> rels) {
+	public static <BOOL> BOOL isBelowClone(Operation<BOOL> op, List<Relation<Boolean>> rels) {
 		BoolAlgebra<BOOL> alg = op.getAlg();
 
 		BOOL b = alg.TRUE;
@@ -111,25 +130,26 @@ public class MinimalClones {
 		return b;
 	}
 
-	public Operation<Boolean> findOne() {
-		int[][] shapes = new int[1 + generators.size()][];
+	public ClonePair findNotAboveGens() {
+		int opArity = getOpArity();
 
+		int[][] shapes = new int[1 + generators.size()][];
 		shapes[0] = Util.createShape(size, opArity + 1);
+
+		int[] shape = Util.createShape(size, relArity);
 		for (int i = 1; i < shapes.length; i++)
-			shapes[i] = Util.createShape(size, relArity);
+			shapes[i] = shape;
 
 		SatProblem prob = new SatProblem(shapes) {
 			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
 				Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(0));
 
-				BOOL b = isValidGenerator(op);
+				BOOL b = isValidOp(op);
 				b = alg.and(b, isBelowClone(op, upperLimit));
 
 				for (int i = 1; i < tensors.size(); i++) {
-					Relation<BOOL> witness = new Relation<BOOL>(alg,
-							tensors.get(i));
+					Relation<BOOL> witness = new Relation<BOOL>(alg, tensors.get(i));
 					Operation<Boolean> c = generators.get(i - 1);
 					b = alg.and(b, isNotAboveClone(op, witness, c));
 				}
@@ -142,43 +162,83 @@ public class MinimalClones {
 		if (sol == null)
 			return null;
 
-		Operation<Boolean> op = Operation.wrap(sol.get(0));
-		final List<Relation<Boolean>> relations = new ArrayList<Relation<Boolean>>();
-		relations.addAll(upperLimit);
+		ClonePair clone = new ClonePair(size, solver);
+		clone.addOperation(Operation.wrap(sol.get(0)));
+		clone.addRelations(upperLimit);
 		for (int i = 1; i < sol.size(); i++)
-			relations.add(Relation.wrap(sol.get(i)));
+			clone.addRelation(Relation.wrap(sol.get(i)));
+
+		return clone;
+	}
+
+	public Operation<Boolean> findNotAboveAny(final ClonePair clone) {
+		if (clone.getOperations().size() != 1)
+			throw new IllegalArgumentException();
+		int opArity = getOpArity();
 
 		for (;;) {
-			final Operation<Boolean> op1 = op;
+			final Operation<Boolean> op = clone.getOperations().get(0);
 
-			prob = new SatProblem(Util.createShape(size, opArity + 1),
-					Util.createShape(size, relArity)) {
+			SatProblem prob = new SatProblem(Util.createShape(size, opArity + 1), Util.createShape(size, relArity)) {
 				@Override
-				public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-						List<Tensor<BOOL>> tensors) {
+				public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
 
-					Operation<BOOL> op2 = new Operation<BOOL>(alg,
-							tensors.get(0));
-					Relation<BOOL> witness = new Relation<BOOL>(alg,
-							tensors.get(1));
+					Operation<BOOL> op2 = new Operation<BOOL>(alg, tensors.get(0));
+					Relation<BOOL> witness = new Relation<BOOL>(alg, tensors.get(1));
 
-					BOOL b = isValidGenerator(op2);
-					b = alg.and(b, isBelowClone(op2, relations));
-					b = alg.and(b, isNotAboveClone(op2, witness, op1));
+					BOOL b = isValidOp(op2);
+					b = alg.and(b, isBelowClone(op2, clone.getRelations()));
+					b = alg.and(b, isNotAboveClone(op2, witness, op));
 
 					return b;
 				}
 			};
 
-			sol = prob.solveOne(solver);
+			List<Tensor<Boolean>> sol = prob.solveOne(solver);
 			if (sol == null)
-				break;
+				return op;
 
-			op = Operation.wrap(sol.get(0));
-			relations.add(Relation.wrap(sol.get(1)));
+			clone.clearOperations();
+			clone.addOperation(Operation.wrap(sol.get(0)));
+			clone.addRelation(Relation.wrap(sol.get(1)));
+		}
+	}
+
+	public List<Relation<Boolean>> findWitnesses(final Operation<Boolean> op) {
+		List<Relation<Boolean>> rels = new ArrayList<Relation<Boolean>>();
+
+		for (final Operation<Boolean> clone : generators) {
+			SatProblem prob = new SatProblem(Util.createShape(size, relArity)) {
+				@Override
+				public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
+					Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
+					BOOL b = isNotAboveClone(Operation.lift(alg, op), rel, clone);
+					b = alg.and(b, rel.isLexMinimal());
+
+					return b;
+				}
+			};
+
+			List<Tensor<Boolean>> sol = prob.solveOne(solver);
+			if (sol == null)
+				rels.add(null);
+			else
+				rels.add(Relation.wrap(sol.get(0)));
 		}
 
+		return rels;
+	}
+
+	public Operation<Boolean> findOne() {
+		ClonePair clone = findNotAboveGens();
+		if (clone == null)
+			return null;
+
+		Operation<Boolean> op = findNotAboveAny(clone);
 		generators.add(op);
+		if (trace)
+			System.out.println(Operation.format(op));
+
 		return op;
 	}
 
@@ -188,8 +248,8 @@ public class MinimalClones {
 	}
 
 	public void print() {
-		System.out.println(type + " minimal clones on universe " + size
-				+ " separated by " + relArity + "-ary relations");
+		System.out.println(type + " minimal clones on universe " + size + " separated by " + relArity
+			+ "-ary relations");
 
 		System.out.println("generators: " + generators.size());
 		int c = 0;
@@ -198,13 +258,23 @@ public class MinimalClones {
 
 		if (!upperLimit.isEmpty()) {
 
-			System.out.println("below the clone with relations: "
-					+ upperLimit.size());
+			System.out.println("below the clone with relations: " + upperLimit.size());
 			c = 0;
 			for (Relation<Boolean> rel : upperLimit)
 				System.out.println((c++) + ":\t" + Relation.format(rel));
-
-			System.out.println();
 		}
+		System.out.println();
+	}
+
+	public void printWitnesses() {
+		for (int i = 0; i < generators.size(); i++) {
+			Operation<Boolean> op = generators.get(i);
+			System.out.println(i + ":\t witnesses for " + Operation.format(op));
+
+			List<Relation<Boolean>> witnesses = findWitnesses(op);
+			for (Relation<Boolean> rel : witnesses)
+				System.out.println(rel == null ? "none" : Relation.format(rel));
+		}
+		System.out.println();
 	}
 }

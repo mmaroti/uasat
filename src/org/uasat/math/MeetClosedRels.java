@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015-2016
+ * Copyright (C) Miklos Maroti, 2015-2016
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -309,7 +309,7 @@ public class MeetClosedRels {
 		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
 
 		for (Relation<Boolean> rel : gens) {
-			if (!rel.isPermuteMinimal())
+			if (!rel.isLexMinimal())
 				continue;
 
 			list.add(Relation.removeNonessentialCoords(rel));

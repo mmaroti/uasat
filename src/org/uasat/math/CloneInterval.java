@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015-2016
+ * Copyright (C) Miklos Maroti, 2015-2016
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -191,7 +191,7 @@ public class CloneInterval {
 				b = alg.and(b, alg.not(op.preserves(rel)));
 
 				b = alg.and(b, op.isPermuteMinimal());
-				b = alg.and(b, rel.isPermuteMinimal());
+				b = alg.and(b, rel.isLexMinimal());
 
 				if (interval != null) {
 					b = alg.and(b, interval.isClosedUnder(op));
@@ -240,7 +240,7 @@ public class CloneInterval {
 				b = alg.and(b, alg.not(op.preserves(rel)));
 
 				b = alg.and(b, op.isPermuteMinimal());
-				b = alg.and(b, rel.isPermuteMinimal());
+				b = alg.and(b, rel.isLexMinimal());
 
 				if (interval != null) {
 					b = alg.and(b, interval.isClosedUnder(op));
@@ -289,8 +289,8 @@ public class CloneInterval {
 				b = alg.and(b, alg.not(op.preserves(rel2)));
 
 				b = alg.and(b, op.isPermuteMinimal());
-				b = alg.and(b, rel1.isPermuteMinimal());
-				b = alg.and(b, rel2.isPermuteMinimal());
+				b = alg.and(b, rel1.isLexMinimal());
+				b = alg.and(b, rel2.isLexMinimal());
 
 				if (interval != null) {
 					b = alg.and(b, interval.isClosedUnder(op));
@@ -339,7 +339,7 @@ public class CloneInterval {
 				b = alg.and(b, op1.preserves(rel));
 				b = alg.and(b, alg.not(op2.preserves(rel)));
 
-				b = alg.and(b, rel.isPermuteMinimal());
+				b = alg.and(b, rel.isLexMinimal());
 				b = alg.and(b, op1.isPermuteMinimal());
 				b = alg.and(b, op2.isPermuteMinimal());
 

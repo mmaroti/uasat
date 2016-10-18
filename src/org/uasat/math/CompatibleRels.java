@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015-2016
+ * Copyright (C) Miklos Maroti, 2015-2016
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -100,7 +100,7 @@ public class CompatibleRels {
 				Algebra<BOOL> ualg = Algebra.lift(alg, algebra);
 
 				BOOL b = ualg.isSubuniverse(rel);
-				b = alg.and(b, rel.isPermuteMinimal());
+				b = alg.and(b, rel.isLexMinimal());
 
 				return b;
 			}
