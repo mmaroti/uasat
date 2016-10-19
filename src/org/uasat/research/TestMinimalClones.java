@@ -19,18 +19,16 @@
 package org.uasat.research;
 
 import java.text.*;
-import org.uasat.core.*;
 import org.uasat.math.*;
-import org.uasat.solvers.*;
 
 public class TestMinimalClones {
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
-	public static void main(String[] args) {
-		SatSolver<?> solver = new MiniSat();
+	public static void main1(String[] args) {
 		long time = System.currentTimeMillis();
 
-		MinimalClones clones = new MinimalClones("nontriv3", 2, 3, solver);
+		MinimalClones clones = new MinimalClones("nontriv3", 2);
+		clones.trace = true;
 
 		clones.addGenerator(Operation.parse(2, 1, "00"));
 		clones.addGenerator(Operation.parse(2, 1, "11"));
@@ -39,21 +37,23 @@ public class TestMinimalClones {
 		clones.addGenerator(Operation.parse(2, 2, "01 11")); // join
 		clones.addGenerator(Operation.parse(2, 3, "01 10 10 01")); // x+y+z
 		clones.addGenerator(Operation.parse(2, 3, "00 01 01 11")); // majority
-		clones.findAll();
+		clones.findAll(4);
 		clones.print();
+		clones.printWitnesses(1, 3);
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time) + " seconds.");
 	}
 
-	public static void main2(String[] args) {
-		SatSolver<?> solver = new MiniSat();
+	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
-		MinimalClones clones = new MinimalClones("majority", 3, 2, solver);
+		MinimalClones clones = new MinimalClones("majority", 3);
+		clones.trace = true;
 
-		clones.findAll();
+		clones.findAll(2);
 		clones.print();
+		clones.printWitnesses(1, 2);
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time) + " seconds.");

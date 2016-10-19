@@ -82,6 +82,9 @@ public class ClonePair {
 
 	public void addOperation(final Operation<Boolean> op) {
 		assert op.getSize() == size;
+		if (operations.contains(op))
+			return;
+
 		for (Relation<Boolean> rel : relations)
 			assert op.preserves(rel);
 
@@ -95,6 +98,9 @@ public class ClonePair {
 
 	public void addRelation(Relation<Boolean> rel) {
 		assert rel.getSize() == size;
+		if (relations.contains(rel))
+			return;
+
 		for (Operation<Boolean> op : operations)
 			assert op.preserves(rel);
 

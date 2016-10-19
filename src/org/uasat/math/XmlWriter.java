@@ -36,8 +36,7 @@ public class XmlWriter {
 	public XmlWriter() {
 		try {
 			if (BUILDER == null)
-				BUILDER = DocumentBuilderFactory.newInstance()
-						.newDocumentBuilder();
+				BUILDER = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			if (FACTORY == null)
 				FACTORY = TransformerFactory.newInstance();
 
@@ -122,8 +121,7 @@ public class XmlWriter {
 		return op;
 	}
 
-	public Element createAlgebraNode(Algebra<Boolean> algebra, String name,
-			String[] opNames) {
+	public Element createAlgebraNode(Algebra<Boolean> algebra, String name, String[] opNames) {
 		if (algebra.getOperations().size() != opNames.length)
 			throw new IllegalArgumentException();
 
@@ -142,33 +140,34 @@ public class XmlWriter {
 
 		Element ops = document.createElement("operations");
 		for (int i = 0; i < opNames.length; i++) {
-			ops.appendChild(createOperationNode(algebra.getOperation(i),
-					opNames[i]));
+			ops.appendChild(createOperationNode(algebra.getOperation(i), opNames[i]));
 		}
 		basicAlg.appendChild(ops);
 
 		return alg;
 	}
 
-	public void writeToFile(String filename) {
+	public void writeToFile(File file) {
 		document.setXmlStandalone(true);
 		DOMSource source = new DOMSource(document);
-		StreamResult target = new StreamResult(new File(filename));
+		StreamResult target = new StreamResult(file);
 		try {
 			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			transformer.setOutputProperty(
-					"{http://xml.apache.org/xslt}indent-amount", "2");
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 			transformer.transform(source, target);
 		} catch (TransformerException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public static void writeAlgebra(Algebra<Boolean> algebra, String name,
-			String[] opNames, String filename) {
+	public static void writeAlgebra(Algebra<Boolean> algebra, File file, String name, String... opNames) {
 		XmlWriter writer = new XmlWriter();
 		Element alg = writer.createAlgebraNode(algebra, name, opNames);
 		writer.document.appendChild(alg);
-		writer.writeToFile(filename);
+		writer.writeToFile(file);
+	}
+
+	public static void writeAlgebra(Algebra<Boolean> algebra, String name, String... opNames) {
+		writeAlgebra(algebra, new File(name + ".ua"), name, opNames);
 	}
 }
