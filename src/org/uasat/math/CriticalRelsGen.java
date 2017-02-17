@@ -88,13 +88,11 @@ public class CriticalRelsGen {
 	}
 
 	private Relation<Boolean> findOne(final Relation<Boolean> above) {
-		assert above == null
-				|| (above.getSize() == size && above.getArity() == arity1);
+		assert above == null || (above.getSize() == size && above.getArity() == arity1);
 
 		SatProblem problem = new SatProblem(Util.createShape(size, arity2)) {
 			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
 				Relation<BOOL> rel2 = new Relation<BOOL>(alg, tensors.get(0));
 				Relation<BOOL> rel1 = rel2.projectTail(arity1);
 
@@ -137,8 +135,7 @@ public class CriticalRelsGen {
 			relations1.removeMeetReducibles();
 
 			if (trace)
-				System.out.println("found (" + relations1.getGeneratorCount()
-						+ "):\t" + Relation.format(rel));
+				System.out.println("found (" + relations1.getGeneratorCount() + "):\t" + Relation.format(rel));
 		}
 
 		if (trace)
@@ -164,9 +161,8 @@ public class CriticalRelsGen {
 			relations1.removeMeetReducibles();
 
 			if (trace)
-				System.out.println("found (" + relations1.getGeneratorCount()
-						+ "," + relations2.getGeneratorCount() + "):\t"
-						+ Relation.format(rel));
+				System.out.println("found (" + relations1.getGeneratorCount() + "," + relations2.getGeneratorCount()
+					+ "):\t" + Relation.format(rel));
 
 			relations2.addPermutedGen(rel);
 			relations2.removeMeetReducibles();
@@ -192,14 +188,20 @@ public class CriticalRelsGen {
 		return relations2.getUniCriticals();
 	}
 
+	public List<Relation<Boolean>> getFullCriticals1() {
+		return relations1.getFullCriticals();
+	}
+
+	public List<Relation<Boolean>> getFullCriticals2() {
+		return relations2.getFullCriticals();
+	}
+
 	public void printMeetIrreds1() {
-		Relation.print("meet irreducible rels of arity " + arity1,
-				getMeetIrreds1());
+		Relation.print("meet irreducible rels of arity " + arity1, getMeetIrreds1());
 	}
 
 	public void printMeetIrreds2() {
-		Relation.print("meet irreducible rels of arity " + arity2,
-				getMeetIrreds2());
+		Relation.print("meet irreducible rels of arity " + arity2, getMeetIrreds2());
 	}
 
 	public void printUniCriticals1(PrintStream out) {
@@ -224,36 +226,27 @@ public class CriticalRelsGen {
 	}
 
 	public void printUniCriticals2() {
-		Relation.print("unique critical rels of arity " + arity2,
-				getUniCriticals2());
+		Relation.print("unique critical rels of arity " + arity2, getUniCriticals2());
 	}
 
 	public void printStats() {
-		System.out.println("total steps: " + totalSteps + ", meet irreds1: "
-				+ getMeetIrreds1().size() + ", meet irreds2: "
-				+ getMeetIrreds2().size());
+		System.out.println("total steps: " + totalSteps + ", meet irreds1: " + getMeetIrreds1().size()
+			+ ", meet irreds2: " + getMeetIrreds2().size());
 	}
 
-	private Relation<Boolean> findMask(final Relation<Boolean> rel,
-			final Relation<Boolean> below) {
+	private Relation<Boolean> findMask(final Relation<Boolean> rel, final Relation<Boolean> below) {
 		assert rel.getSize() == size && rel.getArity() == arity1;
-		assert below == null
-				|| (below.getArity() == 1 && below.getSize() == relations2
-						.getGeneratorCount());
+		assert below == null || (below.getArity() == 1 && below.getSize() == relations2.getGeneratorCount());
 
-		SatProblem problem = new SatProblem(
-				new int[] { relations2.getGeneratorCount() }) {
+		SatProblem problem = new SatProblem(new int[] { relations2.getGeneratorCount() }) {
 			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
 				Relation<BOOL> mask = new Relation<BOOL>(alg, tensors.get(0));
 				BOOL b = relations2.isUpsetMask(mask);
 				if (below != null)
-					b = alg.and(b,
-							mask.isProperSubsetOf(Relation.lift(alg, below)));
+					b = alg.and(b, mask.isProperSubsetOf(Relation.lift(alg, below)));
 
-				Relation<BOOL> rel1 = relations2.getClosureFromMask(mask)
-						.projectHead(arity1);
+				Relation<BOOL> rel1 = relations2.getClosureFromMask(mask).projectHead(arity1);
 				b = alg.and(b, rel1.isEqualTo(Relation.lift(alg, rel)));
 
 				return b;
@@ -306,8 +299,7 @@ public class CriticalRelsGen {
 			c[i] = coords.get(i);
 
 		Relation<Boolean> p = gen.project(c);
-		System.out.println("at " + Util.formatTuple(gen.getArity(), c) + ":\t"
-				+ Relation.format(p));
+		System.out.println("at " + Util.formatTuple(gen.getArity(), c) + ":\t" + Relation.format(p));
 	}
 
 	public boolean printRepresentation(Relation<Boolean> rel) {
@@ -317,8 +309,7 @@ public class CriticalRelsGen {
 		if (reps == null)
 			System.out.println("not representable " + Relation.format(rel));
 		else {
-			System.out.println("representation of " + Relation.format(rel)
-					+ ":");
+			System.out.println("representation of " + Relation.format(rel) + ":");
 			for (int i = 0; i < reps.size(); i++)
 				printGenerator(reps.get(i));
 		}

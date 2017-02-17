@@ -77,18 +77,17 @@ public class MeetClosedRels {
 		covs.add(cov);
 
 		final int last = gens.size() - 1;
-		Tensor<Boolean> poset2 = Tensor.generate(gens.size(), gens.size(),
-				new Func2<Boolean, Integer, Integer>() {
-					@Override
-					public Boolean call(Integer elem1, Integer elem2) {
-						if (elem2 == last)
-							return gens.get(elem1).isSubsetOf(rel);
-						else if (elem1 == last)
-							return rel.isSubsetOf(gens.get(elem2));
-						else
-							return poset.getValue(elem1, elem2);
-					}
-				});
+		Tensor<Boolean> poset2 = Tensor.generate(gens.size(), gens.size(), new Func2<Boolean, Integer, Integer>() {
+			@Override
+			public Boolean call(Integer elem1, Integer elem2) {
+				if (elem2 == last)
+					return gens.get(elem1).isSubsetOf(rel);
+				else if (elem1 == last)
+					return rel.isSubsetOf(gens.get(elem2));
+				else
+					return poset.getValue(elem1, elem2);
+			}
+		});
 
 		poset = PartialOrder.wrap(poset2);
 		posetLinearized = null;
@@ -145,13 +144,12 @@ public class MeetClosedRels {
 					m[j++] = i;
 			assert j == gens.size();
 
-			Tensor<Boolean> poset2 = Tensor.generate(gens.size(), gens.size(),
-					new Func2<Boolean, Integer, Integer>() {
-						@Override
-						public Boolean call(Integer elem1, Integer elem2) {
-							return poset.getValue(m[elem1], m[elem2]);
-						}
-					});
+			Tensor<Boolean> poset2 = Tensor.generate(gens.size(), gens.size(), new Func2<Boolean, Integer, Integer>() {
+				@Override
+				public Boolean call(Integer elem1, Integer elem2) {
+					return poset.getValue(m[elem1], m[elem2]);
+				}
+			});
 
 			poset = PartialOrder.wrap(poset2);
 			posetLinearized = null;
@@ -169,12 +167,11 @@ public class MeetClosedRels {
 			posetCovers = PartialOrder.covers(poset);
 
 		BoolAlgebra<BOOL> alg = rel.getAlg();
-		Tensor<BOOL> tensor = Tensor.constant(alg.getType(),
-				new int[] { gens.size() }, rel.getAlg().FALSE);
+		Tensor<BOOL> tensor = Tensor.constant(alg.getType(), new int[] { gens.size() }, rel.getAlg().FALSE);
 
 		for (int i = posetLinearized.length - 1; i >= 0; i--) {
 			int a = posetLinearized[i];
-			assert tensor.getElem(a) == null;
+			assert tensor.getElem(a) == rel.getAlg().FALSE;
 
 			BOOL x = alg.TRUE;
 			for (int b = 0; b < posetLinearized.length; b++) {
@@ -184,8 +181,7 @@ public class MeetClosedRels {
 				}
 			}
 
-			Relation<BOOL> r = Relation.lift(alg,
-					covs.get(a).subtract(gens.get(a)));
+			Relation<BOOL> r = Relation.lift(alg, covs.get(a).subtract(gens.get(a)));
 			x = alg.and(x, rel.isDisjointOf(r));
 
 			tensor.setElem(x, a);
@@ -219,8 +215,7 @@ public class MeetClosedRels {
 
 		for (int i = 0; i < gens.size(); i++) {
 			Relation<Boolean> c = covs.get(i).subtract(gens.get(i));
-			Relation<BOOL> d = Relation.constant(alg, size, arity,
-					mask.getValue(i));
+			Relation<BOOL> d = Relation.constant(alg, size, arity, mask.getValue(i));
 			Relation<BOOL> e = d.intersect(Relation.lift(alg, c)).complement();
 			rel = rel.intersect(e);
 		}
@@ -251,12 +246,10 @@ public class MeetClosedRels {
 		return b;
 	}
 
-	public List<Relation<Boolean>> findAllGenerated(SatSolver<?> solver,
-			int limit) {
+	public List<Relation<Boolean>> findAllGenerated(SatSolver<?> solver, int limit) {
 		SatProblem problem = new SatProblem(Util.createShape(size, arity)) {
 			@Override
-			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-					List<Tensor<BOOL>> tensors) {
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
 				Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
 
 				return isGenerated(rel);
@@ -314,6 +307,16 @@ public class MeetClosedRels {
 
 			list.add(Relation.removeNonessentialCoords(rel));
 		}
+
+		return list;
+	}
+
+	public List<Relation<Boolean>> getFullCriticals() {
+		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
+
+		for (Relation<Boolean> rel : getUniCriticals())
+			if (rel.getArity() == arity)
+				list.add(rel);
 
 		return list;
 	}
