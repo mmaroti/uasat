@@ -451,6 +451,10 @@ public class HousePoset {
 		long time = System.currentTimeMillis();
 
 		HousePoset h = new HousePoset();
+		h.findUnaryCriticals();
+		h.findUnaryNCriticals();
+		h.findBinaryCriticals();
+		h.findBinaryNCriticals();
 		// h.findPentaryNCriticals();
 		// h.findBinaryCriticals();
 		// h.findBinaryCritOp2();
@@ -459,7 +463,7 @@ public class HousePoset {
 		// h.findTernaryCritOpX();
 		// h.nExplain(h.ncrit5.get(1), 8);
 		// h.findQuaternaryCriticals();
-		h.findPentaryNCritOp2();
+		// h.findPentaryNCritOp2();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
