@@ -62,6 +62,10 @@ public class CriticalRelsGen2 {
 		return relations.getUniCriticals();
 	}
 
+	public List<Relation<Boolean>> getFullCriticals() {
+		return relations.getFullCriticals();
+	}
+
 	public void addRelation(Relation<Boolean> rel) {
 		assert rel.getSize() == size && rel.getArity() <= arity;
 		relations.addPermutedGen(rel);
