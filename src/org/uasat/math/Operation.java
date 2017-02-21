@@ -85,6 +85,10 @@ public final class Operation<BOOL> {
 		return asRelation().isOperation();
 	}
 
+	public BOOL isPartialOperation() {
+		return asRelation().isPartialOperation();
+	}
+
 	public Relation<BOOL> asRelation() {
 		return new Relation<BOOL>(alg, tensor);
 	}
