@@ -474,7 +474,7 @@ public class HousePoset {
 	}
 
 	public void findNonidOp2PentaryCriticals() {
-		CriticalRelsGen2 gen = new CriticalRelsGen2(poset.getSize(), 4);
+		CriticalRelsGen2 gen = new CriticalRelsGen2(poset.getSize(), 5);
 		gen.addRelations(nonid_crit1);
 		gen.addRelations(nonid_crit2);
 		gen.addRelations(nonid_crit3);
@@ -535,7 +535,7 @@ public class HousePoset {
 		// h.findNonidPentaryCriticals();
 		// h.explainNonid(h.nonid_crit5.get(1), 8);
 
-		h.findIdempOp2UnaryCriticals();
+		// h.findIdempOp2UnaryCriticals();
 		// h.findIdempOp2BinaryCriticals();
 		// h.findIdempOp2BinaryCriticalsNew();
 
@@ -545,7 +545,7 @@ public class HousePoset {
 		// h.findNonidOp2TernaryCriticalsSlow();
 		// h.findNonidOp2QuaternaryCriticals();
 		// h.findNonidOp2QuaternaryCriticalsSlow();
-		// h.findNonidOp2PentaryCriticals();
+		h.findNonidOp2PentaryCriticals();
 
 		// h.findNonidOp3BinaryCriticals();
 		// h.findNonidOp3TernaryCriticals();
