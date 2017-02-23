@@ -60,21 +60,18 @@ public final class Operation<BOOL> {
 		return new Operation<Boolean>(BoolAlgebra.INSTANCE, tensor);
 	}
 
-	public static List<Operation<Boolean>> wrap(
-			Iterable<Tensor<Boolean>> tensors) {
+	public static List<Operation<Boolean>> wrap(Iterable<Tensor<Boolean>> tensors) {
 		List<Operation<Boolean>> list = new ArrayList<Operation<Boolean>>();
 		for (Tensor<Boolean> t : tensors)
 			list.add(wrap(t));
 		return list;
 	}
 
-	public static <BOOL> Operation<BOOL> lift(BoolAlgebra<BOOL> alg,
-			Operation<Boolean> op) {
+	public static <BOOL> Operation<BOOL> lift(BoolAlgebra<BOOL> alg, Operation<Boolean> op) {
 		return new Operation<BOOL>(alg, alg.lift(op.tensor));
 	}
 
-	public static <BOOL> List<Operation<BOOL>> lift(BoolAlgebra<BOOL> alg,
-			Iterable<Operation<Boolean>> ops) {
+	public static <BOOL> List<Operation<BOOL>> lift(BoolAlgebra<BOOL> alg, Iterable<Operation<Boolean>> ops) {
 		List<Operation<BOOL>> list = new ArrayList<Operation<BOOL>>();
 		for (Operation<Boolean> op : ops)
 			list.add(lift(alg, op));
@@ -120,39 +117,47 @@ public final class Operation<BOOL> {
 		return shape;
 	}
 
-	public static Operation<Boolean> projection(int size, int arity,
-			final int coord) {
+	public static Operation<Boolean> projection(int size, int arity, final int coord) {
 		assert 0 <= coord && coord < arity;
 
-		Tensor<Boolean> tensor = Tensor.generate(createShape(size, 1 + arity),
-				new Func1<Boolean, int[]>() {
-					@Override
-					public Boolean call(int[] elem) {
-						return elem[0] == elem[1 + coord];
-					}
-				});
+		Tensor<Boolean> tensor = Tensor.generate(createShape(size, 1 + arity), new Func1<Boolean, int[]>() {
+			@Override
+			public Boolean call(int[] elem) {
+				return elem[0] == elem[1 + coord];
+			}
+		});
+		return Operation.wrap(tensor);
+	}
+
+	public static Operation<Boolean> unaryConstant(int size, final int value) {
+		assert 0 <= value && value < size;
+
+		Tensor<Boolean> tensor = Tensor.generate(size, size, new Func2<Boolean, Integer, Integer>() {
+			@Override
+			public Boolean call(Integer elem1, Integer elem2) {
+				return elem1 == value;
+			}
+		});
 		return Operation.wrap(tensor);
 	}
 
 	public static Operation<Boolean> moduloAdd(final int size) {
-		Tensor<Boolean> tensor = Tensor.generate(
-				new int[] { size, size, size }, new Func1<Boolean, int[]>() {
-					@Override
-					public Boolean call(int[] elem) {
-						return elem[0] == (elem[1] + elem[2]) % size;
-					}
-				});
+		Tensor<Boolean> tensor = Tensor.generate(new int[] { size, size, size }, new Func1<Boolean, int[]>() {
+			@Override
+			public Boolean call(int[] elem) {
+				return elem[0] == (elem[1] + elem[2]) % size;
+			}
+		});
 		return Operation.wrap(tensor);
 	}
 
 	public static Operation<Boolean> moduloMul(final int size) {
-		Tensor<Boolean> tensor = Tensor.generate(
-				new int[] { size, size, size }, new Func1<Boolean, int[]>() {
-					@Override
-					public Boolean call(int[] elem) {
-						return elem[0] == (elem[1] * elem[2]) % size;
-					}
-				});
+		Tensor<Boolean> tensor = Tensor.generate(new int[] { size, size, size }, new Func1<Boolean, int[]>() {
+			@Override
+			public Boolean call(int[] elem) {
+				return elem[0] == (elem[1] * elem[2]) % size;
+			}
+		});
 		return Operation.wrap(tensor);
 	}
 
@@ -170,8 +175,7 @@ public final class Operation<BOOL> {
 		for (int i = coord + 2; i < map.length; i++)
 			map[i] = i - 1;
 
-		Tensor<BOOL> tmp = Tensor.reshape(tensor,
-				createShape(getSize(), getArity()), map);
+		Tensor<BOOL> tmp = Tensor.reshape(tensor, createShape(getSize(), getArity()), map);
 		return Tensor.fold(alg.ALL, tmp.getOrder(), tmp).get();
 	}
 
@@ -199,8 +203,7 @@ public final class Operation<BOOL> {
 			map[i + 1] = variables[i] + 1;
 		}
 
-		Tensor<BOOL> tmp = Tensor.reshape(tensor,
-				createShape(getSize(), 1 + a), map);
+		Tensor<BOOL> tmp = Tensor.reshape(tensor, createShape(getSize(), 1 + a), map);
 		return new Operation<BOOL>(alg, tmp);
 	}
 
@@ -210,8 +213,7 @@ public final class Operation<BOOL> {
 	}
 
 	public BOOL isPermuteMinimal() {
-		List<Permutation<Boolean>> perms = Permutation
-				.nontrivialPerms(getArity());
+		List<Permutation<Boolean>> perms = Permutation.nontrivialPerms(getArity());
 
 		BOOL b = alg.TRUE;
 		for (Permutation<Boolean> p : perms)
@@ -232,8 +234,7 @@ public final class Operation<BOOL> {
 			map[1 + i] = variables[i];
 		}
 
-		Tensor<BOOL> tmp = Tensor.reshape(tensor,
-				createShape(getSize(), 1 + a), map);
+		Tensor<BOOL> tmp = Tensor.reshape(tensor, createShape(getSize(), 1 + a), map);
 		return Tensor.fold(alg.ALL, 1 + a, tmp).get();
 	}
 
@@ -287,8 +288,7 @@ public final class Operation<BOOL> {
 	}
 
 	public BOOL isSemilattice() {
-		return alg.and(alg.and(isIdempotent(), isCommutative()),
-				isAssociative());
+		return alg.and(alg.and(isIdempotent(), isCommutative()), isAssociative());
 	}
 
 	public BOOL isTwoSemilattice() {
@@ -379,8 +379,7 @@ public final class Operation<BOOL> {
 	 * 
 	 * p(x,x,x) = x. p(x,x,y) = p(y,x,x) = q(x,y,y). p(x,y,x) = q(x,y,x).
 	 */
-	public static <BOOL> BOOL areSiggersTerms(Operation<BOOL> p,
-			Operation<BOOL> q) {
+	public static <BOOL> BOOL areSiggersTerms(Operation<BOOL> p, Operation<BOOL> q) {
 		assert p.alg == q.alg && p.getArity() == 3 && q.getArity() == 3;
 
 		BOOL b = p.isIdempotent();
@@ -401,8 +400,7 @@ public final class Operation<BOOL> {
 	 * p(x,x,x) = x. p(x,x,y) = p(x,y,x) = p(y,x,x) = q(x,y,x). q(x,x,y) =
 	 * q(x,y,y).
 	 */
-	public static <BOOL> BOOL areJovanovicTerms(Operation<BOOL> p,
-			Operation<BOOL> q) {
+	public static <BOOL> BOOL areJovanovicTerms(Operation<BOOL> p, Operation<BOOL> q) {
 		assert p.alg == q.alg && p.getArity() == 3 && q.getArity() == 3;
 
 		BOOL b = p.isIdempotent();
@@ -424,8 +422,7 @@ public final class Operation<BOOL> {
 	 * p(x,x,x) = x. p(x,x,y) = p(x,y,x) = p(y,x,x) = q(x,y,x) = q(x,x,y) =
 	 * q(x,y,y).
 	 */
-	public static <BOOL> BOOL areJovanovicTerms2(Operation<BOOL> p,
-			Operation<BOOL> q) {
+	public static <BOOL> BOOL areJovanovicTerms2(Operation<BOOL> p, Operation<BOOL> q) {
 		assert p.alg == q.alg && p.getArity() == 3 && q.getArity() == 3;
 
 		BOOL b = p.isIdempotent();
@@ -461,14 +458,12 @@ public final class Operation<BOOL> {
 		b = alg.and(b, ops.get(0).isSatisfied(0, 0, 1));
 
 		for (int i = 0; i + 1 < ops.size(); i += 2) {
-			BOOL c = ops.get(i).polymer(0, 1, 1)
-					.isEqualTo(ops.get(i + 1).polymer(0, 1, 1));
+			BOOL c = ops.get(i).polymer(0, 1, 1).isEqualTo(ops.get(i + 1).polymer(0, 1, 1));
 			b = alg.and(b, c);
 		}
 
 		for (int i = 1; i + 1 < ops.size(); i += 2) {
-			BOOL c = ops.get(i).polymer(0, 0, 1)
-					.isEqualTo(ops.get(i + 1).polymer(0, 0, 1));
+			BOOL c = ops.get(i).polymer(0, 0, 1).isEqualTo(ops.get(i + 1).polymer(0, 0, 1));
 			b = alg.and(b, c);
 		}
 
@@ -498,16 +493,13 @@ public final class Operation<BOOL> {
 		b = alg.and(b, ops.get(0).isSatisfied(0, 1, 0));
 
 		for (int i = 0; i + 1 < ops.size(); i += 2) {
-			BOOL c = ops.get(i).polymer(0, 0, 1)
-					.isEqualTo(ops.get(i + 1).polymer(0, 0, 1));
+			BOOL c = ops.get(i).polymer(0, 0, 1).isEqualTo(ops.get(i + 1).polymer(0, 0, 1));
 			b = alg.and(b, c);
 		}
 
 		for (int i = 1; i + 1 < ops.size(); i += 2) {
-			BOOL c = ops.get(i).polymer(0, 1, 1)
-					.isEqualTo(ops.get(i + 1).polymer(0, 1, 1));
-			BOOL d = ops.get(i).polymer(0, 1, 0)
-					.isEqualTo(ops.get(i + 1).polymer(0, 1, 0));
+			BOOL c = ops.get(i).polymer(0, 1, 1).isEqualTo(ops.get(i + 1).polymer(0, 1, 1));
+			BOOL d = ops.get(i).polymer(0, 1, 0).isEqualTo(ops.get(i + 1).polymer(0, 1, 0));
 			b = alg.and(b, alg.and(c, d));
 		}
 
@@ -532,8 +524,7 @@ public final class Operation<BOOL> {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Operation<BOOL> compose(Operation<BOOL> op1, Operation<BOOL> op2,
-			Operation<BOOL> op3) {
+	public Operation<BOOL> compose(Operation<BOOL> op1, Operation<BOOL> op2, Operation<BOOL> op3) {
 		return compose(new Operation[] { op1, op2, op3 });
 	}
 
@@ -546,8 +537,7 @@ public final class Operation<BOOL> {
 
 		c.add(tensor, Contract.range(0, a + 1));
 		for (int i = 0; i < ops.length; i++) {
-			assert alg == ops[i].alg && getSize() == ops[i].getSize()
-					&& ops[i].getArity() == b;
+			assert alg == ops[i].alg && getSize() == ops[i].getSize() && ops[i].getArity() == b;
 
 			c.add(ops[i].tensor, Contract.range(1 + i, a + 1, a + b + 1));
 		}
@@ -592,14 +582,12 @@ public final class Operation<BOOL> {
 		else if (getArity() == 5 && rel.getArity() == 4)
 			return evaluate_op5_rel4(rel);
 
-		throw new UnsupportedOperationException(
-				"not implemented for these arities");
+		throw new UnsupportedOperationException("not implemented for these arities");
 	}
 
 	private Relation<BOOL> evaluate_op0(int arity) {
 		assert getArity() == 0;
-		Tensor<BOOL> t = Tensor.diagonal(alg.getType(), tensor, new int[arity],
-				alg.FALSE);
+		Tensor<BOOL> t = Tensor.diagonal(alg.getType(), tensor, new int[arity], alg.FALSE);
 		return new Relation<BOOL>(alg, t);
 	}
 
@@ -871,15 +859,13 @@ public final class Operation<BOOL> {
 	}
 
 	public BOOL isLexLeq(Operation<BOOL> op) {
-		assert getAlg() == op.getAlg() && getSize() == op.getSize()
-				&& getArity() == op.getArity();
+		assert getAlg() == op.getAlg() && getSize() == op.getSize() && getArity() == op.getArity();
 
 		return alg.lexLeq(tensor, op.tensor);
 	}
 
 	public BOOL isLexLess(Operation<BOOL> op) {
-		assert getAlg() == op.getAlg() && getSize() == op.getSize()
-				&& getArity() == op.getArity();
+		assert getAlg() == op.getAlg() && getSize() == op.getSize() && getArity() == op.getArity();
 
 		return alg.lexLess(tensor, op.tensor);
 	}
@@ -905,8 +891,7 @@ public final class Operation<BOOL> {
 		return Tensor.fold(Integer.TYPE, lookup, 1, op.tensor);
 	}
 
-	public static Operation<Boolean> encode(int size,
-			final Tensor<Integer> tensor) {
+	public static Operation<Boolean> encode(int size, final Tensor<Integer> tensor) {
 		assert size >= 1;
 
 		int arity = tensor.getOrder();
@@ -953,8 +938,7 @@ public final class Operation<BOOL> {
 	public static Operation<Boolean> parse(int size, int arity, String str) {
 		assert size >= 1 && arity >= 0;
 
-		Tensor<Integer> tensor = Tensor.constant(Integer.TYPE,
-				Util.createShape(size, arity), 0);
+		Tensor<Integer> tensor = Tensor.constant(Integer.TYPE, Util.createShape(size, arity), 0);
 
 		if (arity == 0)
 			tensor.setElem(Util.parseElement(size, str));
@@ -985,21 +969,18 @@ public final class Operation<BOOL> {
 	}
 
 	public static final Comparator<Operation<Boolean>> COMPARATOR = new Comparator<Operation<Boolean>>() {
-		final Comparator<Tensor<Boolean>> comp = Tensor
-				.comparator(BoolAlgebra.COMPARATOR);
+		final Comparator<Tensor<Boolean>> comp = Tensor.comparator(BoolAlgebra.COMPARATOR);
 
 		@Override
 		public int compare(Operation<Boolean> o1, Operation<Boolean> o2) {
-			assert o1.getSize() == o2.getSize()
-					&& o1.getArity() == o2.getArity();
+			assert o1.getSize() == o2.getSize() && o1.getArity() == o2.getArity();
 
 			return comp.compare(o2.tensor, o1.tensor);
 		}
 	};
 
 	public static void print(Operation<Boolean> op) {
-		System.out.println("operation of size " + op.getSize() + " arity "
-				+ op.getArity());
+		System.out.println("operation of size " + op.getSize() + " arity " + op.getArity());
 
 		int a = op.getArity();
 		boolean proj = false;
