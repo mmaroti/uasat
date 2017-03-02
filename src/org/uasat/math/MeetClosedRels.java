@@ -104,6 +104,11 @@ public class MeetClosedRels {
 			addGenerator(rel.permute(p));
 	}
 
+	public void addPermutedGens(Iterable<Relation<Boolean>> rels) {
+		for (Relation<Boolean> rel : rels)
+			addPermutedGen(rel);
+	}
+
 	public void addAllRelations() {
 		gens.clear();
 		covs.clear();
