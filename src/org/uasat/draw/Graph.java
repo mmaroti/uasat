@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2016
+ * Copyright (C) Miklos Maroti, 2016
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -82,12 +82,12 @@ public class Graph {
 		return list;
 	}
 
-	public boolean hasNothingSelected() {
+	public boolean hasSelection() {
 		for (Node n : nodes)
 			if (n.isSelected())
-				return false;
+				return true;
 
-		return true;
+		return false;
 	}
 
 	public void moveSlected(Point offset) {

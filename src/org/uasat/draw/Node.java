@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2016
+ * Copyright (C) Miklos Maroti, 2016
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,7 +22,7 @@ import java.awt.*;
 
 public class Node {
 	private Point center;
-	private int radius = 4;
+	private int radius = 3;
 	private boolean selected = false;
 
 	public Node(Point center) {
