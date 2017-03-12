@@ -21,28 +21,73 @@ package org.uasat.draw;
 import java.awt.*;
 
 public class Node {
-	private Point center;
-	private int radius = 3;
-	private boolean selected = false;
+	private final Point center;
+	private final String label;
+	private int radius = 4;
+
+	private int state = 0;
+	private final static int STATE_SELECTED = 0x01;
+	private final static int STATE_FIXED_X = 0x02;
+	private final static int STATE_FIXED_Y = 0x04;
+
+	private double forcex;
+	private double forcey;
+
+	public Node() {
+		this.center = new Point();
+		this.label = null;
+	}
+
+	public Node(String label) {
+		this.center = new Point();
+		this.label = label;
+	}
 
 	public Node(Point center) {
 		this.center = center;
+		this.label = null;
+	}
+
+	public Node(Point center, String label) {
+		this.center = center;
+		this.label = label;
 	}
 
 	public void draw(Graphics2D gaphics) {
 		gaphics.setColor(Color.BLACK);
-		gaphics.fillOval(center.x - radius, center.y - radius, 2 * radius + 1,
-				2 * radius + 1);
+		gaphics.fillOval(center.x - radius, center.y - radius, 2 * radius + 1, 2 * radius + 1);
 
-		if (selected) {
+		if (isSelected()) {
 			gaphics.setColor(Color.RED);
-			gaphics.drawOval(center.x - radius - 3, center.y - radius - 3,
-					2 * radius + 6, 2 * radius + 6);
+			gaphics.drawOval(center.x - radius - 3, center.y - radius - 3, 2 * radius + 6, 2 * radius + 6);
 		}
+	}
+
+	public void resetForces() {
+		forcex = 0.0;
+		forcey = 0.0;
+	}
+
+	public void updateForces(double x, double y) {
+		forcex += x;
+		forcey += y;
+	}
+
+	public void applyForces(double speed) {
+		center.x += forcex * speed;
+		center.y += forcey * speed;
 	}
 
 	public Point getCenter() {
 		return center;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public int getRadius() {
+		return radius;
 	}
 
 	public void move(Point offset) {
@@ -55,10 +100,13 @@ public class Node {
 	}
 
 	public boolean isSelected() {
-		return selected;
+		return (state | STATE_SELECTED) != 0;
 	}
 
 	public void setSelected(boolean selected) {
-		this.selected = selected;
+		if (selected)
+			state |= STATE_SELECTED;
+		else
+			state &= ~STATE_SELECTED;
 	}
 }

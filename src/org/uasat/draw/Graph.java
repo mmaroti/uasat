@@ -23,8 +23,8 @@ import java.util.*;
 import java.util.List;
 
 public class Graph {
-	private List<Node> nodes = new ArrayList<Node>();
-	private List<Edge> edges = new ArrayList<Edge>();
+	private final List<Node> nodes = new ArrayList<Node>();
+	private final List<Edge> edges = new ArrayList<Edge>();
 
 	public void draw(Graphics2D g) {
 		for (Edge e : edges)
@@ -32,6 +32,17 @@ public class Graph {
 
 		for (Node n : nodes)
 			n.draw(g);
+	}
+
+	public void applyForces(double speed) {
+		for (Node n : nodes)
+			n.resetForces();
+
+		for (Edge e : edges)
+			e.updateForces();
+
+		for (Node n : nodes)
+			n.applyForces(speed);
 	}
 
 	public void clear() {
@@ -110,5 +121,39 @@ public class Graph {
 			if (n.isSelected())
 				i2.remove();
 		}
+	}
+
+	public static Graph createN5() {
+		Graph graph = new Graph();
+
+		Node n0 = new Node("0");
+		Node na = new Node("a");
+		Node nb = new Node("b");
+		Node nc = new Node("c");
+		Node n1 = new Node("1");
+
+		graph.add(n0);
+		graph.add(na);
+		graph.add(nb);
+		graph.add(nc);
+		graph.add(n1);
+
+		graph.add(new Edge(n0, na, true));
+		graph.add(new Edge(n0, nb, true));
+		graph.add(new Edge(na, n1, true));
+		graph.add(new Edge(nb, nc, true));
+		graph.add(new Edge(nc, n1, true));
+
+		return graph;
+	}
+
+	public static Graph createGrid(int size) {
+		Graph graph = new Graph();
+
+		for (int x = 0; x < size; x += 1)
+			for (int y = 0; y < size; y += 1)
+				graph.add(new Node(new Point(x * 10, y * 10)));
+
+		return graph;
 	}
 }

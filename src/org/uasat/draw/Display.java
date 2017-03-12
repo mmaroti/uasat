@@ -30,7 +30,7 @@ public class Display extends JComponent {
 	private static final int HIGH = 480;
 	private static final Color BACKGROUND = new Color(0x00F0F0FF);
 
-	private Graph graph = new Graph();
+	private final Graph graph;
 	private ControlPanel control = new ControlPanel();
 
 	private static final int DRAGSTATE_NONE = 0;
@@ -47,11 +47,10 @@ public class Display extends JComponent {
 			public void run() {
 				JFrame frame = new JFrame("Graph Display");
 				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-				Display display = new Display();
+				Display display = new Display(Graph.createN5());
 				frame.add(display.control, BorderLayout.NORTH);
 				frame.add(new JScrollPane(display), BorderLayout.CENTER);
-				frame.getRootPane().setDefaultButton(
-						display.control.defaultButton);
+				frame.getRootPane().setDefaultButton(display.control.defaultButton);
 				frame.pack();
 				frame.setLocationByPlatform(true);
 				frame.setVisible(true);
@@ -59,7 +58,8 @@ public class Display extends JComponent {
 		});
 	}
 
-	public Display() {
+	public Display(Graph graph) {
+		this.graph = graph;
 		this.setOpaque(true);
 
 		MouseHandler handler = new MouseHandler();
@@ -67,10 +67,6 @@ public class Display extends JComponent {
 		this.addMouseMotionListener(handler);
 
 		ToolTipManager.sharedInstance().registerComponent(this);
-
-		for (int x = 10; x <= 300; x += 10)
-			for (int y = 10; y <= 300; y += 10)
-				graph.add(new Node(new Point(x, y)));
 	}
 
 	@Override
@@ -82,8 +78,7 @@ public class Display extends JComponent {
 	public void paintComponent(Graphics graphics) {
 		Graphics2D g = (Graphics2D) graphics;
 
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setColor(BACKGROUND);
 		g.fillRect(0, 0, getWidth(), getHeight());
 
@@ -91,8 +86,7 @@ public class Display extends JComponent {
 
 		if (dragState == DRAGSTATE_SELECT) {
 			g.setColor(Color.DARK_GRAY);
-			g.drawRect(selectRect.x, selectRect.y, selectRect.width,
-					selectRect.height);
+			g.drawRect(selectRect.x, selectRect.y, selectRect.width, selectRect.height);
 		}
 	}
 
@@ -160,14 +154,11 @@ public class Display extends JComponent {
 				}
 
 				if (dragState == DRAGSTATE_SELECT) {
-					selectRect.setBounds(Math.min(mousePt.x, event.getX()),
-							Math.min(mousePt.y, event.getY()),
-							Math.abs(mousePt.x - event.getX()),
-							Math.abs(mousePt.y - event.getY()));
+					selectRect.setBounds(Math.min(mousePt.x, event.getX()), Math.min(mousePt.y, event.getY()),
+						Math.abs(mousePt.x - event.getX()), Math.abs(mousePt.y - event.getY()));
 					graph.select(selectRect);
 				} else if (dragState == DRAGSTATE_MOVE) {
-					delta.setLocation(event.getX() - mousePt.x, event.getY()
-							- mousePt.y);
+					delta.setLocation(event.getX() - mousePt.x, event.getY() - mousePt.y);
 					graph.moveSlected(delta);
 					mousePt = event.getPoint();
 				}
