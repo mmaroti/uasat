@@ -18,17 +18,17 @@
 
 package org.uasat.draw;
 
-import java.awt.*;
+import java.awt.Point;
 
 public class Node {
 	private final Point center;
 	private final String label;
-	private int radius = 4;
 
 	private int state = 0;
-	private final static int STATE_SELECTED = 0x01;
-	private final static int STATE_FIXED_X = 0x02;
-	private final static int STATE_FIXED_Y = 0x04;
+	public final static int SELECTED = 0x01;
+	public final static int FIXED_XCOORD = 0x02;
+	public final static int FIXED_YCOORD = 0x04;
+	public final static int FIXED_COORDS = FIXED_XCOORD | FIXED_YCOORD;
 
 	private double forcex;
 	private double forcey;
@@ -51,16 +51,6 @@ public class Node {
 	public Node(Point center, String label) {
 		this.center = center;
 		this.label = label;
-	}
-
-	public void draw(Graphics2D gaphics) {
-		gaphics.setColor(Color.BLACK);
-		gaphics.fillOval(center.x - radius, center.y - radius, 2 * radius + 1, 2 * radius + 1);
-
-		if (isSelected()) {
-			gaphics.setColor(Color.RED);
-			gaphics.drawOval(center.x - radius - 3, center.y - radius - 3, 2 * radius + 6, 2 * radius + 6);
-		}
 	}
 
 	public void resetForces() {
@@ -86,27 +76,19 @@ public class Node {
 		return label;
 	}
 
-	public int getRadius() {
-		return radius;
-	}
-
 	public void move(Point offset) {
 		center.x += offset.x;
 		center.y += offset.y;
 	}
 
-	public boolean contains(Point point) {
-		return point.distance(center) <= radius + 1;
-	}
-
 	public boolean isSelected() {
-		return (state | STATE_SELECTED) != 0;
+		return (state & SELECTED) != 0;
 	}
 
 	public void setSelected(boolean selected) {
 		if (selected)
-			state |= STATE_SELECTED;
+			state |= SELECTED;
 		else
-			state &= ~STATE_SELECTED;
+			state &= ~SELECTED;
 	}
 }

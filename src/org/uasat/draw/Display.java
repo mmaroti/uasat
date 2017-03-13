@@ -26,13 +26,15 @@ import javax.swing.*;
 
 @SuppressWarnings("serial")
 public class Display extends JComponent {
-	private static final int WIDE = 640;
-	private static final int HIGH = 480;
-	private static final Color BACKGROUND = new Color(0x00F0F0FF);
+	private static final int WIDTH = 640;
+	private static final int HEIGHT = 480;
+	private static final Color BACKGROUND = new Color(0xF0F0F0);
 
 	private final Graph graph;
 	private ControlPanel control = new ControlPanel();
 
+	private int node_radius = 4;
+	
 	private static final int DRAGSTATE_NONE = 0;
 	private static final int DRAGSTATE_SELECT = 1;
 	private static final int DRAGSTATE_MOVE = 2;
@@ -71,7 +73,7 @@ public class Display extends JComponent {
 
 	@Override
 	public Dimension getPreferredSize() {
-		return new Dimension(WIDE, HIGH);
+		return new Dimension(WIDTH, HEIGHT);
 	}
 
 	@Override
@@ -82,11 +84,59 @@ public class Display extends JComponent {
 		g.setColor(BACKGROUND);
 		g.fillRect(0, 0, getWidth(), getHeight());
 
-		graph.draw(g);
+		for (Edge edge : graph.getEdges())
+			paintEdge(g, edge);
+
+		for (Node node : graph.getNodes())
+			paintNode(g, node);
 
 		if (dragState == DRAGSTATE_SELECT) {
 			g.setColor(Color.DARK_GRAY);
 			g.drawRect(selectRect.x, selectRect.y, selectRect.width, selectRect.height);
+		}
+	}
+
+	private void paintNode(Graphics2D graphics, Node node) {
+		Point center = node.getCenter();
+
+		graphics.setColor(Color.BLACK);
+		graphics.fillOval(center.x - node_radius, center.y - node_radius, 2 * node_radius + 1, 2 * node_radius + 1);
+
+		if (node.isSelected()) {
+			graphics.setColor(Color.RED);
+			graphics.drawOval(center.x - node_radius - 2, center.y - node_radius - 2, 2 * node_radius + 4, 2 * node_radius + 4);
+		}
+	}
+
+	private void paintEdge(Graphics2D graphics, Edge edge) {
+		Node node1 = edge.getNode1();
+		Node node2 = edge.getNode2();
+		Point p1 = node1.getCenter();
+		Point p2 = node2.getCenter();
+
+		graphics.setColor(Color.BLACK);
+
+		if (p1.distance(p2) > 2 * node_radius + 4) {
+			double a = Math.atan2(p2.y - p1.y, p2.x - p1.x);
+
+			int p1x = p1.x + (int) (Math.cos(a) * (node_radius + 2));
+			int p1y = p1.y + (int) (Math.sin(a) * (node_radius + 2));
+			int p2x = p2.x - (int) (Math.cos(a) * (node_radius + 2));
+			int p2y = p2.y - (int) (Math.sin(a) * (node_radius + 2));
+
+			graphics.drawLine(p1x, p1y, p2x, p2y);
+
+			if (edge.isDisplayArrow()) {
+				final double b = 0.35;
+				final int r = node_radius * 2 + 3;
+
+				int p3x = p2x - (int) (Math.cos(a + b) * r);
+				int p3y = p2y - (int) (Math.sin(a + b) * r);
+				int p4x = p2x - (int) (Math.cos(a - b) * r);
+				int p4y = p2y - (int) (Math.sin(a - b) * r);
+
+				graphics.fillPolygon(new int[] { p2x, p3x, p4x }, new int[] { p2y, p3y, p4y }, 3);
+			}
 		}
 	}
 
@@ -95,11 +145,18 @@ public class Display extends JComponent {
 		return event.getX() + "," + event.getY();
 	}
 
+	public Node findNode(Point point) {
+		for (Node node : graph.getNodes())
+			if (point.distance(node.getCenter()) <= node_radius + 1)
+				return node;
+		return null;
+	}
+	
 	private class MouseHandler extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent event) {
 			if (event.getClickCount() == 1 && event.getButton() == 1) {
-				Node n = graph.find(event.getPoint());
+				Node n = findNode(event.getPoint());
 				if (n == null)
 					graph.unselectAll();
 				else if (event.isShiftDown())
@@ -142,7 +199,7 @@ public class Display extends JComponent {
 		public void mouseDragged(MouseEvent event) {
 			if ((event.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {
 				if (dragState == DRAGSTATE_NONE) {
-					Node n = graph.find(mousePt);
+					Node n = findNode(mousePt);
 					if (n != null) {
 						if (!n.isSelected()) {
 							graph.unselectAll();

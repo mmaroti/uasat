@@ -26,23 +26,23 @@ public class Graph {
 	private final List<Node> nodes = new ArrayList<Node>();
 	private final List<Edge> edges = new ArrayList<Edge>();
 
-	public void draw(Graphics2D g) {
-		for (Edge e : edges)
-			e.draw(g);
+	public List<Node> getNodes() {
+		return Collections.unmodifiableList(nodes);
+	}
 
-		for (Node n : nodes)
-			n.draw(g);
+	public List<Edge> getEdges() {
+		return Collections.unmodifiableList(edges);
 	}
 
 	public void applyForces(double speed) {
-		for (Node n : nodes)
-			n.resetForces();
+		for (Node node : nodes)
+			node.resetForces();
 
-		for (Edge e : edges)
-			e.updateForces();
+		for (Edge edge : edges)
+			edge.updateForces();
 
-		for (Node n : nodes)
-			n.applyForces(speed);
+		for (Node node : nodes)
+			node.applyForces(speed);
 	}
 
 	public void clear() {
@@ -59,67 +59,51 @@ public class Graph {
 	}
 
 	public void unselectAll() {
-		for (Node n : nodes)
-			n.setSelected(false);
-	}
-
-	public Node find(Point point) {
-		for (Node n : nodes)
-			if (n.contains(point))
-				return n;
-		return null;
+		for (Node node : nodes)
+			node.setSelected(false);
 	}
 
 	public void select(Rectangle rect) {
-		for (Node n : nodes)
-			n.setSelected(rect.contains(n.getCenter()));
-	}
-
-	public void toggle(Point point) {
-		for (Node n : nodes) {
-			if (n.contains(point)) {
-				n.setSelected(!n.isSelected());
-				return;
-			}
-		}
+		for (Node node : nodes)
+			node.setSelected(rect.contains(node.getCenter()));
 	}
 
 	public List<Node> getSelected() {
 		List<Node> list = new ArrayList<Node>();
-		for (Node n : nodes)
-			if (n.isSelected())
-				list.add(n);
+		for (Node node : nodes)
+			if (node.isSelected())
+				list.add(node);
 
 		return list;
 	}
 
 	public boolean hasSelection() {
-		for (Node n : nodes)
-			if (n.isSelected())
+		for (Node node : nodes)
+			if (node.isSelected())
 				return true;
 
 		return false;
 	}
 
 	public void moveSlected(Point offset) {
-		for (Node n : nodes)
-			if (n.isSelected())
-				n.move(offset);
+		for (Node node : nodes)
+			if (node.isSelected())
+				node.move(offset);
 	}
 
 	public void removeSelected() {
-		ListIterator<Edge> i1 = edges.listIterator();
-		while (i1.hasNext()) {
-			Edge e = i1.next();
-			if (e.isSelected())
-				i1.remove();
+		ListIterator<Edge> iter1 = edges.listIterator();
+		while (iter1.hasNext()) {
+			Edge edge = iter1.next();
+			if (edge.isSelected())
+				iter1.remove();
 		}
 
-		ListIterator<Node> i2 = nodes.listIterator();
-		while (i2.hasNext()) {
-			Node n = i2.next();
-			if (n.isSelected())
-				i2.remove();
+		ListIterator<Node> iter2 = nodes.listIterator();
+		while (iter2.hasNext()) {
+			Node node = iter2.next();
+			if (node.isSelected())
+				iter2.remove();
 		}
 	}
 
@@ -138,11 +122,11 @@ public class Graph {
 		graph.add(nc);
 		graph.add(n1);
 
-		graph.add(new Edge(n0, na, true));
-		graph.add(new Edge(n0, nb, true));
-		graph.add(new Edge(na, n1, true));
-		graph.add(new Edge(nb, nc, true));
-		graph.add(new Edge(nc, n1, true));
+		graph.add(new Edge(n0, na, Edge.DISPLAY_ARROW));
+		graph.add(new Edge(n0, nb, Edge.DISPLAY_ARROW));
+		graph.add(new Edge(na, n1, Edge.DISPLAY_ARROW));
+		graph.add(new Edge(nb, nc, Edge.DISPLAY_ARROW));
+		graph.add(new Edge(nc, n1, Edge.DISPLAY_ARROW));
 
 		return graph;
 	}
