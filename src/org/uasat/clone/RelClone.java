@@ -18,13 +18,13 @@
 
 package org.uasat.clone;
 
-import org.uasat.core.*;
+import org.uasat.core.BoolAlgebra;
 import org.uasat.math.*;
 
-public abstract class Meetable {
+public abstract class RelClone {
 	protected final int size;
 
-	public Meetable(int size) {
+	public RelClone(int size) {
 		this.size = size;
 	}
 
@@ -33,14 +33,15 @@ public abstract class Meetable {
 	}
 
 	/**
-	 * You should call verify on the operation to make sure that it is endeed
-	 * member of this functional clone.
+	 * This method can return a false positive (but no false negative), so you
+	 * should call verify on the relation to make sure that it is indeed member
+	 * of this functional clone.
 	 */
-	public abstract <BOOL> BOOL member(BoolAlgebra<BOOL> alg, Operation<BOOL> op);
+	public abstract <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg,
+			Relation<BOOL> rel);
 
 	/**
-	 * If this method returns <code>false</code>, then the result returned by
-	 * member is not valid and you should call it again.
+	 * Checks if the given concrete relation is a member of the clone.
 	 */
-	public abstract boolean verify(Operation<Boolean> op);
+	public abstract boolean verify(Relation<Boolean> rel);
 }

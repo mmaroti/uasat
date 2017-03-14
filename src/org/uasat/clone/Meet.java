@@ -21,10 +21,10 @@ package org.uasat.clone;
 import org.uasat.core.*;
 import org.uasat.math.*;
 
-public class Meet extends Meetable {
-	protected final Meetable[] clones;
+public class Meet extends FunClone {
+	protected final FunClone[] clones;
 
-	public Meet(Meetable... clones) {
+	public Meet(FunClone... clones) {
 		super(clones[0].getSize());
 
 		for (int i = 1; i < clones.length; i++)
@@ -33,11 +33,11 @@ public class Meet extends Meetable {
 		this.clones = clones;
 	}
 
-	public <BOOL> BOOL member(BoolAlgebra<BOOL> alg, Operation<BOOL> op) {
+	public <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg, Operation<BOOL> op) {
 		BOOL b = alg.TRUE;
 
 		for (int i = 0; i < clones.length; i++)
-			b = alg.and(b, clones[i].member(alg, op));
+			b = alg.and(b, clones[i].isPossibleMember(alg, op));
 
 		return b;
 	}

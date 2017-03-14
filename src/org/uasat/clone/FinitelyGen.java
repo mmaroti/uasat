@@ -22,7 +22,7 @@ import java.util.*;
 import org.uasat.core.*;
 import org.uasat.math.*;
 
-public class FinitelyGen extends Joinable {
+public class FinitelyGen extends RelClone {
 	protected List<Operation<Boolean>> operations;
 
 	@SafeVarargs
@@ -38,7 +38,7 @@ public class FinitelyGen extends Joinable {
 		return operations;
 	}
 
-	public <BOOL> BOOL member(BoolAlgebra<BOOL> alg, Relation<BOOL> rel) {
+	public <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg, Relation<BOOL> rel) {
 		BOOL b = alg.TRUE;
 		for (Operation<Boolean> op : operations)
 			b = alg.and(b, Operation.lift(alg, op).preserves(rel));

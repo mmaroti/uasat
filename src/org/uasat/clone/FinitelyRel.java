@@ -22,7 +22,7 @@ import java.util.*;
 import org.uasat.core.*;
 import org.uasat.math.*;
 
-public class FinitelyRel extends Meetable {
+public class FinitelyRel extends FunClone {
 	protected List<Relation<Boolean>> relations;
 
 	@SafeVarargs
@@ -38,7 +38,7 @@ public class FinitelyRel extends Meetable {
 		return relations;
 	}
 
-	public <BOOL> BOOL member(BoolAlgebra<BOOL> alg, Operation<BOOL> op) {
+	public <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg, Operation<BOOL> op) {
 		BOOL b = alg.TRUE;
 		for (Relation<Boolean> rel : relations)
 			b = alg.and(b, op.preserves(Relation.lift(alg, rel)));

@@ -23,48 +23,50 @@ import java.util.*;
 import org.uasat.core.*;
 import org.uasat.math.*;
 
-public class UpperBound extends FunClone {
+public class LowerBound extends RelClone {
 	protected final SatSolver<?> solver;
-	protected final RelClone clone;
-	protected int relArity;
-	protected final List<Relation<Boolean>> relations = new ArrayList<Relation<Boolean>>();
+	protected final FunClone clone;
+	protected int opArity;
+	protected final List<Operation<Boolean>> operations = new ArrayList<Operation<Boolean>>();
 
-	public UpperBound(RelClone clone, int relArity) {
+	public LowerBound(FunClone clone, int opArity) {
 		super(clone.getSize());
-		assert relArity >= 1;
+		assert opArity >= 1;
 
 		this.clone = clone;
-		this.relArity = relArity;
+		this.opArity = opArity;
 		this.solver = SatSolver.getDefault();
 	}
 
-	public void add(Relation<Boolean> rel) {
-		assert clone.verify(rel);
-		relations.add(rel);
+	public void add(Operation<Boolean> op) {
+		assert op.isOperation() && clone.verify(op);
+		operations.add(op);
 	}
 
 	public <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg,
-			Operation<BOOL> op) {
+			Relation<BOOL> rel) {
 		BOOL b = alg.TRUE;
 
-		for (Relation<Boolean> rel : relations)
-			b = alg.and(b, op.preserves(Relation.lift(alg, rel)));
+		for (Operation<Boolean> op : operations)
+			b = alg.and(b, Operation.lift(alg, op).preserves(rel));
 
 		return b;
 	}
 
-	public boolean verify(final Operation<Boolean> op) {
-		Relation<Boolean> rel;
+	public boolean verify(final Relation<Boolean> rel) {
+		Operation<Boolean> op;
 		do {
-			SatProblem problem = new SatProblem(
-					Util.createShape(size, relArity)) {
+			SatProblem problem = new SatProblem(Util.createShape(size,
+					opArity + 1)) {
 				@Override
 				public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
 						List<Tensor<BOOL>> tensors) {
-					Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
+					Operation<BOOL> op = new Operation<BOOL>(alg,
+							tensors.get(0));
 
-					BOOL b = alg.not(Operation.lift(alg, op).preserves(rel));
-					return alg.and(b, clone.isPossibleMember(alg, rel));
+					BOOL b = alg.not(op.preserves(Relation.lift(alg, rel)));
+					b = alg.and(b, op.isOperation());
+					return alg.and(b, clone.isPossibleMember(alg, op));
 				}
 			};
 
@@ -72,10 +74,10 @@ public class UpperBound extends FunClone {
 			if (sol == null)
 				return true;
 
-			rel = Relation.wrap(sol.get(0));
-		} while (!clone.verify(rel));
+			op = Operation.wrap(sol.get(0));
+		} while (!clone.verify(op));
 
-		relations.add(rel);
+		operations.add(op);
 		return false;
 	}
 }
