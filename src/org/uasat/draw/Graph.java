@@ -95,7 +95,7 @@ public class Graph {
 		ListIterator<Edge> iter1 = edges.listIterator();
 		while (iter1.hasNext()) {
 			Edge edge = iter1.next();
-			if (edge.isSelected())
+			if (edge.getNode1().isSelected() || edge.getNode2().isSelected())
 				iter1.remove();
 		}
 

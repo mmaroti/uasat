@@ -34,7 +34,7 @@ public class Display extends JComponent {
 	private ControlPanel control = new ControlPanel();
 
 	private int node_radius = 4;
-	
+
 	private static final int DRAGSTATE_NONE = 0;
 	private static final int DRAGSTATE_SELECT = 1;
 	private static final int DRAGSTATE_MOVE = 2;
@@ -99,13 +99,12 @@ public class Display extends JComponent {
 	private void paintNode(Graphics2D graphics, Node node) {
 		Point center = node.getCenter();
 
-		graphics.setColor(Color.BLACK);
-		graphics.fillOval(center.x - node_radius, center.y - node_radius, 2 * node_radius + 1, 2 * node_radius + 1);
-
-		if (node.isSelected()) {
+		if (node.isSelected())
 			graphics.setColor(Color.RED);
-			graphics.drawOval(center.x - node_radius - 2, center.y - node_radius - 2, 2 * node_radius + 4, 2 * node_radius + 4);
-		}
+		else
+			graphics.setColor(Color.BLACK);
+
+		graphics.drawOval(center.x - node_radius, center.y - node_radius, 2 * node_radius, 2 * node_radius);
 	}
 
 	private void paintEdge(Graphics2D graphics, Edge edge) {
@@ -151,7 +150,7 @@ public class Display extends JComponent {
 				return node;
 		return null;
 	}
-	
+
 	private class MouseHandler extends MouseAdapter {
 		@Override
 		public void mouseClicked(MouseEvent event) {

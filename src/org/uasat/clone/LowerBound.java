@@ -19,17 +19,16 @@
 package org.uasat.clone;
 
 import java.util.*;
-
 import org.uasat.core.*;
 import org.uasat.math.*;
 
-public class LowerBound extends RelClone {
+public class LowerBound extends FinitelyGen {
 	protected final SatSolver<?> solver;
-	protected final FunClone clone;
+	protected final FinitelyRel clone;
 	protected int opArity;
 	protected final List<Operation<Boolean>> operations = new ArrayList<Operation<Boolean>>();
 
-	public LowerBound(FunClone clone, int opArity) {
+	public LowerBound(FinitelyRel clone, int opArity) {
 		super(clone.getSize());
 		assert opArity >= 1;
 
@@ -39,7 +38,7 @@ public class LowerBound extends RelClone {
 	}
 
 	public void add(Operation<Boolean> op) {
-		assert op.isOperation() && clone.verify(op);
+		assert op.isOperation() && clone.isMember(op);
 		operations.add(op);
 	}
 
@@ -53,7 +52,7 @@ public class LowerBound extends RelClone {
 		return b;
 	}
 
-	public boolean verify(final Relation<Boolean> rel) {
+	public boolean isMember(final Relation<Boolean> rel) {
 		Operation<Boolean> op;
 		do {
 			SatProblem problem = new SatProblem(Util.createShape(size,
@@ -75,7 +74,7 @@ public class LowerBound extends RelClone {
 				return true;
 
 			op = Operation.wrap(sol.get(0));
-		} while (!clone.verify(op));
+		} while (!clone.isMember(op));
 
 		operations.add(op);
 		return false;

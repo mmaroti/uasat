@@ -19,17 +19,16 @@
 package org.uasat.clone;
 
 import java.util.*;
-
 import org.uasat.core.*;
 import org.uasat.math.*;
 
-public class UpperBound extends FunClone {
+public class UpperBound extends FinitelyRel {
 	protected final SatSolver<?> solver;
-	protected final RelClone clone;
+	protected final FinitelyGen clone;
 	protected int relArity;
 	protected final List<Relation<Boolean>> relations = new ArrayList<Relation<Boolean>>();
 
-	public UpperBound(RelClone clone, int relArity) {
+	public UpperBound(FinitelyGen clone, int relArity) {
 		super(clone.getSize());
 		assert relArity >= 1;
 
@@ -39,7 +38,7 @@ public class UpperBound extends FunClone {
 	}
 
 	public void add(Relation<Boolean> rel) {
-		assert clone.verify(rel);
+		assert clone.isMember(rel);
 		relations.add(rel);
 	}
 
@@ -53,7 +52,7 @@ public class UpperBound extends FunClone {
 		return b;
 	}
 
-	public boolean verify(final Operation<Boolean> op) {
+	public boolean isMember(final Operation<Boolean> op) {
 		Relation<Boolean> rel;
 		do {
 			SatProblem problem = new SatProblem(
@@ -73,7 +72,7 @@ public class UpperBound extends FunClone {
 				return true;
 
 			rel = Relation.wrap(sol.get(0));
-		} while (!clone.verify(rel));
+		} while (!clone.isMember(rel));
 
 		relations.add(rel);
 		return false;

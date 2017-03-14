@@ -18,35 +18,50 @@
 
 package org.uasat.clone;
 
+import java.util.*;
 import org.uasat.core.*;
 import org.uasat.math.*;
 
-public class Meet extends FunClone {
-	protected final FunClone[] clones;
+public class CloneRel extends FinitelyRel {
+	protected List<Relation<Boolean>> relations = new ArrayList<Relation<Boolean>>();
 
-	public Meet(FunClone... clones) {
-		super(clones[0].getSize());
+	public CloneRel(int size) {
+		super(size);
+	}
 
-		for (int i = 1; i < clones.length; i++)
-			assert clones[i].getSize() == size;
+	@SafeVarargs
+	public CloneRel(Relation<Boolean>... relations) {
+		super(relations[0].getSize());
+		for (int i = 1; i < relations.length; i++)
+			assert relations[i].getSize() == size;
 
-		this.clones = clones;
+		this.relations.addAll(Arrays.asList(relations));
+	}
+
+	public List<Relation<Boolean>> getRelations() {
+		return relations;
+	}
+
+	public void addRelation(Relation<Boolean> rel) {
+		relations.add(rel);
+	}
+
+	public static CloneRel idempotentClone(int size) {
+		CloneRel clone = new CloneRel(size);
+		for (int i = 0; i < size; i++)
+			clone.addRelation(Relation.singleton(size, i));
+		return clone;
 	}
 
 	public <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg, Operation<BOOL> op) {
 		BOOL b = alg.TRUE;
-
-		for (int i = 0; i < clones.length; i++)
-			b = alg.and(b, clones[i].isPossibleMember(alg, op));
+		for (Relation<Boolean> rel : relations)
+			b = alg.and(b, op.preserves(Relation.lift(alg, rel)));
 
 		return b;
 	}
 
-	public boolean verify(Operation<Boolean> op) {
-		for (int i = 0; i < clones.length; i++)
-			if (!clones[i].verify(op))
-				return false;
-
+	public boolean isMember(Operation<Boolean> op) {
 		return true;
 	}
 }

@@ -21,10 +21,10 @@ package org.uasat.clone;
 import org.uasat.core.*;
 import org.uasat.math.*;
 
-public class Join extends RelClone {
-	protected final RelClone[] clones;
+public class CloneMeet extends FinitelyRel {
+	protected final FinitelyRel[] clones;
 
-	public Join(RelClone... clones) {
+	public CloneMeet(FinitelyRel... clones) {
 		super(clones[0].getSize());
 
 		for (int i = 1; i < clones.length; i++)
@@ -33,18 +33,18 @@ public class Join extends RelClone {
 		this.clones = clones;
 	}
 
-	public <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg, Relation<BOOL> rel) {
+	public <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg, Operation<BOOL> op) {
 		BOOL b = alg.TRUE;
 
 		for (int i = 0; i < clones.length; i++)
-			b = alg.and(b, clones[i].isPossibleMember(alg, rel));
+			b = alg.and(b, clones[i].isPossibleMember(alg, op));
 
 		return b;
 	}
 
-	public boolean verify(Relation<Boolean> rel) {
+	public boolean isMember(Operation<Boolean> op) {
 		for (int i = 0; i < clones.length; i++)
-			if (!clones[i].verify(rel))
+			if (!clones[i].isMember(op))
 				return false;
 
 		return true;

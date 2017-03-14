@@ -21,27 +21,32 @@ package org.uasat.clone;
 import org.uasat.core.*;
 import org.uasat.math.*;
 
-public abstract class FunClone {
-	protected final int size;
+public class CloneJoin extends FinitelyGen {
+	protected final FinitelyGen[] clones;
 
-	public FunClone(int size) {
-		this.size = size;
+	public CloneJoin(FinitelyGen... clones) {
+		super(clones[0].getSize());
+
+		for (int i = 1; i < clones.length; i++)
+			assert clones[i].getSize() == size;
+
+		this.clones = clones;
 	}
 
-	public int getSize() {
-		return size;
+	public <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg, Relation<BOOL> rel) {
+		BOOL b = alg.TRUE;
+
+		for (int i = 0; i < clones.length; i++)
+			b = alg.and(b, clones[i].isPossibleMember(alg, rel));
+
+		return b;
 	}
 
-	/**
-	 * This method can return a false positive (but no false negative), so you
-	 * should call verify on the operation to make sure that it is indeed member
-	 * of this functional clone.
-	 */
-	public abstract <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg,
-			Operation<BOOL> op);
+	public boolean isMember(Relation<Boolean> rel) {
+		for (int i = 0; i < clones.length; i++)
+			if (!clones[i].isMember(rel))
+				return false;
 
-	/**
-	 * Checks if the given concrete operation is a member of the clone.
-	 */
-	public abstract boolean verify(Operation<Boolean> op);
+		return true;
+	}
 }

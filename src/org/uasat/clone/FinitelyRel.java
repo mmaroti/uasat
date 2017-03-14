@@ -18,35 +18,29 @@
 
 package org.uasat.clone;
 
-import java.util.*;
 import org.uasat.core.*;
 import org.uasat.math.*;
 
-public class FinitelyRel extends FunClone {
-	protected List<Relation<Boolean>> relations;
+public abstract class FinitelyRel {
+	protected final int size;
 
-	@SafeVarargs
-	public FinitelyRel(Relation<Boolean>... relations) {
-		super(relations[0].getSize());
-		for (int i = 1; i < relations.length; i++)
-			assert relations[i].getSize() == size;
-
-		this.relations = Arrays.asList(relations);
+	public FinitelyRel(int size) {
+		this.size = size;
 	}
 
-	public List<Relation<Boolean>> getRelations() {
-		return relations;
+	public int getSize() {
+		return size;
 	}
 
-	public <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg, Operation<BOOL> op) {
-		BOOL b = alg.TRUE;
-		for (Relation<Boolean> rel : relations)
-			b = alg.and(b, op.preserves(Relation.lift(alg, rel)));
+	/**
+	 * This method can return a false positive (but no false negative), so you
+	 * should call <code>isMember</code> on the operation to make sure that it
+	 * is indeed member of this functional clone.
+	 */
+	public abstract <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg, Operation<BOOL> op);
 
-		return b;
-	}
-
-	public boolean verify(Operation<Boolean> op) {
-		return true;
-	}
+	/**
+	 * Checks if the given concrete operation is a member of the clone.
+	 */
+	public abstract boolean isMember(Operation<Boolean> op);
 }

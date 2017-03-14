@@ -18,35 +18,29 @@
 
 package org.uasat.clone;
 
-import java.util.*;
 import org.uasat.core.*;
 import org.uasat.math.*;
 
-public class FinitelyGen extends RelClone {
-	protected List<Operation<Boolean>> operations;
+public abstract class FinitelyGen {
+	protected final int size;
 
-	@SafeVarargs
-	public FinitelyGen(Operation<Boolean>... operations) {
-		super(operations[0].getSize());
-		for (int i = 1; i < operations.length; i++)
-			assert operations[i].getSize() == size;
-
-		this.operations = Arrays.asList(operations);
+	public FinitelyGen(int size) {
+		this.size = size;
 	}
 
-	public List<Operation<Boolean>> getOperations() {
-		return operations;
+	public int getSize() {
+		return size;
 	}
 
-	public <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg, Relation<BOOL> rel) {
-		BOOL b = alg.TRUE;
-		for (Operation<Boolean> op : operations)
-			b = alg.and(b, Operation.lift(alg, op).preserves(rel));
+	/**
+	 * This method can return a false positive (but no false negative), so you
+	 * should call <code>isMember</code> on the relation to make sure that it is
+	 * indeed member of this functional clone.
+	 */
+	public abstract <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg, Relation<BOOL> rel);
 
-		return b;
-	}
-
-	public boolean verify(Relation<Boolean> rel) {
-		return true;
-	}
+	/**
+	 * Checks if the given concrete relation is a member of the clone.
+	 */
+	public abstract boolean isMember(Relation<Boolean> rel);
 }

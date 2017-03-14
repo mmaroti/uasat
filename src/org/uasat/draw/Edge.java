@@ -61,12 +61,7 @@ public class Edge {
 		return (state & VERT_ORDERED) != 0;
 	}
 
-	public boolean isSelected() {
-		return node1.isSelected() || node2.isSelected();
-	}
-
 	public void updateForces() {
-		double d = node1.getCenter().distance(node2.getCenter());
-
+		// double d = node1.getCenter().distance(node2.getCenter());
 	}
 }
