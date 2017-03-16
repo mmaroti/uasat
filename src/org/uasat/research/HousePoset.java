@@ -221,6 +221,17 @@ public class HousePoset {
 		gen.printStats();
 	}
 
+	public void explainIdemp2(Relation<Boolean> rel, int arity) {
+		assert rel.getArity() <= arity && 2 <= arity;
+
+		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(),
+				rel.getArity(), arity);
+		gen.addGenerators(idemp_crit1);
+		gen.addGenerators(nonid_crit2);
+		gen.printRepresentation(rel);
+		gen.printStats();
+	}
+
 	public void explainNonid(Relation<Boolean> rel, int arity) {
 		assert rel.getArity() <= arity && 2 <= arity;
 
@@ -278,6 +289,20 @@ public class HousePoset {
 		assert rels.equals(idemp_crit1);
 	}
 
+	public void printIdempUnaryCritCovers() {
+		MeetClosedRels rels = new MeetClosedRels(5, 1);
+		rels.addPermutedGens(idemp_crit1);
+
+		for (Relation<Boolean> rel : idemp_crit1) {
+			Relation<Boolean> cov = rels.getIrredCover(rel);
+
+			System.out.println(Relation.format(rel));
+			System.out.println(Relation.format(cov));
+			System.out.println(Relation.format(cov.subtract(rel)));
+			System.out.println();
+		}
+	}
+
 	public void findIdempBinaryCriticals() {
 		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(), 2, 3);
 
@@ -291,6 +316,21 @@ public class HousePoset {
 		assert rels.equals(idemp_crit2);
 	}
 
+	public void printIdempBinaryCritCovers() {
+		MeetClosedRels rels = new MeetClosedRels(5, 2);
+		rels.addPermutedGens(idemp_crit1);
+		rels.addPermutedGens(idemp_crit2);
+
+		for (Relation<Boolean> rel : idemp_crit2) {
+			Relation<Boolean> cov = rels.getIrredCover(rel);
+
+			System.out.println(Relation.format(rel));
+			System.out.println(Relation.format(cov));
+			System.out.println(Relation.format(cov.subtract(rel)));
+			System.out.println();
+		}
+	}
+
 	public void findIdempTernaryCriticals() {
 		CriticalRelsGen gen = new CriticalRelsGen(poset.getSize(), 3, 4);
 		gen.trace = true;
@@ -302,6 +342,22 @@ public class HousePoset {
 
 		List<Relation<Boolean>> rels = Relation.sort(gen.getFullCriticals1());
 		assert rels.equals(idemp_crit3);
+	}
+
+	public void printIdempTernaryCritCovers() {
+		MeetClosedRels rels = new MeetClosedRels(5, 3);
+		rels.addPermutedGens(idemp_crit1);
+		rels.addPermutedGens(idemp_crit2);
+		rels.addPermutedGens(idemp_crit3);
+
+		for (Relation<Boolean> rel : idemp_crit3) {
+			Relation<Boolean> cov = rels.getIrredCover(rel);
+
+			System.out.println(Relation.format(rel));
+			System.out.println(Relation.format(cov));
+			System.out.println(Relation.format(cov.subtract(rel)));
+			System.out.println();
+		}
 	}
 
 	public void findIdempQuaternaryCriticals() {
@@ -848,7 +904,9 @@ public class HousePoset {
 		// h.findIdempBinaryCriticals();
 		// h.findIdempTernaryCriticals();
 		// h.findIdempQuaternaryCriticals();
-		// h.explainIdemp(h.idemp_crit2.get(0), 5);
+		h.explainIdemp(h.parseRels(2, "02 12 22 32 42 23 33 43 04 14 24 34 44")
+				.get(0), 6);
+		// h.printIdempBinaryCritCovers();
 
 		// h.findNonidUnaryCriticals();
 		// h.findNonidBinaryCriticals();
@@ -889,7 +947,7 @@ public class HousePoset {
 		// h.closureNonid(h.idpy3_crit3.get(1), 3);
 
 		// h.test1();
-		h.test2();
+		// h.test2();
 
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
