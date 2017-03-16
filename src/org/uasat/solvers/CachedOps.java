@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015
+ * Copyright (C) Miklos Maroti, 2015
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,8 +27,8 @@ public class CachedOps extends SatSolver<Integer> {
 	private final int FALSE;
 	private final int TRUE;
 
-	private final static int CACHE_SIZE = 33331;
-	private final static int ELEM1_STEP = 107;
+	private final static int CACHE_SIZE = 99991;
+	private final static int ELEM1_STEP = 311;
 	private final int[] andCache;
 	private final int[] addCache;
 

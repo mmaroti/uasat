@@ -61,17 +61,14 @@ public class Split {
 		}
 	}
 
-	private boolean find(int relArity, int opArity,
-			final Relation<Boolean> above) {
+	private boolean find(int relArity, int opArity, final Relation<Boolean> above) {
 		do {
-			SatProblem problem = new SatProblem(Util.createShape(getSize(),
-					relArity), Util.createShape(getSize(), opArity + 1)) {
+			SatProblem problem = new SatProblem(Util.createShape(getSize(), relArity), Util.createShape(getSize(),
+				opArity + 1)) {
 				@Override
-				public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
-						List<Tensor<BOOL>> tensors) {
+				public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg, List<Tensor<BOOL>> tensors) {
 					Relation<BOOL> rel = new Relation<BOOL>(alg, tensors.get(0));
-					Operation<BOOL> op = new Operation<BOOL>(alg,
-							tensors.get(1));
+					Operation<BOOL> op = new Operation<BOOL>(alg, tensors.get(1));
 
 					BOOL b = op.isOperation();
 					b = alg.and(b, alg.not(op.preserves(rel)));
@@ -92,9 +89,6 @@ public class Split {
 				rel = null;
 				op = null;
 
-				if (trace)
-					System.out.println("trace: not found");
-
 				return false;
 			}
 
@@ -102,11 +96,8 @@ public class Split {
 			op = Operation.wrap(sol.get(1));
 
 			if (trace)
-				System.out.println("trace: " + Relation.format(rel));
+				System.out.println("trace: possible  " + Relation.format(rel));
 		} while (!clone1.isMember(rel) || !clone2.isMember(op));
-
-		if (trace)
-			System.out.println("trace: found one");
 
 		return true;
 	}
@@ -130,6 +121,9 @@ public class Split {
 		Operation<Boolean> opx = null;
 
 		while (find(relArity, opArity, relx)) {
+			if (trace)
+				System.out.println("trace: splitting " + Relation.format(rel));
+
 			relx = rel;
 			opx = op;
 		}
