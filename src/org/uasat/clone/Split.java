@@ -61,7 +61,7 @@ public class Split {
 		}
 	}
 
-	private boolean find(int relArity, int opArity, final Relation<Boolean> above) {
+	private boolean find(int relArity, int opArity, final Relation<Boolean> above, final Relation<Boolean> below) {
 		do {
 			SatProblem problem = new SatProblem(Util.createShape(getSize(), relArity), Util.createShape(getSize(),
 				opArity + 1)) {
@@ -78,6 +78,11 @@ public class Split {
 					if (above != null) {
 						Relation<BOOL> above2 = Relation.lift(alg, above);
 						b = alg.and(b, above2.isProperSubsetOf(rel));
+					}
+
+					if (below != null) {
+						Relation<BOOL> below2 = Relation.lift(alg, below);
+						b = alg.and(b, rel.isProperSubsetOf(below2));
 					}
 
 					return b;
@@ -113,14 +118,32 @@ public class Split {
 	 * <code>getOperation()</code>.
 	 */
 	public boolean findOne(int relArity, int opArity) {
-		return find(relArity, opArity, null);
+		return find(relArity, opArity, null, null);
 	}
 
 	public boolean findMaxRel(int relArity, int opArity) {
 		Relation<Boolean> relx = null;
 		Operation<Boolean> opx = null;
 
-		while (find(relArity, opArity, relx)) {
+		while (find(relArity, opArity, relx, null)) {
+			if (trace)
+				System.out.println("trace: splitting " + Relation.format(rel));
+
+			relx = rel;
+			opx = op;
+		}
+
+		rel = relx;
+		op = opx;
+
+		return rel != null;
+	}
+
+	public boolean findMinRel(int relArity, int opArity) {
+		Relation<Boolean> relx = null;
+		Operation<Boolean> opx = null;
+
+		while (find(relArity, opArity, null, relx)) {
 			if (trace)
 				System.out.println("trace: splitting " + Relation.format(rel));
 

@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015
+ * Copyright (C) Miklos Maroti, 2015
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -858,7 +858,7 @@ public class HousePoset {
 
 		Split split = new Split(generated, clone);
 		split.trace = true;
-		split.findMaxRel(4, 2);
+		split.findMinRel(4, 2);
 		split.print();
 	}
 

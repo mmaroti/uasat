@@ -131,36 +131,11 @@ public final class Permutation<BOOL> {
 	}
 
 	public static List<Permutation<Boolean>> symmetricGroup(int size) {
-		assert size >= 1;
 		List<Permutation<Boolean>> list = new ArrayList<Permutation<Boolean>>();
 
-		int[] perm = new int[size];
-		boolean[] used = new boolean[size];
-
-		int pos = 0;
-		outer: for (;;) {
-			for (int i = 0; i < size; i++)
-				if (!used[i]) {
-					used[i] = true;
-					perm[pos++] = i;
-				}
-
-			assert pos == size;
-			list.add(create(perm));
-
-			while (--pos >= 0) {
-				int a = perm[pos];
-				used[a] = false;
-				for (int i = a + 1; i < size; i++)
-					if (!used[i]) {
-						used[i] = true;
-						perm[pos++] = i;
-						continue outer;
-					}
-			}
-
-			break;
-		}
+		Iterator<int[]> iter = Util.permIterator(size);
+		while (iter.hasNext())
+			list.add(create(iter.next()));
 
 		return list;
 	}

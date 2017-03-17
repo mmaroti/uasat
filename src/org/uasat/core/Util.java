@@ -1,5 +1,5 @@
 /**
- *	Copyright (C) Miklos Maroti, 2015
+ * Copyright (C) Miklos Maroti, 2015
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -389,6 +389,81 @@ public final class Util {
 		return new HullIterator(radius, arity);
 	}
 
+	private static class PermIterator implements Iterator<int[]> {
+		private final int size;
+		private final int[] perm;
+		private final boolean[] used;
+
+		private int pos;
+		private int next;
+
+		public PermIterator(int size) {
+			assert 1 <= size;
+
+			this.size = size;
+			perm = new int[size];
+			used = new boolean[size];
+
+			pos = 0;
+			next = 0;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return pos >= 0;
+		}
+
+		@Override
+		public int[] next() {
+			assert pos >= 0 && !used[next];
+			used[next] = true;
+			perm[pos++] = next;
+
+			for (int i = 0; i < size; i++)
+				if (!used[i]) {
+					used[i] = true;
+					perm[pos++] = i;
+				}
+			assert pos == size;
+
+			int max = -1;
+			while (--pos >= 0) {
+				next = perm[pos];
+				used[next] = false;
+
+				max = Math.max(max, next);
+				if (max > next) {
+					while (used[++next])
+						;
+
+					break;
+				}
+			}
+
+			return perm;
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	/**
+	 * Returns an iterator that yields all permutations of a set of the given
+	 * size.
+	 * 
+	 * @param size
+	 *            the size of the underlying set
+	 * @return an iterator for all permutations on the give set
+	 */
+	public static Iterator<int[]> permIterator(int size) {
+		if (size == 0)
+			return new NullIterator(true);
+		else
+			return new PermIterator(size);
+	}
+
 	private static void printTuples(Iterator<int[]> iter) {
 		StringBuilder s = new StringBuilder();
 
@@ -427,5 +502,10 @@ public final class Util {
 		printTuples(hullIterator(0, 3));
 		printTuples(hullIterator(1, 3));
 		printTuples(hullIterator(2, 3));
+		
+		printTuples(permIterator(3));
+		printTuples(permIterator(2));
+		printTuples(permIterator(1));
+		printTuples(permIterator(0));
 	}
 }
