@@ -33,6 +33,7 @@ public class CloneMeet extends FinitelyRel {
 		this.clones = clones;
 	}
 
+	@Override
 	public <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg, Operation<BOOL> op) {
 		BOOL b = alg.TRUE;
 
@@ -42,6 +43,7 @@ public class CloneMeet extends FinitelyRel {
 		return b;
 	}
 
+	@Override
 	public boolean isMember(Operation<Boolean> op) {
 		for (int i = 0; i < clones.length; i++)
 			if (!clones[i].isMember(op))

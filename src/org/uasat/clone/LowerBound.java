@@ -42,6 +42,7 @@ public class LowerBound extends FinitelyGen {
 		operations.add(op);
 	}
 
+	@Override
 	public <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg,
 			Relation<BOOL> rel) {
 		BOOL b = alg.TRUE;
@@ -52,6 +53,7 @@ public class LowerBound extends FinitelyGen {
 		return b;
 	}
 
+	@Override
 	public boolean isMember(final Relation<Boolean> rel) {
 		Operation<Boolean> op;
 		do {

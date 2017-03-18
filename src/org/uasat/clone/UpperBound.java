@@ -42,6 +42,7 @@ public class UpperBound extends FinitelyRel {
 		relations.add(rel);
 	}
 
+	@Override
 	public <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg,
 			Operation<BOOL> op) {
 		BOOL b = alg.TRUE;
@@ -52,6 +53,7 @@ public class UpperBound extends FinitelyRel {
 		return b;
 	}
 
+	@Override
 	public boolean isMember(final Operation<Boolean> op) {
 		Relation<Boolean> rel;
 		do {

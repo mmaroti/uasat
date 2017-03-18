@@ -53,6 +53,7 @@ public class CloneGen extends FinitelyGen {
 		return clone;
 	}
 
+	@Override
 	public <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg, Relation<BOOL> rel) {
 		BOOL b = alg.TRUE;
 		for (Operation<Boolean> op : operations)
@@ -61,6 +62,7 @@ public class CloneGen extends FinitelyGen {
 		return b;
 	}
 
+	@Override
 	public boolean isMember(Relation<Boolean> rel) {
 		return true;
 	}

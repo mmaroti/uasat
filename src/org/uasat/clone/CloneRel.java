@@ -53,6 +53,7 @@ public class CloneRel extends FinitelyRel {
 		return clone;
 	}
 
+	@Override
 	public <BOOL> BOOL isPossibleMember(BoolAlgebra<BOOL> alg, Operation<BOOL> op) {
 		BOOL b = alg.TRUE;
 		for (Relation<Boolean> rel : relations)
@@ -61,6 +62,7 @@ public class CloneRel extends FinitelyRel {
 		return b;
 	}
 
+	@Override
 	public boolean isMember(Operation<Boolean> op) {
 		return true;
 	}
