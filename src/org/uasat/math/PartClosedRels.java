@@ -71,6 +71,19 @@ public class PartClosedRels {
 		public <BOOL> BOOL isClosed(BoolAlgebra<BOOL> alg, Relation<BOOL> rel) {
 			assert rel.getSize() == size;
 
+			BOOL b = alg.TRUE;
+			for (int[] premise : premises)
+				b = alg.and(b, rel.getValue(premise));
+
+			return alg.leq(b, rel.getValue(conclusion));
 		}
+	}
+
+	public <BOOL> BOOL isClosed(BoolAlgebra<BOOL> alg, Relation<BOOL> rel) {
+		BOOL b = alg.TRUE;
+		for (Implication implication : implications)
+			b = alg.and(b, implication.isClosed(alg, rel));
+
+		return b;
 	}
 }

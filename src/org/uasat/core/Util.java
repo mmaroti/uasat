@@ -431,13 +431,13 @@ public final class Util {
 				next = perm[pos];
 				used[next] = false;
 
-				max = Math.max(max, next);
 				if (max > next) {
 					while (used[++next])
 						;
 
 					break;
-				}
+				} else
+					max = next;
 			}
 
 			return perm;
@@ -462,6 +462,89 @@ public final class Util {
 			return new NullIterator(true);
 		else
 			return new PermIterator(size);
+	}
+
+	private static class InjIterator implements Iterator<int[]> {
+		private final int arity;
+		private final int size;
+		private final int[] fun;
+		private final boolean[] used;
+
+		private int pos;
+		private int next;
+
+		public InjIterator(int arity, int size) {
+			assert 1 <= arity && arity <= size;
+
+			this.arity = arity;
+			this.size = size;
+			fun = new int[arity];
+			used = new boolean[size];
+
+			pos = 0;
+			next = 0;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return pos >= 0;
+		}
+
+		@Override
+		public int[] next() {
+			assert pos >= 0 && !used[next];
+			used[next] = true;
+			fun[pos++] = next;
+
+			for (int i = 0; pos < arity; i++)
+				if (!used[i]) {
+					used[i] = true;
+					fun[pos++] = i;
+				}
+
+			int max = size;
+			while (--max >= 0 && used[max])
+				;
+
+			while (--pos >= 0) {
+				next = fun[pos];
+				used[next] = false;
+
+				if (max > next) {
+					while (used[++next])
+						;
+
+					break;
+				} else
+					max = next;
+			}
+
+			return fun;
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
+	}
+
+	/**
+	 * Returns an iterator that yields all injective functions from the set of
+	 * size <code>arity</code> to the set of size <code>size</code>. size.
+	 * 
+	 * @param arity
+	 *            the size of the domain
+	 * @param size
+	 *            the size of the codomain
+	 * @return an iterator for all injective function from domain to codomain
+	 */
+	public static Iterator<int[]> injectiveIterator(int arity, int size) {
+		if (arity == 0)
+			return new NullIterator(true);
+		else if (arity > size)
+			return NULL_ITERATOR;
+		else
+			return new InjIterator(arity, size);
 	}
 
 	private static void printTuples(Iterator<int[]> iter) {
@@ -502,10 +585,16 @@ public final class Util {
 		printTuples(hullIterator(0, 3));
 		printTuples(hullIterator(1, 3));
 		printTuples(hullIterator(2, 3));
-		
+
 		printTuples(permIterator(3));
 		printTuples(permIterator(2));
 		printTuples(permIterator(1));
 		printTuples(permIterator(0));
+
+		printTuples(injectiveIterator(0, 3));
+		printTuples(injectiveIterator(1, 3));
+		printTuples(injectiveIterator(2, 3));
+		printTuples(injectiveIterator(3, 3));
+		printTuples(injectiveIterator(4, 3));
 	}
 }
