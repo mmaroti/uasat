@@ -94,10 +94,6 @@ public class CloneInterval {
 		return operations.size() + relations.size();
 	}
 
-	public void clear() {
-		relations.clear();
-	}
-
 	public void add(final Relation<Boolean> rel) {
 		assert rel.getSize() == size;
 
@@ -118,7 +114,7 @@ public class CloneInterval {
 	}
 
 	public void add(final Operation<Boolean> op) {
-		assert op.getSize() == size;
+		assert op.getSize() == size && op.isOperation();
 
 		final Tensor<Boolean> t1 = galois.getTensor();
 		Tensor<Boolean> t2 = Tensor.generate(operations.size() + 1,

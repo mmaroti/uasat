@@ -1,0 +1,267 @@
+/**
+ * Copyright (C) Miklos Maroti, 2015-2016
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+
+package org.uasat.math;
+
+import java.util.*;
+
+import org.uasat.core.*;
+
+public class StructuralClones {
+	private final SatSolver<?> solver;
+	private final int size;
+	private final List<Operation<Boolean>> partialOps;
+	private GaloisConn<Boolean> galois;
+	public boolean trace = false;
+
+	public StructuralClones(int size) {
+		this(size, SatSolver.getDefault());
+	}
+
+	public StructuralClones(int size, SatSolver<?> solver) {
+		assert size >= 1 && solver != null;
+
+		this.size = size;
+		this.solver = solver;
+
+		partialOps = new ArrayList<Operation<Boolean>>();
+		galois = GaloisConn.wrap(Tensor.constant(new int[] { 0, 0 },
+				Boolean.FALSE));
+	}
+
+	public StructuralClones(GeneratedOps interval) {
+		this(interval, SatSolver.getDefault());
+	}
+
+	public StructuralClones(GeneratedOps interval, SatSolver<?> solver) {
+		assert interval.getSize() >= 1 && solver != null;
+		assert interval.isSelfClosed();
+
+		this.size = interval.getSize();
+		this.solver = solver;
+
+		partialOps = new ArrayList<Operation<Boolean>>();
+		galois = GaloisConn.wrap(Tensor.constant(new int[] { 0, 0 },
+				Boolean.FALSE));
+	}
+
+	public int getSize() {
+		return size;
+	}
+
+	public List<Operation<Boolean>> getPartialOps() {
+		return partialOps;
+	}
+
+	public GaloisConn<Boolean> getGaloisConn() {
+		return galois;
+	}
+
+	public int getPartialOpCount() {
+		return partialOps.size();
+	}
+
+	public void add(final Operation<Boolean> op) {
+		assert op.getSize() == size && op.isPartialOperation();
+
+		partialOps.add(op);
+
+		final Tensor<Boolean> t0 = galois.getTensor();
+		final Tensor<Boolean> t1 = Tensor.generate(partialOps.size(),
+				new Func1<Boolean, Integer>() {
+					@Override
+					public Boolean call(Integer elem) {
+						return op.preserves(partialOps.get(elem).asRelation());
+					}
+				});
+
+		Tensor<Boolean> t2 = Tensor.generate(partialOps.size(),
+				partialOps.size(), new Func2<Boolean, Integer, Integer>() {
+					@Override
+					public Boolean call(Integer elem1, Integer elem2) {
+						if (elem1 < partialOps.size() - 1
+								&& elem2 < partialOps.size() - 1)
+							return t0.getElem(elem1, elem2);
+						else
+							return t1.getElem(Math.min(elem1, elem2));
+					}
+				});
+
+		galois = GaloisConn.wrap(t2);
+	}
+
+	public <BOOL> Relation<BOOL> preservedOps(final BoolAlgebra<BOOL> alg,
+			final Operation<BOOL> op) {
+		Tensor<BOOL> tensor = Tensor.generate(alg.getType(), partialOps.size(),
+				new Func1<BOOL, Integer>() {
+					@Override
+					public BOOL call(Integer elem) {
+						Operation<BOOL> op2 = Operation.lift(alg,
+								partialOps.get(elem));
+						return op2.preserves(op.asRelation());
+					}
+				});
+		return new Relation<BOOL>(alg, tensor);
+	}
+
+	/*
+	 * Ensures that all closed sets of the selected partial operations in a join
+	 * irreducible partial clone (defined by the polarity of a single partial
+	 * operation) is definable by the selected partial operations.
+	 */
+	public boolean addCriticalOp(int arity1, int arity2) {
+		assert arity1 >= 0 && arity2 >= 0;
+
+		SatProblem problem = new SatProblem(Util.createShape(size, arity1 + 1),
+				Util.createShape(size, arity2 + 1)) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Operation<BOOL> op0 = new Operation<BOOL>(alg, tensors.get(0));
+				Operation<BOOL> op1 = new Operation<BOOL>(alg, tensors.get(1));
+				GaloisConn<BOOL> gal = GaloisConn.lift(alg, galois);
+
+				BOOL b = op0.isPartialOperation();
+				b = alg.and(b, op0.isPermuteMinimal());
+
+				b = alg.and(b, op1.isPartialOperation());
+				b = alg.and(b, op1.isPermuteMinimal());
+
+				b = alg.and(b, alg.not(op0.preserves(op1.asRelation())));
+
+				Relation<BOOL> set = gal.leftClosure(preservedOps(alg, op0));
+				b = alg.and(b, set.isSubsetOf(preservedOps(alg, op1)));
+
+				return b;
+			}
+		};
+
+		List<Tensor<Boolean>> sol = problem.solveOne(solver);
+		if (sol == null)
+			return false;
+
+		Operation<Boolean> op = Operation.wrap(sol.get(0));
+		if (trace)
+			System.out.println(Relation.format(op.asRelation()));
+
+		add(op);
+		return true;
+	}
+
+	/*
+	 * Ensures, that every meet irreducible partial clone (the polarity of a
+	 * single partial operation) is generated by some subset of selected partial
+	 * operations.
+	 */
+	public boolean addCriticalOp2(int arity1, int arity2) {
+		assert arity1 >= 0 && arity2 >= 0;
+
+		SatProblem problem = new SatProblem(Util.createShape(size, arity1 + 1),
+				Util.createShape(size, arity2 + 1), Util.createShape(size,
+						arity2 + 1)) {
+			@Override
+			public <BOOL> BOOL compute(BoolAlgebra<BOOL> alg,
+					List<Tensor<BOOL>> tensors) {
+				Operation<BOOL> op0 = new Operation<BOOL>(alg, tensors.get(0));
+				Operation<BOOL> op1 = new Operation<BOOL>(alg, tensors.get(1));
+				Operation<BOOL> op2 = new Operation<BOOL>(alg, tensors.get(2));
+
+				BOOL b = op0.isPartialOperation();
+				b = alg.and(b, op1.isPartialOperation());
+				b = alg.and(b, op2.isPartialOperation());
+
+				b = alg.and(b, op0.isPermuteMinimal());
+				b = alg.and(b, op1.isPermuteMinimal());
+				b = alg.and(b, op2.isPermuteMinimal());
+
+				b = alg.and(b, op0.preserves(op1.asRelation()));
+				b = alg.and(b, alg.not(op0.preserves(op2.asRelation())));
+
+				Relation<BOOL> set1 = preservedOps(alg, op1);
+				Relation<BOOL> set2 = preservedOps(alg, op2);
+				b = alg.and(b, set1.isSubsetOf(set2));
+
+				return b;
+			}
+		};
+
+		List<Tensor<Boolean>> sol = problem.solveOne(solver);
+		if (sol == null)
+			return false;
+
+		Operation<Boolean> op = Operation.wrap(sol.get(0));
+		if (trace)
+			System.out.println(Relation.format(op.asRelation()));
+
+		add(op);
+		return true;
+	}
+
+	public void generate(int arity1, int arity2) {
+		assert arity1 >= 1 && arity2 >= 1;
+
+		if (trace)
+			System.out.println("critical ops of type 2:");
+		for (int i = 1; i <= arity1; i++)
+			while (addCriticalOp2(i, arity2))
+				;
+
+		for (int i = 1; i <= Math.max(arity1, arity2); i++) {
+			if (trace)
+				System.out.println("critical ops of type 1:");
+			while (addCriticalOp(Math.min(i, arity1), Math.min(i, arity2)))
+				;
+		}
+	}
+
+	public List<Relation<Boolean>> getClosedOpSets(int limit) {
+		return GaloisConn.findLeftClosedSets(solver, galois, limit);
+	}
+
+	public List<Relation<Boolean>> getClosedRelSets(int limit) {
+		return GaloisConn.findRightClosedSets(solver, galois, limit);
+	}
+
+	public void print() {
+		System.out.println("structural clone interval on universe " + size);
+
+		System.out.println("partial operations: " + partialOps.size());
+		int c = 0;
+		for (Operation<Boolean> op : partialOps)
+			System.out
+					.println((c++) + ":\t" + Relation.format(op.asRelation()));
+
+		GaloisConn.print(galois);
+	}
+
+	public void printClosedOpSets(int limit) {
+		List<Relation<Boolean>> sets = getClosedOpSets(limit);
+		System.out.println("closed sets of partial ops: "
+				+ (sets.size() == limit ? ">=" : "") + sets.size());
+
+		for (int i = 0; i < sets.size(); i++)
+			System.out.println(i + ":\t" + Relation.format(sets.get(i)));
+	}
+
+	public static void main(String[] args) {
+		StructuralClones clones = new StructuralClones(2);
+		clones.trace = true;
+		clones.generate(1, 1);
+		clones.print();
+	}
+}
