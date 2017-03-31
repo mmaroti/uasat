@@ -1,5 +1,5 @@
 /**
- * Copyright (C) Miklos Maroti, 2015-2016
+ * Copyright (C) Miklos Maroti, 2015-2017
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -69,109 +69,97 @@ public final class Relation<BOOL> {
 		return list;
 	}
 
-	public static <BOOL> Relation<BOOL> lift(BoolAlgebra<BOOL> alg,
-			Relation<Boolean> rel) {
+	public static <BOOL> Relation<BOOL> lift(BoolAlgebra<BOOL> alg, Relation<Boolean> rel) {
 		return new Relation<BOOL>(alg, alg.lift(rel.tensor));
 	}
 
-	public static <BOOL> List<Relation<BOOL>> lift(BoolAlgebra<BOOL> alg,
-			Iterable<Relation<Boolean>> rels) {
+	public static <BOOL> List<Relation<BOOL>> lift(BoolAlgebra<BOOL> alg, Iterable<Relation<Boolean>> rels) {
 		List<Relation<BOOL>> list = new ArrayList<Relation<BOOL>>();
 		for (Relation<Boolean> rel : rels)
 			list.add(lift(alg, rel));
 		return list;
 	}
 
-	public static <BOOL> Relation<BOOL> constant(BoolAlgebra<BOOL> alg,
-			int size, int arity, BOOL value) {
+	public static <BOOL> Relation<BOOL> constant(BoolAlgebra<BOOL> alg, int size, int arity, BOOL value) {
 		int[] shape = Util.createShape(size, arity);
 		Tensor<BOOL> tensor = Tensor.constant(alg.getType(), shape, value);
 		return new Relation<BOOL>(alg, tensor);
 	}
 
 	public static Relation<Boolean> full(int size, int arity) {
-		Tensor<Boolean> tensor = Tensor.constant(Util.createShape(size, arity),
-				Boolean.TRUE);
+		Tensor<Boolean> tensor = Tensor.constant(Util.createShape(size, arity), Boolean.TRUE);
 		return wrap(tensor);
 	}
 
 	public static Relation<Boolean> empty(int size, int arity) {
-		Tensor<Boolean> tensor = Tensor.constant(Util.createShape(size, arity),
-				Boolean.FALSE);
+		Tensor<Boolean> tensor = Tensor.constant(Util.createShape(size, arity), Boolean.FALSE);
 		return wrap(tensor);
 	}
 
 	public static Relation<Boolean> singleton(int size, int... tuple) {
 		assert tuple.length >= 1;
-		Tensor<Boolean> tensor = Tensor.constant(
-				Util.createShape(size, tuple.length), Boolean.FALSE);
+		Tensor<Boolean> tensor = Tensor.constant(Util.createShape(size, tuple.length), Boolean.FALSE);
 		tensor.setElem(Boolean.TRUE, tuple);
 		return wrap(tensor);
 	}
 
 	public static Relation<Boolean> equal(int size) {
-		Tensor<Boolean> tensor = Tensor.generate(size, size,
-				new Func2<Boolean, Integer, Integer>() {
-					@Override
-					public Boolean call(Integer elem1, Integer elem2) {
-						return elem1.intValue() == elem2.intValue();
-					}
-				});
+		Tensor<Boolean> tensor = Tensor.generate(size, size, new Func2<Boolean, Integer, Integer>() {
+			@Override
+			public Boolean call(Integer elem1, Integer elem2) {
+				return elem1.intValue() == elem2.intValue();
+			}
+		});
 		return wrap(tensor);
 	}
 
 	public static Relation<Boolean> notEqual(int size) {
-		Tensor<Boolean> tensor = Tensor.generate(size, size,
-				new Func2<Boolean, Integer, Integer>() {
-					@Override
-					public Boolean call(Integer elem1, Integer elem2) {
-						return elem1.intValue() != elem2.intValue();
-					}
-				});
+		Tensor<Boolean> tensor = Tensor.generate(size, size, new Func2<Boolean, Integer, Integer>() {
+			@Override
+			public Boolean call(Integer elem1, Integer elem2) {
+				return elem1.intValue() != elem2.intValue();
+			}
+		});
 		return wrap(tensor);
 	}
 
 	public static Relation<Boolean> lessThan(int size) {
-		Tensor<Boolean> tensor = Tensor.generate(size, size,
-				new Func2<Boolean, Integer, Integer>() {
-					@Override
-					public Boolean call(Integer elem1, Integer elem2) {
-						return elem1.intValue() < elem2.intValue();
-					}
-				});
+		Tensor<Boolean> tensor = Tensor.generate(size, size, new Func2<Boolean, Integer, Integer>() {
+			@Override
+			public Boolean call(Integer elem1, Integer elem2) {
+				return elem1.intValue() < elem2.intValue();
+			}
+		});
 		return wrap(tensor);
 	}
 
 	public static Relation<Boolean> lessOrEqual(int size) {
-		Tensor<Boolean> tensor = Tensor.generate(size, size,
-				new Func2<Boolean, Integer, Integer>() {
-					@Override
-					public Boolean call(Integer elem1, Integer elem2) {
-						return elem1.intValue() <= elem2.intValue();
-					}
-				});
+		Tensor<Boolean> tensor = Tensor.generate(size, size, new Func2<Boolean, Integer, Integer>() {
+			@Override
+			public Boolean call(Integer elem1, Integer elem2) {
+				return elem1.intValue() <= elem2.intValue();
+			}
+		});
 		return wrap(tensor);
 	}
 
 	public static Relation<Boolean> greaterThan(int size) {
-		Tensor<Boolean> tensor = Tensor.generate(size, size,
-				new Func2<Boolean, Integer, Integer>() {
-					@Override
-					public Boolean call(Integer elem1, Integer elem2) {
-						return elem1.intValue() > elem2.intValue();
-					}
-				});
+		Tensor<Boolean> tensor = Tensor.generate(size, size, new Func2<Boolean, Integer, Integer>() {
+			@Override
+			public Boolean call(Integer elem1, Integer elem2) {
+				return elem1.intValue() > elem2.intValue();
+			}
+		});
 		return wrap(tensor);
 	}
 
 	public static Relation<Boolean> greaterOrEqual(int size) {
-		Tensor<Boolean> tensor = Tensor.generate(size, size,
-				new Func2<Boolean, Integer, Integer>() {
-					@Override
-					public Boolean call(Integer elem1, Integer elem2) {
-						return elem1.intValue() >= elem2.intValue();
-					}
-				});
+		Tensor<Boolean> tensor = Tensor.generate(size, size, new Func2<Boolean, Integer, Integer>() {
+			@Override
+			public Boolean call(Integer elem1, Integer elem2) {
+				return elem1.intValue() >= elem2.intValue();
+			}
+		});
 		return wrap(tensor);
 	}
 
@@ -278,8 +266,7 @@ public final class Relation<BOOL> {
 	}
 
 	public BOOL isLexMinimal() {
-		List<Permutation<Boolean>> perms = Permutation
-				.nontrivialPerms(getArity());
+		List<Permutation<Boolean>> perms = Permutation.nontrivialPerms(getArity());
 
 		BOOL b = alg.TRUE;
 		for (Permutation<Boolean> p : perms)
@@ -315,8 +302,7 @@ public final class Relation<BOOL> {
 	public Relation<BOOL> projectTail(int coords) {
 		assert 0 <= coords && coords <= getArity();
 
-		return new Relation<BOOL>(alg, Tensor.fold(alg.ANY,
-				getArity() - coords, tensor));
+		return new Relation<BOOL>(alg, Tensor.fold(alg.ANY, getArity() - coords, tensor));
 	}
 
 	public Relation<BOOL> projectHead(int coords) {
@@ -328,8 +314,7 @@ public final class Relation<BOOL> {
 		checkSize(rel);
 		assert getArity() + rel.getArity() >= 3;
 
-		int[] shape = Util.createShape(getSize(), getArity() + rel.getArity()
-				- 1);
+		int[] shape = Util.createShape(getSize(), getArity() + rel.getArity() - 1);
 
 		int[] map = new int[getArity()];
 		for (int i = 0; i < map.length - 1; i++)
@@ -367,8 +352,7 @@ public final class Relation<BOOL> {
 	public Relation<BOOL> diagonal(int arity) {
 		assert getArity() == 1;
 
-		Tensor<BOOL> tmp = Tensor.constant(alg.getType(),
-				Util.createShape(getSize(), arity), alg.FALSE);
+		Tensor<BOOL> tmp = Tensor.constant(alg.getType(), Util.createShape(getSize(), arity), alg.FALSE);
 
 		int[] index = new int[arity];
 		for (int i = 0; i < getSize(); i++) {
@@ -414,18 +398,17 @@ public final class Relation<BOOL> {
 
 		final int[] idx1 = new int[getArity()];
 		final int[] idx2 = new int[getArity()];
-		Tensor<BOOL> tmp = Tensor.generate(alg.getType(), shape,
-				new Func1<BOOL, int[]>() {
-					@Override
-					public BOOL call(int[] elem) {
-						for (int i = 0; i < elem.length; i++) {
-							idx1[i] = elem[i] % a;
-							idx2[i] = elem[i] / a;
-						}
+		Tensor<BOOL> tmp = Tensor.generate(alg.getType(), shape, new Func1<BOOL, int[]>() {
+			@Override
+			public BOOL call(int[] elem) {
+				for (int i = 0; i < elem.length; i++) {
+					idx1[i] = elem[i] % a;
+					idx2[i] = elem[i] / a;
+				}
 
-						return alg.and(t1.getElem(idx1), t2.getElem(idx2));
-					}
-				});
+				return alg.and(t1.getElem(idx1), t2.getElem(idx2));
+			}
+		});
 
 		return new Relation<BOOL>(alg, tmp);
 	}
@@ -479,15 +462,13 @@ public final class Relation<BOOL> {
 	}
 
 	public BOOL isLexLess(Relation<BOOL> rel) {
-		assert getAlg() == rel.getAlg() && getSize() == rel.getSize()
-				&& getArity() == rel.getArity();
+		assert getAlg() == rel.getAlg() && getSize() == rel.getSize() && getArity() == rel.getArity();
 
 		return alg.lexLess(getTensor(), rel.getTensor());
 	}
 
 	public BOOL isLexLeq(Relation<BOOL> rel) {
-		assert getAlg() == rel.getAlg() && getSize() == rel.getSize()
-				&& getArity() == rel.getArity();
+		assert getAlg() == rel.getAlg() && getSize() == rel.getSize() && getArity() == rel.getArity();
 
 		return alg.lexLeq(getTensor(), rel.getTensor());
 
@@ -645,8 +626,7 @@ public final class Relation<BOOL> {
 		return b;
 	}
 
-	public static Relation<Boolean> removeNonessentialCoords(
-			Relation<Boolean> rel) {
+	public static Relation<Boolean> removeNonessentialCoords(Relation<Boolean> rel) {
 		BoolAlgebra<Boolean> alg = rel.getAlg();
 		Tensor<Boolean> tensor = rel.tensor;
 
@@ -663,8 +643,7 @@ public final class Relation<BOOL> {
 				map[j] = j - 1;
 			map[0] = nonessential ? 0 : map.length - 1;
 
-			tensor = Tensor.reshape(tensor,
-					(nonessential ? t : tensor).getShape(), map);
+			tensor = Tensor.reshape(tensor, (nonessential ? t : tensor).getShape(), map);
 		}
 
 		return Relation.wrap(tensor);
@@ -672,6 +651,10 @@ public final class Relation<BOOL> {
 
 	public PartialOrder<BOOL> asPartialOrder() {
 		return new PartialOrder<BOOL>(alg, tensor);
+	}
+
+	public PartialOperation<BOOL> asPartialOperation() {
+		return new PartialOperation<BOOL>(alg, tensor);
 	}
 
 	public Operation<BOOL> asOperation() {
@@ -726,28 +709,24 @@ public final class Relation<BOOL> {
 		int[] shape = new int[getArity()];
 		Arrays.fill(shape, subsets.size());
 
-		Tensor<BOOL> tensor = Tensor.generate(alg.getType(), shape,
-				new Func1<BOOL, int[]>() {
-					@Override
-					public BOOL call(int[] elem) {
-						Relation<BOOL> r = subsets.get(elem[0]);
-						assert r.getAlg() == alg;
+		Tensor<BOOL> tensor = Tensor.generate(alg.getType(), shape, new Func1<BOOL, int[]>() {
+			@Override
+			public BOOL call(int[] elem) {
+				Relation<BOOL> r = subsets.get(elem[0]);
+				assert r.getAlg() == alg;
 
-						for (int i = 1; i < elem.length; i++)
-							r = r.cartesian(subsets.get(elem[i]));
+				for (int i = 1; i < elem.length; i++)
+					r = r.cartesian(subsets.get(elem[i]));
 
-						r = intersect(r); // with this
+				r = intersect(r); // with this
 
-						BOOL b = alg.TRUE;
-						for (int i = 0; i < elem.length; i++)
-							b = alg.and(
-									b,
-									subsets.get(elem[i]).isSubsetOf(
-											r.project(i)));
+				BOOL b = alg.TRUE;
+				for (int i = 0; i < elem.length; i++)
+					b = alg.and(b, subsets.get(elem[i]).isSubsetOf(r.project(i)));
 
-						return b;
-					}
-				});
+				return b;
+			}
+		});
 
 		return new Relation<BOOL>(alg, tensor);
 	}
@@ -773,8 +752,7 @@ public final class Relation<BOOL> {
 	public static Relation<Boolean> parse(int size, int arity, String str) {
 		assert arity >= 1;
 
-		Tensor<Boolean> tensor = Tensor.constant(Util.createShape(size, arity),
-				Boolean.FALSE);
+		Tensor<Boolean> tensor = Tensor.constant(Util.createShape(size, arity), Boolean.FALSE);
 
 		for (String s : str.split(" ")) {
 			if (s.isEmpty())
@@ -840,8 +818,7 @@ public final class Relation<BOOL> {
 		return list;
 	}
 
-	public static List<Relation<Boolean>> subsets(int size, int minCard,
-			int maxCard) {
+	public static List<Relation<Boolean>> subsets(int size, int minCard, int maxCard) {
 		assert 0 <= minCard && minCard <= maxCard && maxCard <= size;
 
 		List<Relation<Boolean>> list = new ArrayList<Relation<Boolean>>();
@@ -861,8 +838,7 @@ public final class Relation<BOOL> {
 	}
 
 	public static final Comparator<Relation<Boolean>> COMPARATOR = new Comparator<Relation<Boolean>>() {
-		final Comparator<Tensor<Boolean>> comp = Tensor
-				.comparator(BoolAlgebra.COMPARATOR);
+		final Comparator<Tensor<Boolean>> comp = Tensor.comparator(BoolAlgebra.COMPARATOR);
 
 		@Override
 		public int compare(Relation<Boolean> o1, Relation<Boolean> o2) {
@@ -881,15 +857,14 @@ public final class Relation<BOOL> {
 	};
 
 	public static List<Relation<Boolean>> sort(List<Relation<Boolean>> list) {
-		ArrayList<Relation<Boolean>> list2 = new ArrayList<Relation<Boolean>>(
-				list);
+		ArrayList<Relation<Boolean>> list2 = new ArrayList<Relation<Boolean>>(list);
 		Collections.sort(list2, COMPARATOR);
 		return list2;
 	}
 
 	public static void print(Relation<Boolean> rel) {
-		System.out.println("relation of size " + rel.getSize() + " arity "
-				+ rel.getArity() + " cardinality " + Relation.cardinality(rel));
+		System.out.println("relation of size " + rel.getSize() + " arity " + rel.getArity() + " cardinality "
+			+ Relation.cardinality(rel));
 
 		int a = rel.getArity();
 		boolean poset = false;
@@ -930,8 +905,7 @@ public final class Relation<BOOL> {
 		System.out.println("members: " + Relation.format(rel));
 	}
 
-	public static void print(String message, List<Relation<Boolean>> rels,
-			PrintStream out) {
+	public static void print(String message, List<Relation<Boolean>> rels, PrintStream out) {
 		out.println(message + ": " + rels.size());
 
 		Collections.sort(rels, Relation.COMPARATOR);
