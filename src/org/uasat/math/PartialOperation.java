@@ -467,6 +467,18 @@ public class PartialOperation<BOOL> {
 			return evaluate(rel).isSubsetOf(rel);
 	}
 
+	public BOOL commutes(PartialOperation<BOOL> op) {
+		assert getSize() == op.getSize();
+
+		Relation<BOOL> rel = evaluate(op.asRelation());
+		Contract<BOOL> c = Contract.logical(alg);
+		c.add(rel.getTensor(), Contract.range(0, 2, rel.getArity() + 1));
+		c.add(op.getTensor(), Contract.range(1, rel.getArity() + 1));
+		Relation<BOOL> rel2 = new Relation<BOOL>(alg, c.get(0, 1));
+
+		return rel2.isSubsetOf(Relation.lift(alg, Relation.equal(getSize())));
+	}
+
 	public PartialOperation<BOOL> product(PartialOperation<BOOL> op) {
 		return asRelation().product(op.asRelation()).asPartialOperation();
 	}

@@ -68,7 +68,13 @@ public class StructuralClones {
 		final Tensor<Boolean> t1 = Tensor.generate(partialops.size(), new Func1<Boolean, Integer>() {
 			@Override
 			public Boolean call(Integer elem) {
-				return op.preserves(partialops.get(elem).asRelation());
+				PartialOperation<Boolean> op2 = partialops.get(elem);
+				// System.out.println(PartialOperation.format(op));
+				// System.out.println(PartialOperation.format(op2));
+				Boolean b = op.commutes(op2);
+				assert b.equals(op2.commutes(op));
+				// System.out.println();
+				return b;
 			}
 		});
 
@@ -86,12 +92,12 @@ public class StructuralClones {
 		galois = GaloisConn.wrap(t2);
 	}
 
-	public <BOOL> Relation<BOOL> preservedOps(final BoolAlgebra<BOOL> alg, final PartialOperation<BOOL> op) {
+	public <BOOL> Relation<BOOL> commutingOps(final BoolAlgebra<BOOL> alg, final PartialOperation<BOOL> op) {
 		Tensor<BOOL> tensor = Tensor.generate(alg.getType(), partialops.size(), new Func1<BOOL, Integer>() {
 			@Override
 			public BOOL call(Integer elem) {
 				PartialOperation<BOOL> op2 = PartialOperation.lift(alg, partialops.get(elem));
-				return op2.preserves(op.asRelation());
+				return op2.commutes(op);
 			}
 		});
 		return new Relation<BOOL>(alg, tensor);
@@ -118,10 +124,10 @@ public class StructuralClones {
 				b = alg.and(b, op0.isPermuteMinimal());
 				b = alg.and(b, op1.isPermuteMinimal());
 
-				b = alg.and(b, alg.not(op0.preserves(op1.asRelation())));
+				b = alg.and(b, alg.not(op0.commutes(op1)));
 
-				Relation<BOOL> set = gal.leftClosure(preservedOps(alg, op0));
-				b = alg.and(b, set.isSubsetOf(preservedOps(alg, op1)));
+				Relation<BOOL> set = gal.leftClosure(commutingOps(alg, op0));
+				b = alg.and(b, set.isSubsetOf(commutingOps(alg, op1)));
 
 				return b;
 			}
@@ -132,8 +138,10 @@ public class StructuralClones {
 			return false;
 
 		PartialOperation<Boolean> op = PartialOperation.wrap(sol.get(0));
-		if (trace)
+		if (trace) {
 			System.out.println(PartialOperation.format(op));
+			System.out.println(PartialOperation.format(PartialOperation.wrap(sol.get(1))));
+		}
 
 		add(op);
 		return true;
@@ -163,11 +171,11 @@ public class StructuralClones {
 				b = alg.and(b, op1.isPermuteMinimal());
 				b = alg.and(b, op2.isPermuteMinimal());
 
-				b = alg.and(b, op0.preserves(op1.asRelation()));
-				b = alg.and(b, alg.not(op0.preserves(op2.asRelation())));
+				b = alg.and(b, op0.commutes(op1));
+				b = alg.and(b, alg.not(op0.commutes(op2)));
 
-				Relation<BOOL> set1 = preservedOps(alg, op1);
-				Relation<BOOL> set2 = preservedOps(alg, op2);
+				Relation<BOOL> set1 = commutingOps(alg, op1);
+				Relation<BOOL> set2 = commutingOps(alg, op2);
 				b = alg.and(b, set1.isSubsetOf(set2));
 
 				return b;
@@ -202,12 +210,8 @@ public class StructuralClones {
 				;
 	}
 
-	public List<Relation<Boolean>> getClosedOpSets(int limit) {
+	public List<Relation<Boolean>> getClosedSets(int limit) {
 		return GaloisConn.findLeftClosedSets(solver, galois, limit);
-	}
-
-	public List<Relation<Boolean>> getClosedRelSets(int limit) {
-		return GaloisConn.findRightClosedSets(solver, galois, limit);
 	}
 
 	public void print() {
@@ -221,8 +225,8 @@ public class StructuralClones {
 		GaloisConn.print(galois);
 	}
 
-	public void printClosedOpSets(int limit) {
-		List<Relation<Boolean>> sets = getClosedOpSets(limit);
+	public void printClosedSets(int limit) {
+		List<Relation<Boolean>> sets = getClosedSets(limit);
 		System.out.println("closed sets of partial ops: " + (sets.size() == limit ? ">=" : "") + sets.size());
 
 		for (int i = 0; i < sets.size(); i++)
@@ -234,5 +238,6 @@ public class StructuralClones {
 		clones.trace = true;
 		clones.generate(1, 1);
 		clones.print();
+		clones.printClosedSets(-1);
 	}
 }
