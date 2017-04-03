@@ -503,17 +503,93 @@ public class PartialOperation<BOOL> {
 		return alg.lexLess(tensor, op.tensor);
 	}
 
+	public static Tensor<Integer> decode(PartialOperation<Boolean> op) {
+		assert op.isPartialOperation();
+
+		Func1<Integer, Iterable<Boolean>> lookup = new Func1<Integer, Iterable<Boolean>>() {
+			@Override
+			public Integer call(Iterable<Boolean> elem) {
+				int count = 0;
+				Iterator<Boolean> iter = elem.iterator();
+				while (iter.hasNext()) {
+					if (iter.next().booleanValue())
+						return count;
+
+					count += 1;
+				}
+				return -1;
+			}
+		};
+
+		return Tensor.fold(Integer.TYPE, lookup, 1, op.tensor);
+	}
+
+	public static PartialOperation<Boolean> encode(int size, final Tensor<Integer> tensor) {
+		assert size >= 1;
+
+		int arity = tensor.getOrder();
+		for (int i = 0; i < arity; i++)
+			assert tensor.getDim(i) == size;
+
+		final int[] index = new int[arity];
+		Func1<Boolean, int[]> lookup = new Func1<Boolean, int[]>() {
+			@Override
+			public Boolean call(int[] elem) {
+				System.arraycopy(elem, 1, index, 0, index.length);
+				return tensor.getElem(index) == elem[0];
+			}
+		};
+
+		int[] shape = Util.createShape(size, arity + 1);
+		return PartialOperation.wrap(Tensor.generate(shape, lookup));
+	}
+
 	public static String format(PartialOperation<Boolean> op) {
-		return Relation.format(op.asRelation());
+		StringBuilder s = new StringBuilder();
+
+		int size = op.getSize();
+		Tensor<Integer> tensor = decode(op);
+
+		if (op.getArity() == 0)
+			s.append(Util.formatElement(size, tensor.get()));
+		else {
+			int[] tuple = new int[size];
+			Iterator<Integer> iter = tensor.iterator();
+			while (iter.hasNext()) {
+				for (int i = 0; i < size; i++)
+					tuple[i] = iter.next();
+
+				if (s.length() != 0)
+					s.append(' ');
+				s.append(Util.formatTuple(size, tuple));
+			}
+		}
+
+		return s.toString();
 	}
 
 	public static PartialOperation<Boolean> parse(int size, int arity, String str) {
 		assert size >= 1 && arity >= 0;
 
-		Relation<Boolean> rel = Relation.parse(size, arity, str);
-		assert rel.isPartialOperation();
+		Tensor<Integer> tensor = Tensor.constant(Integer.TYPE, Util.createShape(size, arity), 0);
 
-		return rel.asPartialOperation();
+		if (arity == 0)
+			tensor.setElem(Util.parseElement(size, str));
+		else {
+			Iterator<int[]> iter = Util.cubeIterator(size, arity);
+			for (String s : str.split(" ")) {
+				int[] tuple = Util.parseTuple(size, s);
+				if (tuple.length != size || !iter.hasNext())
+					throw new IllegalArgumentException();
+
+				for (int i = 0; i < size; i++)
+					tensor.setElem(tuple[i], iter.next());
+			}
+			if (iter.hasNext())
+				throw new IllegalArgumentException();
+		}
+
+		return encode(size, tensor);
 	}
 
 	@Override

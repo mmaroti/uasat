@@ -40,7 +40,9 @@ public final class Util {
 	}
 
 	public static String formatElement(int size, int elem) {
-		if (elem < 0 || elem >= size)
+		if (elem == -1)
+			return "-";
+		else if (elem < -1 || elem >= size)
 			throw new IllegalArgumentException();
 		else if (size > 'z' - 'a' + 10)
 			return Integer.toString(elem);
@@ -52,7 +54,9 @@ public final class Util {
 
 	public static int parseElement(int size, String elem) {
 		int e;
-		if (size > 'z' - 'a' + 10)
+		if (elem.equals("-"))
+			return -1;
+		else if (size > 'z' - 'a' + 10)
 			e = Integer.parseInt(elem);
 		else if (elem.length() != 1)
 			throw new IllegalArgumentException();
@@ -66,7 +70,7 @@ public final class Util {
 				throw new IllegalArgumentException();
 		}
 
-		if (e < 0 || e >= size)
+		if (e < -1 || e >= size)
 			throw new IllegalArgumentException();
 
 		return e;
@@ -79,12 +83,17 @@ public final class Util {
 			for (int i = 0; i < tuple.length; i++) {
 				if (i != 0)
 					s.append(',');
-				s.append(tuple[i]);
+				if (tuple[i] == -1)
+					s.append('-');
+				else
+					s.append(tuple[i]);
 			}
 		} else {
 			for (int i = 0; i < tuple.length; i++) {
 				int t = tuple[i];
-				if (t < 0 || t >= size)
+				if (t == -1)
+					s.append('-');
+				else if (t < -1 || t >= size)
 					throw new IllegalArgumentException();
 				else if (t <= 9)
 					s.append((char) ('0' + t));
@@ -104,9 +113,13 @@ public final class Util {
 			tuple = new int[s.length];
 
 			for (int i = 0; i < s.length; i++) {
-				int t = Integer.parseInt(s[i]);
+				int t;
+				if (s[i].equals("-"))
+					t = -1;
+				else
+					t = Integer.parseInt(s[i]);
 
-				if (t < 0 || t >= size)
+				if (t < -1 || t >= size)
 					throw new IllegalArgumentException();
 				tuple[i] = t;
 			}
@@ -116,14 +129,16 @@ public final class Util {
 				char c = str.charAt(i);
 
 				int t;
-				if ('0' <= c && c <= '9')
+				if (c == -1)
+					t = -1;
+				else if ('0' <= c && c <= '9')
 					t = c - '0';
 				else if ('a' <= c && c <= 'z')
 					t = c - 'a' + 10;
 				else
 					throw new IllegalArgumentException();
 
-				if (t < 0 || t >= size)
+				if (t < -1 || t >= size)
 					throw new IllegalArgumentException();
 				tuple[i] = t;
 			}

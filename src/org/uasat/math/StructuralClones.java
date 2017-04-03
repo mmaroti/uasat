@@ -235,7 +235,7 @@ public class StructuralClones {
 
 	public static void main(String[] args) {
 		StructuralClones clones = new StructuralClones(2);
-		clones.trace = true;
+		// clones.trace = true;
 		clones.generate(1, 1);
 		clones.print();
 		clones.printClosedSets(-1);
