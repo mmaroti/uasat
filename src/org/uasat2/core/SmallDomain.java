@@ -21,10 +21,10 @@ package org.uasat2.core;
 public abstract class SmallDomain {
 	public abstract int getSize();
 
-	public static class Primite extends SmallDomain {
+	public static class Primitive extends SmallDomain {
 		public final int size;
 
-		public Primite(int size) {
+		public Primitive(int size) {
 			assert size >= 0;
 			this.size = size;
 		}
