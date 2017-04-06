@@ -233,9 +233,21 @@ public class StructuralClones {
 			System.out.println(i + ":\t" + Relation.format(sets.get(i)));
 	}
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		StructuralClones clones = new StructuralClones(2);
 		// clones.trace = true;
+		if (false) {
+			clones.add(PartialOperation.parse(2, 1, "--"));
+			clones.add(PartialOperation.parse(2, 1, "0-"));
+			clones.add(PartialOperation.parse(2, 1, "1-"));
+			clones.add(PartialOperation.parse(2, 1, "-0"));
+			clones.add(PartialOperation.parse(2, 1, "00"));
+			clones.add(PartialOperation.parse(2, 1, "10"));
+			clones.add(PartialOperation.parse(2, 1, "-1"));
+			clones.add(PartialOperation.parse(2, 1, "01"));
+			clones.add(PartialOperation.parse(2, 1, "11"));
+		}
 		clones.generate(1, 1);
 		clones.print();
 		clones.printClosedSets(-1);

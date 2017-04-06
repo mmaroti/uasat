@@ -129,7 +129,7 @@ public final class Util {
 				char c = str.charAt(i);
 
 				int t;
-				if (c == -1)
+				if (c == '-')
 					t = -1;
 				else if ('0' <= c && c <= '9')
 					t = c - '0';
