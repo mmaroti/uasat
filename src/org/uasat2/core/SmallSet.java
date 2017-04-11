@@ -20,15 +20,15 @@ package org.uasat2.core;
 
 // TODO: This is not good, we need terms and create the instance later!
 public class SmallSet {
-	private final SmallDomain domain;
+	private final Domain domain;
 	private final int[] members;
 	private final Instance instance;
 
-	public SmallDomain getDomain() {
+	public Domain getDomain() {
 		return domain;
 	}
 
-	private SmallSet(SmallDomain domain, int[] members, Instance instance) {
+	private SmallSet(Domain domain, int[] members, Instance instance) {
 		assert domain.getSize() == members.length;
 
 		this.domain = domain;
