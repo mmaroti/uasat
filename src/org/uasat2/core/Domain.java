@@ -193,11 +193,13 @@ public abstract class Domain {
 		}
 	}
 
-	public static class Power extends Domain {
-		public final Domain domain;
+	public static class Function extends Domain {
+		public final Domain argument;
+		public final Domain result;
 
-		public Power(Domain domain) {
-			this.domain = domain;
+		public Function(Domain argument, Domain result) {
+			this.argument = argument;
+			this.result = result;
 		}
 
 		@Override
@@ -212,19 +214,21 @@ public abstract class Domain {
 
 		@Override
 		public boolean isClosed() {
-			return domain.isClosed();
+			return argument.isClosed() && result.isClosed();
 		}
 
 		@Override
 		protected void addVariables(List<String> names) {
-			domain.addVariables(names);
+			argument.addVariables(names);
+			result.addVariables(names);
 		}
 
 		@Override
 		public boolean equals(Object other) {
-			if (other instanceof Power)
-				return domain.equals(((Power) other).domain);
-			else
+			if (other instanceof Function) {
+				Function o = (Function) other;
+				return argument.equals(o.argument) && result.equals(o.result);
+			} else
 				return false;
 		}
 	}
@@ -248,7 +252,7 @@ public abstract class Domain {
 
 		@Override
 		public boolean isClosed() {
-			return true;
+			return false;
 		}
 
 		@Override
