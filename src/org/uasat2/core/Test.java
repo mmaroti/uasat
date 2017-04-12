@@ -21,5 +21,11 @@ package org.uasat2.core;
 public class Test {
 	public static final Domain BOOLEAN = new Domain.Primitive(2);
 
-	public static final Term FALSE = null;
+	public static final Element FALSE = new Element.Constant(BOOLEAN, 0);
+	public static final Element TRUE = new Element.Constant(BOOLEAN, 1);
+
+	public static final Domain BOOLEAN_UNARY_OP = new Domain.Function(new Domain.Function(new Domain.Primitive(1),
+		BOOLEAN), BOOLEAN);
+	public static final Domain BOOLEAN_BINARY_OP = new Domain.Function(new Domain.Function(new Domain.Primitive(2),
+		BOOLEAN), BOOLEAN);
 }

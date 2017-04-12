@@ -20,19 +20,19 @@ package org.uasat2.core;
 
 import java.util.*;
 
-public abstract class Term {
+public abstract class Element {
 	/**
-	 * @return the domain to which the element described by this term belongs
+	 * @return the domain to which this element belongs
 	 */
 	public abstract Domain getDomain();
 
 	/**
-	 * @return true if the term contains no term variables
+	 * @return true if the element contains no element variables
 	 */
 	public abstract boolean isClosed();
 
 	/**
-	 * @return the list of term variable names
+	 * @return the list of element variable names
 	 */
 	public List<String> getVariables() {
 		List<String> names = new ArrayList<String>();
@@ -42,10 +42,37 @@ public abstract class Term {
 
 	protected abstract void addVariables(List<String> names);
 
-	public static class Tuple extends Term {
-		public final Term[] elements;
+	public static class Constant extends Element {
+		public final Domain domain;
+		public final int element;
 
-		public Tuple(Term[] elements) {
+		public Constant(Domain domain, int element) {
+			this.domain = domain;
+			this.element = element;
+
+			assert domain.isSmall() && domain.isClosed();
+			assert 0 <= element && element < domain.getSize();
+		}
+
+		@Override
+		public Domain getDomain() {
+			return domain;
+		}
+
+		@Override
+		public boolean isClosed() {
+			return true;
+		}
+
+		@Override
+		protected void addVariables(List<String> names) {
+		}
+	}
+
+	public static class Tuple extends Element {
+		public final Element[] elements;
+
+		public Tuple(Element[] elements) {
 			this.elements = elements;
 		}
 
@@ -59,7 +86,7 @@ public abstract class Term {
 
 		@Override
 		public boolean isClosed() {
-			for (Term element : elements)
+			for (Element element : elements)
 				if (!element.isClosed())
 					return false;
 			return true;
@@ -67,23 +94,22 @@ public abstract class Term {
 
 		@Override
 		protected void addVariables(List<String> names) {
-			for (Term element : elements)
+			for (Element element : elements)
 				element.addVariables(names);
 		}
 	}
 
-	public static class Apply extends Term {
-		public final Term function;
-		public final Term argument;
+	public static class Apply extends Element {
+		public final Element function;
+		public final Element argument;
 
-		public Apply(Term function, Term argument) {
+		public Apply(Element function, Element argument) {
 			this.function = function;
 			this.argument = argument;
 
 			Domain f = function.getDomain();
 			Domain a = argument.getDomain();
-			assert f instanceof Domain.Function
-					&& ((Domain.Function) f).argument == a;
+			assert f instanceof Domain.Function && ((Domain.Function) f).argument == a;
 		}
 
 		@Override
@@ -103,7 +129,7 @@ public abstract class Term {
 		}
 	}
 
-	public static class Variable extends Term {
+	public static class Variable extends Element {
 		public final String name;
 		public final Domain domain;
 
