@@ -126,22 +126,12 @@ public class Operation<BOOL> extends PartialOperation<BOOL> {
 		return compose(this).isEqualTo(this);
 	}
 
+	@Override
 	public Operation<BOOL> polymer(int... variables) {
-		assert getArity() == variables.length;
-
-		int[] map = new int[variables.length + 1];
-
-		int a = 0;
-		for (int i = 0; i < variables.length; i++) {
-			assert 0 <= variables[i];
-			a = Math.max(a, variables[i] + 1);
-			map[i + 1] = variables[i] + 1;
-		}
-
-		Tensor<BOOL> tmp = Tensor.reshape(tensor, Util.createShape(getSize(), 1 + a), map);
-		return new Operation<BOOL>(alg, tmp);
+		return super.polymer(variables).asOperation();
 	}
 
+	@Override
 	public Operation<BOOL> permute(Permutation<Boolean> perm) {
 		assert getArity() == perm.getSize();
 		return polymer(Permutation.decode(perm));
@@ -459,10 +449,12 @@ public class Operation<BOOL> extends PartialOperation<BOOL> {
 		return super.product(op).asOperation();
 	}
 
+	@Override
 	public Operation<BOOL> power(int exp) {
 		return super.power(exp).asOperation();
 	}
 
+	@Override
 	public Operation<BOOL> conjugate(Permutation<BOOL> perm) {
 		return super.conjugate(perm).asOperation();
 	}

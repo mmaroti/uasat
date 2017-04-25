@@ -22,18 +22,18 @@ import java.util.*;
 
 import org.uasat.core.*;
 
-public class StructuralClones {
+public class StructuralClonesNotGood {
 	private final SatSolver<?> solver;
 	private final int size;
 	private final List<PartialOperation<Boolean>> partialops;
 	private GaloisConn<Boolean> galois;
 	public boolean trace = false;
 
-	public StructuralClones(int size) {
+	public StructuralClonesNotGood(int size) {
 		this(size, SatSolver.getDefault());
 	}
 
-	public StructuralClones(int size, SatSolver<?> solver) {
+	public StructuralClonesNotGood(int size, SatSolver<?> solver) {
 		assert size >= 1 && solver != null;
 
 		this.size = size;
@@ -235,7 +235,7 @@ public class StructuralClones {
 
 	@SuppressWarnings("unused")
 	public static void main(String[] args) {
-		StructuralClones clones = new StructuralClones(2);
+		StructuralClonesNotGood clones = new StructuralClonesNotGood(2);
 		// clones.trace = true;
 		if (false) {
 			clones.add(PartialOperation.parse(2, 1, "--"));

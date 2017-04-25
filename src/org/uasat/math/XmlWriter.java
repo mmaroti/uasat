@@ -67,7 +67,7 @@ public class XmlWriter {
 		Element intArray = document.createElement("intArray");
 		opTable.appendChild(intArray);
 
-		Tensor<Integer> tensor = Operation.decode(operation);
+		Tensor<Integer> tensor = PartialOperation.decode(operation);
 		int size = operation.getSize();
 
 		if (tensor.getOrder() == 0) {
