@@ -342,14 +342,14 @@ public class MonoidalInt {
 		System.out.println(clone.getClosedOpSets(-1).size());
 	}
 
-	public static void main5(String[] args) {
+	public static void main(String[] args) {
 		long time = System.currentTimeMillis();
 
-		GeneratedOps gen = parseMonoid(3, "000 002 012 102 111 112");
+		GeneratedOps gen = parseMonoid(3, "000 002 012 010 111 222");
 		gen.print();
 
 		int ops = 3;
-		int rels = 4;
+		int rels = 5;
 		System.out.println("finding clone interval " + ops + " " + rels);
 		CloneInterval clone = new CloneInterval(gen, SatSolver.getDefault());
 		clone.trace = true;
@@ -474,7 +474,7 @@ public class MonoidalInt {
 			"000 001 002 010 011 012 100 101 102 110 111 112 220 221 222",
 			"000 001 002 010 011 012 020 021 022 100 101 110 111 200 202 220 222" };
 
-	public static void main(String[] args) {
+	public static void main5(String[] args) {
 		// SatSolver.setDefault("jni-cominisatps");
 		SatSolver.setDefault("minisat");
 
