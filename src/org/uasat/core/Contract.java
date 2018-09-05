@@ -111,7 +111,7 @@ public class Contract<ELEM> {
 	public void add(Tensor<ELEM> tensor, int... vars) {
 		List<Object> list = new ArrayList<Object>();
 		for (int v : vars)
-			list.add(new Integer(v));
+			list.add(v);
 
 		add(tensor, list);
 	}
@@ -119,7 +119,7 @@ public class Contract<ELEM> {
 	public void add(Tensor<ELEM> tensor, String vars) {
 		List<Object> list = new ArrayList<Object>();
 		for (int i = 0; i < vars.length(); i++)
-			list.add(new Character(vars.charAt(i)));
+			list.add(vars.charAt(i));
 
 		add(tensor, list);
 	}
@@ -272,7 +272,7 @@ public class Contract<ELEM> {
 	public Tensor<ELEM> get(int... vars) {
 		List<Object> list = new ArrayList<Object>();
 		for (int v : vars)
-			list.add(new Integer(v));
+			list.add(v);
 
 		return get(list);
 	}
@@ -280,7 +280,7 @@ public class Contract<ELEM> {
 	public Tensor<ELEM> get(String vars) {
 		List<Object> list = new ArrayList<Object>();
 		for (int i = 0; i < vars.length(); i++)
-			list.add(new Character(vars.charAt(i)));
+			list.add(vars.charAt(i));
 
 		return get(list);
 	}
