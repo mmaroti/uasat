@@ -2,7 +2,7 @@
 .classpath
 .settings/
 /bin/
-uasat.jar
+org.uasat.jar
 *.txt
 *.log
 *.uas

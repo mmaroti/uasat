@@ -48,12 +48,12 @@ public abstract class SatSolver<BOOL> extends BoolAlgebra<BOOL> {
 			return new CachedOps(new MiniSat());
 		}
 
+		SatSolver<?> solver = new CachedOps(new JniSat("sat4j")); 
 		if (!defaultSolver.equals("sat4j")) {
 			System.err.println("WARNING: using Sat4J, which is slow");
 			defaultSolver = "sat4j";
 		}
-
-		return new CachedOps(new Sat4J());
+		return solver; 
 	}
 
 	public boolean debugging = false;
