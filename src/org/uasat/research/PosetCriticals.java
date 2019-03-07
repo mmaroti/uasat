@@ -387,7 +387,7 @@ public class PosetCriticals {
 
 	private static DecimalFormat TIME_FORMAT = new DecimalFormat("0.00");
 
-	public static void main(String[] args) {
+	public static void main2(String[] args) {
 		long time = System.currentTimeMillis();
 		// SatSolver.setDefault("jni-cominisatps");
 		// SatSolver.setDefault("jni-minisat");
@@ -402,5 +402,16 @@ public class PosetCriticals {
 		time = System.currentTimeMillis() - time;
 		System.out.println("Finished in " + TIME_FORMAT.format(0.001 * time)
 				+ " seconds.");
+	}
+	
+	public static void main(String[] args) {
+		ClonePair clone = new ClonePair(CROWN4.getSize());
+		clone.addRelation(CROWN4);
+		clone.addCriticalOps(1, 3);
+		clone.print();
+
+		CompatibleRels comp = new CompatibleRels(clone.getAlgebra());
+		List<Relation<Boolean>> rels = comp.findUniCriticalRels(3);
+		Relation.print("op1 unary criticals", rels);
 	}
 }
