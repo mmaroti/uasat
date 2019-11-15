@@ -206,6 +206,22 @@ public class Operation<BOOL> extends PartialOperation<BOOL> {
 		return alg.and(alg.and(isIdempotent(), isCommutative()), isAssociative());
 	}
 
+	public Relation<BOOL> getOrderFromMeet() {
+		int[] shape = new int[] { getSize(), getSize() };
+		int[] map = new int[] { 0, 0, 1 };
+
+		Tensor<BOOL> tmp = Tensor.reshape(tensor, shape, map);
+		return new Relation<BOOL>(alg, tmp);
+	}
+
+	public Relation<BOOL> getOrderFromJoin() {
+		int[] shape = new int[] { getSize(), getSize() };
+		int[] map = new int[] { 1, 0, 1 };
+
+		Tensor<BOOL> tmp = Tensor.reshape(tensor, shape, map);
+		return new Relation<BOOL>(alg, tmp);
+	}
+
 	public BOOL isTwoSemilattice() {
 		Operation<BOOL> x = lift(alg, projection(getSize(), 2, 0));
 		BOOL b = this.isEqualTo(this.compose(x, this));

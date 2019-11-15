@@ -4,7 +4,7 @@
 		<delete includeEmptyDirs="true">
 			<fileset dir="bin" includes="**/*" />
 		</delete>
-		<delete file="uasat.jar" />
+		<delete file="org.uasat.jar" />
 	</target>
 
 	<path id="classpath">
@@ -14,11 +14,11 @@
 
 	<target name="build" description="compiles all java files">
 		<mkdir dir="bin" />
-		<javac srcdir="src" destdir="bin" classpathref="classpath" includeantruntime="false" target="1.7" source="1.7" />
+		<javac srcdir="src" destdir="bin" classpathref="classpath" includeantruntime="false" modulepath="lib" target="9" source="9" />
 	</target>
 
-	<target name="jar" depends="build" description="builds the uasat.jar file">
-		<jar destfile="uasat.jar" includes="" compress="true">
+	<target name="jar" depends="build" description="builds the org.uasat.jar file">
+		<jar destfile="org.uasat.jar" includes="" compress="true">
 			<fileset dir="src" includes="**/*.java" />
 			<fileset dir="" includes="lib/*.jar" />
 			<fileset dir="bin" includes="**/*.class" />
@@ -26,13 +26,13 @@
 			<fileset file="README.md" />
 			<manifest>
 				<attribute name="Main-Class" value="org.uasat.math.Validation" />
-				<attribute name="Class-Path" value="lib/jnisat.jar" />
+				<attribute name="Class-Path" value="lib/org.jnisat.jar" />
 			</manifest>
 		</jar>
 	</target>
 
 	<target name="validate" depends="jar" description="runs the validation program">
-		<java jar="uasat.jar" fork="true">
+		<java jar="org.uasat.jar" fork="true">
 			<jvmarg value="-ea" />
 		</java>
 	</target>

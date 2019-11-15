@@ -617,13 +617,13 @@ public class DigraphPoly {
 	}
 
 	@SuppressWarnings("unused")
-	public static void main6(String[] args) {
+	public static void main(String[] args) {
 		PartialOrder<Boolean> a1 = PartialOrder.antiChain(1);
 		PartialOrder<Boolean> a2 = PartialOrder.antiChain(2);
 		PartialOrder<Boolean> c4 = PartialOrder.crown(4);
 		PartialOrder<Boolean> c6 = PartialOrder.crown(6);
 
-		Structure<Boolean> str = Structure.wrap(c4.plus(a1).asRelation());
+		Structure<Boolean> str = Structure.wrap(a1.plus(c4).plus(a1).asRelation());
 		Structure.print(str);
 
 		CompatibleOps ops = new CompatibleOps(str);

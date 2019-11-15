@@ -20,7 +20,7 @@ package org.uasat.solvers;
 
 import java.util.*;
 
-import jnisat.*;
+import org.jnisat.*;
 
 import org.uasat.core.*;
 
