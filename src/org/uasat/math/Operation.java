@@ -289,6 +289,19 @@ public class Operation<BOOL> extends PartialOperation<BOOL> {
 		return b;
 	}
 
+	public BOOL isSpecialTerm() {
+		assert getArity() >= 2;
+
+		int[] vars = new int[getArity()];
+		vars[vars.length - 1] = 1;
+		Operation<BOOL> op = polymer(vars);
+
+		Contract<BOOL> c = Contract.logical(alg);
+		c.add(op.tensor, "axy");
+		c.add(op.tensor, "axa");
+		return Tensor.fold(alg.ALL, 2, c.get("xy")).get();
+	}
+
 	/**
 	 * Testing Taylor property (omitting type 1):
 	 * 
@@ -312,8 +325,7 @@ public class Operation<BOOL> extends PartialOperation<BOOL> {
 	/**
 	 * Testing congruence meet semi-distributivity (omitting types 1 and 2):
 	 * 
-	 * p(x,x,x) = x. p(x,x,y) = p(x,y,x) = p(y,x,x) = q(x,y,x). q(x,x,y) =
-	 * q(x,y,y).
+	 * p(x,x,x) = x. p(x,x,y) = p(x,y,x) = p(y,x,x) = q(x,y,x). q(x,x,y) = q(x,y,y).
 	 */
 	public static <BOOL> BOOL areJovanovicTerms(Operation<BOOL> p, Operation<BOOL> q) {
 		assert p.alg == q.alg && p.getArity() == 3 && q.getArity() == 3;
@@ -353,12 +365,10 @@ public class Operation<BOOL> extends PartialOperation<BOOL> {
 	}
 
 	/**
-	 * Testing congruence distributivity (omitting types 1, 2 and 5 and no
-	 * tails)
+	 * Testing congruence distributivity (omitting types 1, 2 and 5 and no tails)
 	 * 
 	 * p_i(x,y,x) = x. x = p_0(x,x,y). p_0(x,y,y) = p_1(x,y,y). p_1(x,x,y) =
-	 * p_2(x,x,y). p_{n-1}(x,y,y) = y (for n odd). p_{n-1}(x,x,y) = y (for n
-	 * even).
+	 * p_2(x,x,y). p_{n-1}(x,y,y) = y (for n odd). p_{n-1}(x,x,y) = y (for n even).
 	 */
 	public static <BOOL> BOOL areJonssonTerms(List<Operation<BOOL>> ops) {
 		assert ops.size() >= 1;
@@ -393,9 +403,9 @@ public class Operation<BOOL> extends PartialOperation<BOOL> {
 	/**
 	 * Testing congruence join semi-distributivity (omitting types 1, 2 and 5).
 	 * 
-	 * x = d_0(x,y,y). x=d_0(x,y,x). d_0(x,x,y)=d_1(x,x,y). d_1(x,y,y) =
-	 * d_2(x,y,y). d_1(x,y,x)=d_2(x,y,x). d_{n-1}(x,x,y)=y (for n odd).
-	 * d_{n-1}(x,y,y)=y and d_{n-1}(x,y,x)=x (for n even).
+	 * x = d_0(x,y,y). x=d_0(x,y,x). d_0(x,x,y)=d_1(x,x,y). d_1(x,y,y) = d_2(x,y,y).
+	 * d_1(x,y,x)=d_2(x,y,x). d_{n-1}(x,x,y)=y (for n odd). d_{n-1}(x,y,y)=y and
+	 * d_{n-1}(x,y,x)=x (for n even).
 	 */
 	public static <BOOL> BOOL areSDJoinTerms(List<Operation<BOOL>> ops) {
 		assert ops.size() >= 1;
@@ -519,8 +529,12 @@ public class Operation<BOOL> extends PartialOperation<BOOL> {
 			nu = true;
 			s += " nu";
 		}
-		if (a >= 2 && !nu && op.isWeakNearUnanimity())
-			s += " weak-nu";
+		if (a >= 2 && !nu && op.isWeakNearUnanimity()) {
+			if (op.isSpecialTerm())
+				s += " special-weak-nu";
+			else
+				s += " weak-nu";
+		}
 		if (a == 2) {
 			for (int i = 0; i < op.getSize(); i++)
 				if (op.isZeroElement(i))

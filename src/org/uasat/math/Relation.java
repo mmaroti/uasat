@@ -732,6 +732,9 @@ public final class Relation<BOOL> {
 	}
 
 	public static String format(Relation<Boolean> rel) {
+		if (rel == null)
+			return "null";
+
 		StringBuilder s = new StringBuilder();
 		int size = rel.getSize();
 
@@ -864,7 +867,7 @@ public final class Relation<BOOL> {
 
 	public static void print(Relation<Boolean> rel) {
 		System.out.println("relation of size " + rel.getSize() + " arity " + rel.getArity() + " cardinality "
-			+ Relation.cardinality(rel));
+				+ Relation.cardinality(rel));
 
 		int a = rel.getArity();
 		boolean poset = false;

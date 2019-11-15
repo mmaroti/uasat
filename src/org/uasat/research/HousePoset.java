@@ -610,6 +610,7 @@ public class HousePoset {
 		gen.generate(2);
 		gen.printUniCriticals();
 
+		@SuppressWarnings("unused")
 		List<Relation<Boolean>> rels = Relation.sort(gen.getFullCriticals());
 		// assert rels.equals(noop2_crit5);
 	}

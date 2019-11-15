@@ -196,7 +196,7 @@ public class Display extends JComponent {
 
 		@Override
 		public void mouseDragged(MouseEvent event) {
-			if ((event.getModifiers() & InputEvent.BUTTON1_MASK) != 0) {
+			if ((event.getModifiersEx() & InputEvent.BUTTON1_DOWN_MASK) != 0) {
 				if (dragState == DRAGSTATE_NONE) {
 					Node n = findNode(mousePt);
 					if (n != null) {
